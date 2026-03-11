@@ -1,0 +1,23 @@
+<svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9D00FF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#D000FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF00FF;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Left curved wave (purple) -->
+  <path d="M 30 120 Q 40 80 60 60 Q 80 40 100 50 L 100 130 Q 80 120 60 130 Q 40 140 30 130 Z" 
+        fill="url(#waveGradient)" filter="url(#shadow)"/>
+  
+  <!-- Right curved wave (pink) -->
+  <path d="M 100 50 Q 120 40 140 60 Q 160 80 170 120 L 170 130 Q 160 140 140 130 Q 120 120 100 130 Z" 
+        fill="url(#waveGradient)" opacity="0.9" filter="url(#shadow)"/>
+  
+  <!-- Center highlight -->
+  <ellipse cx="100" cy="70" rx="25" ry="35" fill="url(#waveGradient)" opacity="0.4"/>
+</svg>
