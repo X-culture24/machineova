@@ -6,9 +6,10 @@
     <title>Machineova - Innovative Voting Solutions</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-final.css">
 </head>
 <body>
     <!-- Header -->
@@ -16,8 +17,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="Machineova" class="logo-icon">
-                    <span class="logo-text">Machineova</span>
+                    <img src="assets/logo.png" alt="Machinova" class="logo-icon">
                 </div>
                 <nav class="nav">
                     <button class="hamburger" id="hamburger">
@@ -26,14 +26,15 @@
                         <span></span>
                     </button>
                     <ul class="nav-menu" id="navMenu">
+                        <li><a href="index.html">Home</a></li>
                         <li><a href="#features">Features</a></li>
-                        <li><a href="#about">About</a></li>
+                        <li><a href="about.html">About</a></li>
                         <li><a href="#faqs">FAQs</a></li>
                         <li><a href="#testimonials">Testimonials</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="book-demo.html">Book Demo</a></li>
                     </ul>
                 </nav>
-                <button class="cta-btn">Download the App</button>
+                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Book a Demo</button>
             </div>
         </div>
     </header>
@@ -44,12 +45,19 @@
             <div class="hero-box">
                 <div class="hero-content">
                     <div class="hero-text">
-                        <p class="hero-label">Fast  Secure  Transparent</p>
-                        <h1>Powering Democracy with Innovative Voting Solutions</h1>
-                        <p class="hero-desc">Revolutionize the Way We Vote - Trustworthy, Accessible, and Secure Voting Applications for a Brighter Future</p>
+                        <p class="hero-label lazy-text">Fast  •  Secure  •  Transparent</p>
+                        <h1 class="lazy-heading">
+                            <span class="word">Powering</span>
+                            <span class="word">Democracy</span>
+                            <span class="word">with</span>
+                            <span class="word">Innovative</span>
+                            <span class="word">Voting</span>
+                            <span class="word">Solutions</span>
+                        </h1>
+                        <p class="hero-desc lazy-text">Enterprise-grade election management platform trusted by 500+ organizations worldwide. Conduct secure, transparent, and verifiable elections with military-grade encryption and real-time results.</p>
                         <div class="hero-btns">
-                            <button class="btn btn-primary">Download the App</button>
-                            <button class="btn btn-secondary">Book a Product Demo</button>
+                            <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Book a Demo</button>
+                            <button class="btn btn-secondary" onclick="window.location.href='about.html'">Learn More</button>
                         </div>
                     </div>
                     <div class="hero-phone">
@@ -87,6 +95,13 @@
             </div>
             <div class="features-grid">
                 <div class="feature-card">
+                    <!-- ============================================ -->
+                    <!-- PLACEHOLDER IMAGE: Educational Balloting    -->
+                    <!-- Replace: assets/images/educational-balloting.png -->
+                    <!-- Recommended: 400x220px, PNG format          -->
+                    <!-- Description: Students voting or educational -->
+                    <!-- institution election scene                  -->
+                    <!-- ============================================ -->
                     <div class="feature-img education-img">
                         <img src="assets/images/educational-balloting.png" alt="Educational Balloting" class="placeholder-img">
                     </div>
@@ -94,18 +109,56 @@
                     <p>Empowering Educational Decision-Making. Seamlessly choose student leaders and counselors with our versatile balloting tool</p>
                 </div>
                 <div class="feature-card">
+                    <!-- ============================================ -->
+                    <!-- PLACEHOLDER IMAGE: Corporate Balloting      -->
+                    <!-- Replace: assets/images/corporate-balloting.png (currently missing) -->
+                    <!-- Recommended: 400x220px, PNG format          -->
+                    <!-- Description: Corporate boardroom or business -->
+                    <!-- professionals in voting scenario            -->
+                    <!-- ============================================ -->
                     <div class="feature-img workplace-img">
-                        <img src="assets/images/workplace-balloting.png" alt="Workplace Balloting" class="placeholder-img">
+                        <img src="assets/images/workplace-balloting.png" alt="Corporate Balloting" class="placeholder-img">
                     </div>
-                    <h3>Workplace Balloting</h3>
-                    <p>Simplifying Workplace Decision-Making. Boost efficiency with our user-friendly balloting solutions, designed for streamlined processes</p>
+                    <h3>Corporate Balloting</h3>
+                    <p>Streamlining Corporate Decision-Making. Enhance board elections, shareholder voting, and organizational decisions with our secure, efficient balloting solutions designed for modern enterprises</p>
                 </div>
                 <div class="feature-card">
+                    <!-- ============================================ -->
+                    <!-- PLACEHOLDER IMAGE: Governmental Voting      -->
+                    <!-- Replace: assets/images/governmental-voting.png -->
+                    <!-- Recommended: 400x220px, PNG format          -->
+                    <!-- Description: Government building or civic   -->
+                    <!-- voting scene                                -->
+                    <!-- ============================================ -->
                     <div class="feature-img government-img">
                         <img src="assets/images/governmental-voting.png" alt="Governmental Voting Solutions" class="placeholder-img">
                     </div>
-                    <h3>Governmental Voting Solutions</h3>
-                    <p>Unparalleled Security for Government Voting. Our industry-grade security ensures safe and transparent government voting, fostering trust in the process</p>
+                    <h3 class="lazy-text">Governmental Voting Solutions</h3>
+                    <p class="lazy-text">Unparalleled Security for Government Voting. Our industry-grade security ensures safe and transparent government voting, fostering trust in the process</p>
+                    <ul class="feature-highlights">
+                        <li><i class="fas fa-check"></i> Multi-level authentication</li>
+                        <li><i class="fas fa-check"></i> Audit trail compliance</li>
+                        <li><i class="fas fa-check"></i> Voter verification</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <!-- ============================================ -->
+                    <!-- PLACEHOLDER IMAGE: National Elections       -->
+                    <!-- Replace: assets/images/national-elections.png (currently missing) -->
+                    <!-- Recommended: 400x220px, PNG format          -->
+                    <!-- Description: Large-scale election or        -->
+                    <!-- national voting infrastructure              -->
+                    <!-- ============================================ -->
+                    <div class="feature-img national-img">
+                        <img src="assets/images/governmental-voting.png" alt="National Elections" class="placeholder-img">
+                    </div>
+                    <h3 class="lazy-text">National Elections</h3>
+                    <p class="lazy-text">Large-scale election infrastructure for national and regional elections. Handles millions of voters with real-time results, multi-language support, and compliance with international electoral standards and observer requirements.</p>
+                    <ul class="feature-highlights">
+                        <li><i class="fas fa-check"></i> Multi-million voter capacity</li>
+                        <li><i class="fas fa-check"></i> International observer tools</li>
+                        <li><i class="fas fa-check"></i> Multi-language interface</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -122,6 +175,13 @@
                     <button class="btn btn-outline">Let's Chat-Schedule a Demo</button>
                 </div>
                 <div class="support-img">
+                    <!-- ============================================ -->
+                    <!-- PLACEHOLDER IMAGE: Support Team Photo       -->
+                    <!-- Replace: assets/images/support-team.png     -->
+                    <!-- Recommended: 600x450px, PNG or JPG format   -->
+                    <!-- Description: Professional support team or   -->
+                    <!-- customer service representative image       -->
+                    <!-- ============================================ -->
                     <img src="assets/images/support-team.png" alt="Support Team" class="person-img">
                 </div>
             </div>
@@ -131,38 +191,90 @@
     <!-- Standout Features -->
     <section class="standout">
         <div class="container">
-            <h2>Our Standout Features and Advantages</h2>
-            <p class="section-subtitle">Our state-of-the-art voting system offers a host of powerful features and numerous benefits, ensuring a seamless, secure, and efficient voting process</p>
-            <div class="standout-grid">
-                <div class="standout-item">
-                    <div class="standout-icon"><i class="fas fa-fingerprint"></i></div>
-                    <h3>Secure</h3>
-                    <p>Our voting system leverages advanced security measures to protect the integrity of eachvote, ensuring that every voice is heard, and results are accurate and trustworthy.</p>
+            <h2 class="lazy-heading"><span class="word">Our</span> <span class="word">Standout</span> <span class="word">Features</span> <span class="word">and</span> <span class="word">Advantages</span></h2>
+            <p class="section-subtitle lazy-text">Enterprise-grade voting infrastructure trusted by organizations worldwide. Our platform combines military-grade security with intuitive design to deliver elections that are verifiable, transparent, and compliant with international standards.</p>
+            <div class="standout-grid-pro">
+                <div class="standout-card">
+                    <div class="card-badges">
+                        <span class="badge-blue">AES-256</span>
+                        <span class="badge-blue">SSL/TLS</span>
+                    </div>
+                    <h3 class="lazy-text">End-to-End Encryption</h3>
+                    <p class="lazy-text">Military-grade encryption protects every vote from submission to tabulation using AES-256 encryption at rest and TLS 1.3 in transit</p>
+                    <div class="card-metric">
+                        <div class="metric-bar"></div>
+                        <span class="lazy-text">SOC 2 Type II Certified</span>
+                    </div>
                 </div>
-                <div class="standout-item">
-                    <div class="standout-icon"><i class="fas fa-hand-pointer"></i></div>
-                    <h3>Simple</h3>
-                    <p>We believe that voting should be straightforward for all citizens. Our intuitive userinterface simplifies the voting experience, making it accessible to individuals of all backgroundsand.</p>
+
+                <div class="standout-card">
+                    <div class="card-badges">
+                        <span class="badge-blue">IMMUTABLE</span>
+                        <span class="badge-blue">DISTRIBUTED</span>
+                    </div>
+                    <h3 class="lazy-text">Blockchain Verification</h3>
+                    <p class="lazy-text">Distributed ledger technology creates an immutable record of every vote with cryptographic hashing across multiple nodes</p>
+                    <div class="card-metric">
+                        <div class="metric-bar"></div>
+                        <span class="lazy-text">99.99% Uptime Guarantee</span>
+                    </div>
                 </div>
-                <div class="standout-item">
-                    <div class="standout-icon"><i class="fas fa-eye"></i></div>
-                    <h3>Transparent</h3>
-                    <p>Our voting system prioritizes transparency through real-time result generation.Once the polling station is closed, the application swiftly generates results in real-time.</p>
+
+                <div class="standout-card">
+                    <div class="card-badges">
+                        <span class="badge-blue">LIVE UPDATES</span>
+                        <span class="badge-blue">INSTANT RESULTS</span>
+                    </div>
+                    <h3 class="lazy-text">Real-Time Transparency</h3>
+                    <p class="lazy-text">Live voter turnout tracking and instant result tabulation with real-time dashboards providing transparency while maintaining ballot secrecy</p>
+                    <div class="card-metric">
+                        <div class="metric-bar"></div>
+                        <span class="lazy-text">Results in < 60 seconds</span>
+                    </div>
                 </div>
-                <div class="standout-item">
-                    <div class="standout-icon"><i class="fas fa-clipboard-check"></i></div>
-                    <h3>Auditable</h3>
-                    <p>Trust is paramount in the electoral process. Our voting applications providecomprehensive audit trails, enabling transparent verification of results and adherence to allregulatory requirements.</p>
+
+                <div class="standout-card">
+                    <div class="card-badges">
+                        <span class="badge-blue">TAMPER-PROOF</span>
+                        <span class="badge-blue">COMPLIANT</span>
+                    </div>
+                    <h3 class="lazy-text">Comprehensive Audit Trails</h3>
+                    <p class="lazy-text">Every action logged with cryptographic timestamps tracking voter authentication, ballot casting, and result tabulation for post-election verification</p>
+                    <div class="card-metric">
+                        <div class="metric-bar"></div>
+                        <span class="lazy-text">ISO 27001 Compliant</span>
+                    </div>
                 </div>
-                <div class="standout-item">
-                    <div class="standout-icon"><i class="fas fa-user-shield"></i></div>
-                    <h3>Protects voter secrecy</h3>
-                    <p>Your vote is your voice, and we are dedicated to preserving the secrecyand confidentiality of your choice. Our system ensures that your vote remains anonymous, as it should be.</p>
+
+                <div class="standout-card">
+                    <div class="card-badges">
+                        <span class="badge-blue">ZERO-KNOWLEDGE</span>
+                        <span class="badge-blue">PRIVATE</span>
+                    </div>
+                    <h3 class="lazy-text">Voter Anonymity Guaranteed</h3>
+                    <p class="lazy-text">Advanced cryptographic protocols ensure complete ballot secrecy with zero-knowledge proof system verifying voter eligibility without revealing identity</p>
+                    <div class="card-metric">
+                        <div class="metric-bar"></div>
+                        <span class="lazy-text">GDPR Compliant</span>
+                    </div>
                 </div>
-                <div class="standout-item">
-                    <div class="standout-icon"><i class="fas fa-dollar-sign"></i></div>
-                    <h3>Affordable</h3>
-                    <p>We understand the importance of cost-effective solutions in modern democracy. Our voting system is not only advanced but also affordable, ensuring that the benefits of secure and transparent</p>
+
+                <div class="standout-card">
+                    <div class="card-icon-wrapper">
+                        <div class="card-icon blue-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="card-badges">
+                        <span class="badge-blue">SCALABLE</span>
+                        <span class="badge-blue">FLEXIBLE</span>
+                    </div>
+                    <h3 class="lazy-text">Cost-Effective Solutions</h3>
+                    <p class="lazy-text">Cloud-based infrastructure scales automatically, eliminating physical polling stations and manual counting while maintaining highest security standards</p>
+                    <div class="card-metric">
+                        <div class="metric-bar"></div>
+                        <span class="lazy-text">70% Cost Reduction</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -173,11 +285,17 @@
         <div class="container">
             <div class="testimonials-box">
                 <h2>Customer Testimonials</h2>
-                <p class="testimonials-subtitle">We take immense pride in the trust our users have placed in our voting application. Their experiencesspeak volumes about the effectiveness, security, and user-friendliness of our system.</p>
+                <p class="testimonials-subtitle">We take immense pride in the trust our users have placed in our voting application. Their experiences speak volumes about the effectiveness, security, and user-friendliness of our system.</p>
                 <div class="testimonials-grid">
                     <div class="testimonial-card">
-                        <p>I was amazed at how straightforward and secure the voting process was with this app. It'sa game-changer for our elections!</p>
+                        <p>I was amazed at how straightforward and secure the voting process was with this app. It's a game-changer for our elections!</p>
                         <div class="testimonial-author">
+                            <!-- ============================================ -->
+                            <!-- PLACEHOLDER IMAGE: Testimonial Photo        -->
+                            <!-- Replace: assets/images/testimonial-james.png -->
+                            <!-- Recommended: 100x100px, PNG format          -->
+                            <!-- Description: Professional headshot photo    -->
+                            <!-- ============================================ -->
                             <img src="assets/images/testimonial-james.png" alt="James Kimani" class="author-avatar">
                             <div class="author-info">
                                 <h4>James Kimani</h4>
@@ -186,8 +304,14 @@
                         </div>
                     </div>
                     <div class="testimonial-card">
-                        <p>As an election administrator, I appreciate the efficiency and transparency of this votingsystem. It has made my job much easier</p>
+                        <p>As an election administrator, I appreciate the efficiency and transparency of this voting system. It has made my job much easier</p>
                         <div class="testimonial-author">
+                            <!-- ============================================ -->
+                            <!-- PLACEHOLDER IMAGE: Testimonial Photo        -->
+                            <!-- Replace: assets/images/testimonial-luke.png -->
+                            <!-- Recommended: 100x100px, PNG format          -->
+                            <!-- Description: Professional headshot photo    -->
+                            <!-- ============================================ -->
                             <img src="assets/images/testimonial-luke.png" alt="Luke Kiptoo" class="author-avatar">
                             <div class="author-info">
                                 <h4>Luke Kiptoo</h4>
@@ -196,8 +320,14 @@
                         </div>
                     </div>
                     <div class="testimonial-card">
-                        <p>This app is a brilliant solution for remote voting. It's user-friendly and ensures theintegrity of our elections. Kudos to the team!</p>
+                        <p>This app is a brilliant solution for remote voting. It's user-friendly and ensures the integrity of our elections. Kudos to the team!</p>
                         <div class="testimonial-author">
+                            <!-- ============================================ -->
+                            <!-- PLACEHOLDER IMAGE: Testimonial Photo        -->
+                            <!-- Replace: assets/images/testimonial-alfred.png -->
+                            <!-- Recommended: 100x100px, PNG format          -->
+                            <!-- Description: Professional headshot photo    -->
+                            <!-- ============================================ -->
                             <img src="assets/images/testimonial-alfred.png" alt="Alfred Mututu" class="author-avatar">
                             <div class="author-info">
                                 <h4>Alfred Mututu</h4>
@@ -214,7 +344,7 @@
     <section class="faqs" id="faqs">
         <div class="container">
             <h2>FAQs</h2>
-            <p class="faqs-subtitle">We've compiled a list of common questions and answers to assist you. If you have any queries, our FAQssection might provide the information you need.</p>
+            <p class="faqs-subtitle">We've compiled a list of common questions and answers to assist you. If you have any queries, our FAQs section might provide the information you need.</p>
             <div class="faqs-list">
                 <div class="faq-item">
                     <div class="faq-question">
@@ -222,7 +352,7 @@
                         <button class="faq-toggle"><i class="fas fa-plus"></i></button>
                     </div>
                     <div class="faq-answer">
-                        <p>Our voting system is designed with advanced security measures, including end-to-end encryption andstrict data protection protocols. It undergoes regular security audits to ensure the integrity of the votingprocess.</p>
+                        <p>Our voting system is designed with advanced security measures, including end-to-end encryption and strict data protection protocols. It undergoes regular security audits to ensure the integrity of the voting process.</p>
                     </div>
                 </div>
                 <div class="faq-item">
@@ -231,7 +361,7 @@
                         <button class="faq-toggle"><i class="fas fa-plus"></i></button>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes, we prioritize accessibility. Our application is designed to accommodate users with various abilities,including support for screen readers and keyboard navigation.</p>
+                        <p>Yes, we prioritize accessibility. Our application is designed to accommodate users with various abilities, including support for screen readers and keyboard navigation.</p>
                     </div>
                 </div>
                 <div class="faq-item">
@@ -240,9 +370,235 @@
                         <button class="faq-toggle"><i class="fas fa-plus"></i></button>
                     </div>
                     <div class="faq-answer">
-                        <p>You'll receive a confirmation and an electronic receipt once your vote is successfully submitted.Additionally, our system maintains transparent audit trails for verification</p>
+                        <p>You'll receive a confirmation and an electronic receipt once your vote is successfully submitted. Additionally, our system maintains transparent audit trails for verification</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security & Compliance Section -->
+    <section class="security-compliance">
+        <div class="container">
+            <div class="security-header">
+                <h2 class="lazy-heading">
+                    <span class="word">Enterprise-Grade</span>
+                    <span class="word">Security</span>
+                    <span class="word">&</span>
+                    <span class="word">Compliance</span>
+                </h2>
+                <p class="section-subtitle lazy-text">Your election security is our top priority. We maintain the highest standards of data protection and regulatory compliance.</p>
+            </div>
+
+            <div class="security-grid">
+                <div class="security-card">
+                    <div class="security-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Data Encryption</h3>
+                    <p>AES-256 encryption for data at rest and TLS 1.3 for data in transit. All votes are encrypted before storage.</p>
+                    <div class="security-badge">Military-Grade</div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>SOC 2 Type II</h3>
+                    <p>Independently audited and certified for security, availability, processing integrity, and privacy.</p>
+                    <div class="security-badge">Certified</div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-icon">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <h3>ISO 27001</h3>
+                    <p>International standard for information security management systems ensuring systematic data protection.</p>
+                    <div class="security-badge">Compliant</div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>GDPR & CCPA</h3>
+                    <p>Full compliance with global data protection regulations including GDPR, CCPA, and regional privacy laws.</p>
+                    <div class="security-badge">Privacy First</div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-icon">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <h3>Penetration Testing</h3>
+                    <p>Quarterly penetration testing by independent security firms to identify and address vulnerabilities.</p>
+                    <div class="security-badge">Tested</div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Audit Trails</h3>
+                    <p>Comprehensive logging of all activities with tamper-proof audit trails for post-election verification.</p>
+                    <div class="security-badge">Transparent</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Teaser Section -->
+    <section class="pricing-teaser">
+        <div class="container">
+            <div class="pricing-content">
+                <h2>Flexible Pricing for Every Organization</h2>
+                <p>From small student councils to large-scale national elections, we have a plan that fits your needs and budget.</p>
+                
+                <div class="pricing-highlights">
+                    <div class="pricing-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>No setup fees</span>
+                    </div>
+                    <div class="pricing-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Pay per election</span>
+                    </div>
+                    <div class="pricing-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Volume discounts</span>
+                    </div>
+                    <div class="pricing-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>NGO pricing available</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Get Custom Quote</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security & Compliance Section -->
+    <!-- Problems We Solve Section -->
+    <section class="problems-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="lazy-heading">
+                    <span class="word">Problems</span>
+                    <span class="word">We</span>
+                    <span class="word">Solve</span>
+                </h2>
+                <p class="section-subtitle lazy-text">Traditional voting faces critical challenges. We provide modern solutions that make elections accessible, secure, and transparent.</p>
+            </div>
+
+            <div class="problems-grid">
+                <div class="problem-card">
+                    <div class="problem-visual">
+                        <!-- PLACEHOLDER IMAGE: Replace with image showing long voting queues -->
+                        <!-- Recommended size: 400x300px -->
+                        <img src="assets/images/educational-balloting.png" alt="Long Voting Queues Problem" class="problem-img">
+                        <div class="problem-overlay">
+                            <span class="problem-tag">Traditional Challenge</span>
+                        </div>
+                    </div>
+                    <div class="problem-content">
+                        <h3><i class="fas fa-users"></i> Long Queues & Low Turnout</h3>
+                        <p class="problem-desc">Physical polling stations create barriers - long wait times, limited hours, and accessibility issues prevent many eligible voters from participating.</p>
+                        <div class="solution-tag">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Our Solution: Vote from anywhere, anytime on any device</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-visual">
+                        <!-- PLACEHOLDER IMAGE: Replace with image showing manual vote counting -->
+                        <!-- Recommended size: 400x300px -->
+                        <img src="assets/images/workplace-balloting.png" alt="Manual Counting Problem" class="problem-img">
+                        <div class="problem-overlay">
+                            <span class="problem-tag">Traditional Challenge</span>
+                        </div>
+                    </div>
+                    <div class="problem-content">
+                        <h3><i class="fas fa-hourglass-half"></i> Slow Results & Manual Errors</h3>
+                        <p class="problem-desc">Manual vote counting takes days or weeks, prone to human error, and creates uncertainty that undermines trust in the electoral process.</p>
+                        <div class="solution-tag">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Our Solution: Real-time results with instant tabulation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-visual">
+                        <!-- PLACEHOLDER IMAGE: Replace with image showing security concerns -->
+                        <!-- Recommended size: 400x300px -->
+                        <img src="assets/images/governmental-voting.png" alt="Security Concerns Problem" class="problem-img">
+                        <div class="problem-overlay">
+                            <span class="problem-tag">Traditional Challenge</span>
+                        </div>
+                    </div>
+                    <div class="problem-content">
+                        <h3><i class="fas fa-shield-alt"></i> Fraud & Transparency Concerns</h3>
+                        <p class="problem-desc">Paper ballots can be lost, tampered with, or miscounted. Lack of transparency creates distrust and disputes about election integrity.</p>
+                        <div class="solution-tag">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Our Solution: Blockchain verification with complete audit trails</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <div class="problem-visual">
+                        <!-- PLACEHOLDER IMAGE: Replace with image showing high costs -->
+                        <!-- Recommended size: 400x300px -->
+                        <img src="assets/images/support-team.png" alt="High Costs Problem" class="problem-img">
+                        <div class="problem-overlay">
+                            <span class="problem-tag">Traditional Challenge</span>
+                        </div>
+                    </div>
+                    <div class="problem-content">
+                        <h3><i class="fas fa-dollar-sign"></i> High Costs & Resource Waste</h3>
+                        <p class="problem-desc">Physical elections require polling stations, staff, printed materials, and transportation - costing organizations thousands per election.</p>
+                        <div class="solution-tag">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Our Solution: 70% cost reduction with digital infrastructure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Get Started CTA Section -->
+    <section class="pricing-teaser cta-final">
+        <div class="container">
+            <div class="pricing-content">
+                <h2>Ready to Transform Your Elections?</h2>
+                <p>Join 500+ organizations worldwide who trust Machinova for secure, transparent, and efficient elections. Get started today with a personalized demo.</p>
+                
+                <div class="pricing-highlights">
+                    <div class="pricing-highlight">
+                        <i class="fas fa-rocket"></i>
+                        <span>Quick setup in 24 hours</span>
+                    </div>
+                    <div class="pricing-highlight">
+                        <i class="fas fa-headset"></i>
+                        <span>Dedicated support team</span>
+                    </div>
+                    <div class="pricing-highlight">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Free training included</span>
+                    </div>
+                    <div class="pricing-highlight">
+                        <i class="fas fa-shield-check"></i>
+                        <span>30-day money-back guarantee</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Schedule Your Demo Now</button>
             </div>
         </div>
     </section>
@@ -252,40 +608,80 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-col">
-                    <div class="footer-brand">
-                        <img src="assets/logo.png" alt="Machineova" class="footer-brand-logo">
-                        <div class="footer-brand-text">
-                            <h4>Machineova</h4>
-                            <p>Revolutionizing voting for a better democracy</p>
-                        </div>
+                    <img src="assets/logo.png" alt="Machinova" class="footer-logo">
+                    <p>Building trust in democratic processes</p>
+                    <div class="footer-certifications">
+                        <span class="cert-badge"><i class="fas fa-shield-check"></i> SOC 2</span>
+                        <span class="cert-badge"><i class="fas fa-certificate"></i> ISO 27001</span>
                     </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><a href="index.html#features">Educational Balloting</a></li>
+                        <li><a href="index.html#features">Corporate Balloting</a></li>
+                        <li><a href="index.html#features">Government Voting</a></li>
+                        <li><a href="index.html#features">National Elections</a></li>
+                    </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#faqs">FAQs</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="index.html#faqs">FAQs</a></li>
+                        <li><a href="book-demo.html">Book Demo</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-book"></i> Documentation</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt"></i> Case Studies</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> Security</a></li>
+                        <li><a href="#"><i class="fas fa-balance-scale"></i> Compliance</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Follow Us</h4>
                     <div class="social-icons">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook" class="social-facebook">
-                            <span>f</span>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="https://x.com" target="_blank" rel="noopener noreferrer" title="X (Twitter)" class="social-twitter">
-                            <span>𝕏</span>
+                        <a href="https://x.com" target="_blank" rel="noopener noreferrer" title="X (Twitter)">
+                            <i class="fab fa-x-twitter"></i>
                         </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn" class="social-linkedin">
-                            <span>in</span>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
+                            <i class="fab fa-instagram"></i>
                         </a>
                     </div>
                 </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:info@machinova.com"><i class="fas fa-envelope"></i> info@machinova.com</a></li>
+                        <li><a href="mailto:support@machinova.com"><i class="fas fa-headset"></i> support@machinova.com</a></li>
+                        <li><a href="tel:+254712345678"><i class="fas fa-phone"></i> +254 712 345 678</a></li>
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</a></li>
+                    </ul>
+                </div>
             </div>
+            <div class="footer-divider"></div>
             <div class="footer-bottom">
-                <p>&copy; 2026 Machineova. All rights reserved.</p>
+                <div class="footer-bottom-content">
+                    <p>&copy; 2026 Machinova. All rights reserved.</p>
+                    <div class="footer-links">
+                        <a href="#">Privacy Policy</a>
+                        <span class="separator">•</span>
+                        <a href="#">Terms of Service</a>
+                        <span class="separator">•</span>
+                        <a href="#">Cookie Policy</a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>

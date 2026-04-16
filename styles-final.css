@@ -1,0 +1,187 @@
+/* ========================================
+   FINAL CLEAN STYLES - MACHINOVA 2026
+   ======================================== */
+
+/* Import base styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+/* Root Variables */
+:root {
+  --blue: #0066FF;
+  --black: #000;
+  --dark-gray: #0d0d0d;
+  --border: #1a1a1a;
+  --text-gray: #b3b3b3;
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Remove ALL Overlays and Bubbles */
+.feature-img::after,
+.support-img::after,
+.image-overlay,
+.problem-overlay,
+.feature-overlay,
+.hero::before,
+.hero::after {
+  display: none !important;
+}
+
+/* Clean Feature Cards */
+.feature-card {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  border-color: #2a2a2a;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.feature-img {
+  width: 100%;
+  height: 220px;
+  background: #0a0a0a;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.feature-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.feature-card:hover .feature-img img {
+  transform: scale(1.05);
+}
+
+/* Lazy Text Animations */
+.lazy-heading {
+  display: block;
+}
+
+.lazy-heading .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: wordFadeIn 0.6s ease forwards;
+}
+
+.lazy-heading .word:nth-child(1) { animation-delay: 0.1s; }
+.lazy-heading .word:nth-child(2) { animation-delay: 0.2s; }
+.lazy-heading .word:nth-child(3) { animation-delay: 0.3s; }
+.lazy-heading .word:nth-child(4) { animation-delay: 0.4s; }
+.lazy-heading .word:nth-child(5) { animation-delay: 0.5s; }
+.lazy-heading .word:nth-child(6) { animation-delay: 0.6s; }
+
+.lazy-text {
+  opacity: 1 !important;
+  transform: translateY(0);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.lazy-text.visible {
+  opacity: 1 !important;
+  transform: translateY(0);
+}
+
+@keyframes wordFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pure Blue - No Gradients */
+.btn-primary,
+.cta-btn,
+button.btn-primary,
+button.cta-btn {
+  background: #0066FF !important;
+  background-image: none !important;
+  color: #fff;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+.cta-btn:hover {
+  background: #0066FF !important;
+  opacity: 0.95;
+  transform: translateY(-2px);
+}
+
+/* Navigation */
+.nav-menu a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+  color: #0066FF;
+}
+
+/* Social Icons */
+.social-icons a {
+  background: #0066FF !important;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.social-icons a:hover {
+  background: #0066FF !important;
+  opacity: 0.95;
+}
+
+.social-icons a i {
+  color: #fff !important;
+  font-size: 1rem !important;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .feature-card {
+    padding: 1.5rem;
+  }
+  
+  .feature-img {
+    height: 180px;
+  }
+}
