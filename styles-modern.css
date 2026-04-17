@@ -1,0 +1,1037 @@
+/* ========================================
+   MACHINEOVA - MODERN STYLES
+   ======================================== */
+
+/* ========================================
+   ICON VISIBILITY & STYLING
+   ======================================== */
+
+/* All Font Awesome Icons */
+i[class*="fa"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+/* Feature Icons */
+.standout-icon,
+.why-icon,
+.stat-icon,
+.security-icon,
+.feature-icon {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #fff !important;
+}
+
+/* Social Media Icons */
+.social-icons a i {
+  color: #fff !important;
+  font-size: 1rem !important;
+  display: block !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Navigation Icons */
+.nav-menu i,
+.hamburger i,
+.discover-link i,
+.faq-toggle i {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  color: inherit !important;
+}
+
+/* List Item Icons */
+.vision-list i,
+.commitment-list li i,
+.feature-highlights i,
+.pricing-highlight i {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  color: var(--blue) !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Button Icons */
+.btn i,
+.cta-btn i,
+button i {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  color: inherit !important;
+  margin: 0 0.3rem !important;
+}
+
+/* ========================================
+   MODERN DESIGN ENHANCEMENTS
+   ======================================== */
+
+/* Smooth Transitions */
+* {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Modern Card Design */
+.feature-card,
+.standout-card,
+.security-card,
+.testimonial-card,
+.problem-card,
+.why-item,
+.tech-item {
+  border-radius: 16px !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 102, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feature-card:hover,
+.standout-card:hover,
+.security-card:hover,
+.testimonial-card:hover,
+.problem-card:hover,
+.why-item:hover,
+.tech-item:hover {
+  border-color: var(--blue);
+  box-shadow: 0 20px 60px rgba(0, 102, 255, 0.2);
+  transform: translateY(-8px);
+}
+
+/* Modern Button Design */
+.btn,
+.cta-btn,
+button {
+  border-radius: 12px !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before,
+.cta-btn::before,
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before,
+.cta-btn:hover::before,
+button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Modern Header */
+.header {
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 102, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header:hover {
+  border-bottom-color: rgba(0, 102, 255, 0.3);
+}
+
+/* Modern Navigation Links */
+.nav-menu a {
+  position: relative;
+  padding: 0.5rem 0;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.nav-menu a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--blue);
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
+  width: 100%;
+}
+
+/* Modern Section Styling */
+section {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  scroll-behavior: smooth;
+}
+
+/* Modern Text Animations */
+.lazy-text,
+.lazy-heading,
+.lazy-heading .word {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: fadeInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Modern Gradient Text */
+.page-hero h1,
+.hero h1 {
+  background: linear-gradient(135deg, #fff 0%, var(--blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modern Badge Design */
+.badge-blue,
+.security-badge,
+.hero-badge {
+  background: rgba(0, 102, 255, 0.1);
+  border: 1px solid rgba(0, 102, 255, 0.3);
+  color: var(--blue);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.badge-blue:hover,
+.security-badge:hover,
+.hero-badge:hover {
+  background: rgba(0, 102, 255, 0.2);
+  border-color: var(--blue);
+  transform: scale(1.05);
+}
+
+/* Modern Form Design */
+input,
+textarea,
+select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 102, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+  padding: 0.8rem 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Modern Accordion */
+.faq-item {
+  border: 1px solid rgba(0, 102, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  border-color: var(--blue);
+  box-shadow: 0 10px 30px rgba(0, 102, 255, 0.1);
+}
+
+.faq-question {
+  padding: 1.5rem;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-question:hover {
+  background: rgba(0, 102, 255, 0.05);
+}
+
+.faq-toggle {
+  background: var(--blue);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.faq-toggle:hover {
+  background: var(--blue-hover);
+  transform: scale(1.1);
+}
+
+.faq-toggle i {
+  transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-toggle i {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  padding: 0 1.5rem;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  opacity: 1;
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* Modern Footer */
+.footer {
+  border-top: 1px solid rgba(0, 102, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.footer-col h4 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.footer-col a {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.footer-col a:hover {
+  color: var(--blue);
+  transform: translateX(5px);
+}
+
+/* Modern Social Icons */
+.social-icons a {
+  width: 40px;
+  height: 40px;
+  background: var(--blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+}
+
+.social-icons a:hover {
+  background: var(--blue-hover);
+  transform: translateY(-5px) scale(1.15);
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4);
+}
+
+/* ========================================
+   ANIMATION KEYFRAMES
+   ======================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}
+
+@keyframes wordFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .feature-card,
+  .standout-card,
+  .security-card,
+  .testimonial-card,
+  .problem-card,
+  .why-item,
+  .tech-item {
+    border-radius: 12px;
+  }
+  
+  .btn,
+  .cta-btn,
+  button {
+    border-radius: 10px;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .faq-question {
+    padding: 1rem;
+  }
+  
+  .faq-toggle {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fade-in {
+  animation: fadeInUp 0.6s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+
+/* ========================================
+   ADVANCED STYLISTIC FEATURES
+   ======================================== */
+
+/* Gradient Borders on Cards */
+.feature-card::before,
+.standout-card::before,
+.security-card::before,
+.testimonial-card::before,
+.problem-card::before,
+.why-item::before,
+.tech-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.5), rgba(0, 102, 255, 0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.feature-card:hover::before,
+.standout-card:hover::before,
+.security-card:hover::before,
+.testimonial-card:hover::before,
+.problem-card:hover::before,
+.why-item:hover::before,
+.tech-item:hover::before {
+  opacity: 1;
+}
+
+/* Glow Effects on Hover */
+.feature-card:hover,
+.standout-card:hover,
+.security-card:hover,
+.testimonial-card:hover,
+.problem-card:hover,
+.why-item:hover,
+.tech-item:hover {
+  box-shadow: 0 0 30px rgba(0, 102, 255, 0.3), 0 20px 60px rgba(0, 102, 255, 0.2);
+}
+
+/* Animated Background Gradients for Buttons */
+.btn-primary,
+.cta-btn {
+  background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Text Glow Effects on Headings */
+h1,
+h2,
+h3,
+.lazy-heading {
+  text-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+  transition: text-shadow 0.3s ease;
+}
+
+h1:hover,
+h2:hover,
+h3:hover,
+.lazy-heading:hover {
+  text-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+}
+
+/* Floating Animations for Cards */
+.feature-card,
+.standout-card,
+.security-card,
+.testimonial-card,
+.problem-card,
+.why-item,
+.tech-item {
+  animation: float 3s ease-in-out infinite;
+}
+
+.feature-card {
+  animation-delay: 0s;
+}
+
+.feature-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.feature-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.feature-card:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+.standout-card {
+  animation-delay: 0s;
+}
+
+.standout-card:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.standout-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.standout-card:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+.standout-card:nth-child(5) {
+  animation-delay: 0.6s;
+}
+
+.standout-card:nth-child(6) {
+  animation-delay: 0.75s;
+}
+
+/* Shimmer Effects on Buttons */
+.btn::after,
+.cta-btn::after,
+button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+  pointer-events: none;
+}
+
+.btn:hover::after,
+.cta-btn:hover::after,
+button:hover::after {
+  left: 100%;
+}
+
+/* Neon Glow Text for Badges */
+.badge-blue,
+.security-badge,
+.hero-badge {
+  text-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 102, 255, 0.3), inset 0 0 15px rgba(0, 102, 255, 0.1);
+}
+
+.badge-blue:hover,
+.security-badge:hover,
+.hero-badge:hover {
+  text-shadow: 0 0 20px rgba(0, 102, 255, 0.8);
+  box-shadow: 0 0 25px rgba(0, 102, 255, 0.5), inset 0 0 20px rgba(0, 102, 255, 0.2);
+}
+
+/* Pulse Animation for CTAs */
+.btn-primary,
+.cta-btn {
+  animation: ctaPulse 2s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 102, 255, 0);
+  }
+}
+
+/* Smooth Scroll Progress Indicator */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0066FF, #0052cc);
+  width: 0%;
+  z-index: 9999;
+  transition: width 0.1s ease;
+}
+
+/* Enhanced FAQ Styling */
+.faq-item {
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 0, 0, 0.3));
+  border: 1px solid rgba(0, 102, 255, 0.15);
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.faq-item:hover {
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 0, 0, 0.4));
+  border-color: var(--blue);
+  box-shadow: 0 10px 40px rgba(0, 102, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.faq-question {
+  padding: 1.5rem;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #fff;
+}
+
+.faq-question:hover {
+  background: rgba(0, 102, 255, 0.08);
+  color: var(--blue);
+}
+
+.faq-question span {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.faq-item.active .faq-question span {
+  color: var(--blue);
+}
+
+.faq-toggle {
+  background: var(--blue);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  margin-left: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+}
+
+.faq-toggle:hover {
+  background: var(--blue-hover);
+  transform: scale(1.15) rotate(90deg);
+  box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+}
+
+.faq-toggle i {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-size: 1.1rem;
+}
+
+.faq-item.active .faq-toggle i {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  padding: 0 1.5rem;
+  background: rgba(0, 102, 255, 0.05);
+  border-top: 1px solid rgba(0, 102, 255, 0.1);
+}
+
+.faq-answer p {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  opacity: 1;
+  padding: 1.5rem;
+}
+
+/* Enhanced Card Borders */
+.feature-card,
+.standout-card,
+.security-card,
+.testimonial-card,
+.problem-card,
+.why-item,
+.tech-item {
+  position: relative;
+  border: 1px solid rgba(0, 102, 255, 0.1);
+  border-radius: 16px;
+}
+
+/* Smooth Transitions for All Interactive Elements */
+a,
+button,
+input,
+textarea,
+select {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Enhanced Link Hover Effects */
+a {
+  position: relative;
+}
+
+a::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--blue);
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+a:hover::before {
+  width: 100%;
+}
+
+/* Gradient Text for Special Headings */
+.hero h1,
+.page-hero h1,
+.section-header h2 {
+  background: linear-gradient(135deg, #fff 0%, var(--blue) 50%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientFlow 3s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Smooth Scroll Behavior */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Enhanced Input Focus States */
+input:focus,
+textarea:focus,
+select:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Card Stagger Animation */
+.feature-card,
+.standout-card,
+.security-card,
+.testimonial-card,
+.problem-card,
+.why-item,
+.tech-item {
+  animation: cardStagger 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes cardStagger {
+  to {
+    opacity: 1;
+  }
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+.standout-card:nth-child(1) { animation-delay: 0.1s; }
+.standout-card:nth-child(2) { animation-delay: 0.2s; }
+.standout-card:nth-child(3) { animation-delay: 0.3s; }
+.standout-card:nth-child(4) { animation-delay: 0.4s; }
+.standout-card:nth-child(5) { animation-delay: 0.5s; }
+.standout-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Smooth Parallax Effect */
+.hero-box {
+  transition: transform 0.1s ease-out;
+}
+
+/* Enhanced Button Ripple Effect */
+.btn,
+.cta-btn,
+button {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active,
+.cta-btn:active,
+button:active {
+  transform: scale(0.98);
+}
+
+/* Smooth Color Transitions */
+.btn-primary,
+.cta-btn {
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-primary:hover,
+.cta-btn:hover {
+  color: #fff;
+  transform: translateY(-3px);
+}
+
+/* Enhanced Section Transitions */
+section {
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Smooth Navbar Transitions */
+.header {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+  .feature-card,
+  .standout-card,
+  .security-card,
+  .testimonial-card,
+  .problem-card,
+  .why-item,
+  .tech-item {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .faq-toggle {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .btn,
+  .cta-btn,
+  button {
+    border-radius: 10px;
+  }
+  
+  h1,
+  h2,
+  h3 {
+    text-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
+  }
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  .feature-card,
+  .standout-card,
+  .security-card,
+  .testimonial-card,
+  .problem-card,
+  .why-item,
+  .tech-item {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 102, 255, 0.15);
+  }
+  
+  .faq-item {
+    background: rgba(0, 0, 0, 0.3);
+  }
+}

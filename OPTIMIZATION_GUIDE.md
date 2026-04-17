@@ -1,4 +1,4 @@
-# Machinova Website Optimization Guide
+# Machineova Website Optimization Guide
 
 ## PHP-Like Smooth Scrolling & WordPress Lightness Implementation
 

@@ -1,7 +1,7 @@
-# Machinova - Advanced Voting Solutions Website
+# Machineova - Advanced Voting Solutions Website
 
 ## Project Overview
-Machinova is a modern, responsive website for innovative voting solutions with smooth PHP-like scrolling, WordPress lightness effects, and advanced animations.
+Machineova is a modern, responsive website for innovative voting solutions with smooth PHP-like scrolling, WordPress lightness effects, and advanced animations.
 
 ## Setup Instructions
 
@@ -130,7 +130,7 @@ https://github.com/X-culture24/machineova.git
 
 ### 10. License
 
-This project is part of the Machinova voting solutions platform.
+This project is part of the Machineova voting solutions platform.
 
 ---
 
