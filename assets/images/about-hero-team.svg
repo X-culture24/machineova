@@ -1,0 +1,44 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066FF;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#0052cc;stop-opacity:0.05" />
+    </linearGradient>
+    <linearGradient id="personGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066FF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#0052cc;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#000"/>
+  <rect width="1200" height="800" fill="url(#bgGrad)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="150" cy="100" r="80" fill="#0066FF" opacity="0.1"/>
+  <circle cx="1050" cy="700" r="120" fill="#0066FF" opacity="0.08"/>
+  
+  <!-- Team members (simplified representation) -->
+  <!-- Person 1 -->
+  <circle cx="300" cy="250" r="40" fill="url(#personGrad)"/>
+  <rect x="260" y="300" width="80" height="120" fill="url(#personGrad)" opacity="0.7"/>
+  <circle cx="300" cy="450" r="25" fill="url(#personGrad)" opacity="0.5"/>
+  
+  <!-- Person 2 -->
+  <circle cx="600" cy="200" r="45" fill="url(#personGrad)"/>
+  <rect x="555" y="260" width="90" height="140" fill="url(#personGrad)" opacity="0.7"/>
+  <circle cx="600" cy="430" r="28" fill="url(#personGrad)" opacity="0.5"/>
+  
+  <!-- Person 3 -->
+  <circle cx="900" cy="280" r="40" fill="url(#personGrad)"/>
+  <rect x="860" y="330" width="80" height="120" fill="url(#personGrad)" opacity="0.7"/>
+  <circle cx="900" cy="480" r="25" fill="url(#personGrad)" opacity="0.5"/>
+  
+  <!-- Connection lines -->
+  <line x1="300" y1="450" x2="600" y2="430" stroke="#0066FF" stroke-width="2" opacity="0.3"/>
+  <line x1="600" y1="430" x2="900" y2="480" stroke="#0066FF" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Text -->
+  <text x="600" y="650" font-size="48" fill="#0066FF" text-anchor="middle" font-weight="bold" opacity="0.6">MACHINEOVA TEAM</text>
+  <text x="600" y="720" font-size="24" fill="#fff" text-anchor="middle" opacity="0.7">Building Trust in Democracy</text>
+</svg>

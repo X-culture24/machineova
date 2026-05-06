@@ -1,0 +1,17 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a2a2a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#grad2)"/>
+  <rect x="80" y="60" width="60" height="80" fill="#0066FF" opacity="0.8" rx="4"/>
+  <rect x="160" y="80" width="60" height="60" fill="#0066FF" opacity="0.6" rx="4"/>
+  <rect x="240" y="100" width="60" height="40" fill="#0066FF" opacity="0.4" rx="4"/>
+  <circle cx="110" cy="200" r="8" fill="#0066FF" opacity="0.7"/>
+  <circle cx="190" cy="200" r="8" fill="#0066FF" opacity="0.5"/>
+  <circle cx="270" cy="200" r="8" fill="#0066FF" opacity="0.3"/>
+  <line x1="50" y1="250" x2="350" y2="250" stroke="#0066FF" stroke-width="3" opacity="0.4"/>
+  <text x="200" y="280" font-size="20" fill="#0066FF" text-anchor="middle" opacity="0.3" font-weight="bold">MANUAL ERRORS</text>
+</svg>
