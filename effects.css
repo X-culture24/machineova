@@ -1,0 +1,253 @@
+/* ================================================================
+   MACHINENOVA — GLOBAL EFFECTS
+   Page-load fade, lazy reveal, parallax, light mode
+   ================================================================ */
+
+/* ── Page load: body starts invisible, fades in ── */
+body {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+body.page-loaded {
+  opacity: 1;
+}
+
+/* ── Scroll progress bar ── */
+.mn-progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: #0055FF;
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
+
+/* ── Lazy reveal base state ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.reveal--left {
+  transform: translateX(-40px);
+}
+.reveal.reveal--right {
+  transform: translateX(40px);
+}
+.reveal.reveal--scale {
+  transform: scale(0.94);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger delays for child groups */
+.reveal-group > *:nth-child(1) { transition-delay: 0s; }
+.reveal-group > *:nth-child(2) { transition-delay: 0.1s; }
+.reveal-group > *:nth-child(3) { transition-delay: 0.2s; }
+.reveal-group > *:nth-child(4) { transition-delay: 0.3s; }
+.reveal-group > *:nth-child(5) { transition-delay: 0.4s; }
+.reveal-group > *:nth-child(6) { transition-delay: 0.5s; }
+
+/* ── Parallax wrapper ── */
+.parallax-section {
+  position: relative;
+  overflow: hidden;
+}
+.parallax-bg {
+  position: absolute;
+  inset: -15%;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+  z-index: 0;
+}
+.parallax-section > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Light mode toggle button ── */
+.mn-theme-toggle {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #0055FF;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 800;
+  z-index: 9000;
+  box-shadow: 0 4px 20px rgba(0, 85, 255, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.5px;
+}
+.mn-theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(0, 85, 255, 0.5);
+}
+
+/* ── LIGHT MODE ── */
+body.light-mode {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+/* All dark sections become white/light */
+body.light-mode .cx-stats,
+body.light-mode .cx-about,
+body.light-mode .cx-platform,
+body.light-mode .cx-team,
+body.light-mode .cx-faqs,
+body.light-mode .cx-tags,
+body.light-mode .cx-marquee {
+  background: #ffffff !important;
+  border-color: #e0e0e0 !important;
+}
+
+body.light-mode .cx-services,
+body.light-mode .cx-platform--alt,
+body.light-mode .cx-footer {
+  background: #f4f6fb !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* Text colors in light mode */
+body.light-mode .cx-about-heading,
+body.light-mode .cx-services-heading,
+body.light-mode .cx-team-title,
+body.light-mode .cx-faqs-left h2,
+body.light-mode .cx-plat-text h2,
+body.light-mode .cx-stat-n,
+body.light-mode .cx-card-label,
+body.light-mode .cx-mob-name,
+body.light-mode .cx-tally-row span:first-child,
+body.light-mode .cx-faq-q,
+body.light-mode h1, body.light-mode h2,
+body.light-mode h3, body.light-mode h4 {
+  color: #0a0a0a !important;
+}
+
+body.light-mode .cx-about-body p,
+body.light-mode .cx-services-body,
+body.light-mode .cx-plat-text > p,
+body.light-mode .cx-faqs-left p,
+body.light-mode .cx-faq-a p,
+body.light-mode .cx-feat-list li,
+body.light-mode .cx-stat-l,
+body.light-mode .cx-svc-name,
+body.light-mode .cx-bar-row,
+body.light-mode .cx-stations,
+body.light-mode p {
+  color: #444 !important;
+}
+
+body.light-mode .cx-svc-row {
+  color: #0a0a0a !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .cx-svc-row:first-child { border-color: #e0e0e0 !important; }
+body.light-mode .cx-svc-num { color: #aaa !important; }
+body.light-mode .cx-svc-arr { color: #aaa !important; }
+body.light-mode .cx-svc-row:hover { color: #0055FF !important; }
+
+body.light-mode .cx-plat-card,
+body.light-mode .cx-data-card {
+  background: #fff !important;
+  border-color: #e0e0e0 !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+}
+body.light-mode .cx-cs,
+body.light-mode .cx-mob-row {
+  background: #f4f6fb !important;
+}
+body.light-mode .cx-bar-track { background: #e0e0e0 !important; }
+body.light-mode .cx-card-foot { border-color: #e0e0e0 !important; }
+body.light-mode .cx-faq { border-color: #e0e0e0 !important; }
+body.light-mode .cx-faq-ico { color: #0055FF !important; }
+
+/* Team cards in light mode */
+body.light-mode .cx-tc--dark {
+  background: #f4f6fb !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .cx-tc--dark h4 { color: #0a0a0a !important; }
+body.light-mode .cx-tc--dark p { color: #555 !important; }
+body.light-mode .cx-tc--dark .cx-tc-tags span { background: #e8eeff !important; color: #0055FF !important; }
+
+/* Marquee in light mode */
+body.light-mode .cx-marquee { background: #0a0a0a !important; }
+body.light-mode .cx-tags { background: #f4f6fb !important; border-color: #e0e0e0 !important; }
+body.light-mode .cx-tags-inner span { color: #aaa !important; }
+
+/* Services photo cards in light mode */
+body.light-mode .cx-svc-card--dark {
+  background: #f4f6fb !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .cx-svc-card--dark p { color: #555 !important; }
+
+/* Footer in light mode */
+body.light-mode .cx-footer { background: #0a0a0a !important; }
+
+/* Contact in light mode */
+body.light-mode .cx-contact-right { background: #0055FF !important; }
+
+/* Dropdown in light mode */
+body.light-mode .dropdown-menu {
+  background: #fff !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .dropdown-menu li a { color: #333 !important; }
+body.light-mode .dropdown-menu li a:hover { background: #e8eeff !important; color: #0055FF !important; }
+
+/* Header in light mode */
+body.light-mode .header {
+  background: #fff !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .nav-menu a { color: #0a0a0a !important; }
+body.light-mode .nav-menu a:hover { color: #0055FF !important; }
+body.light-mode .hamburger span { background: #0a0a0a !important; }
+
+/* Light mode for about/legal pages */
+body.light-mode .about-content,
+body.light-mode .booking-section,
+body.light-mode .page-hero {
+  background: #fff !important;
+}
+body.light-mode .about-section h2,
+body.light-mode .about-section h3 { color: #0a0a0a !important; }
+body.light-mode .about-section p,
+body.light-mode .about-section li { color: #444 !important; }
+body.light-mode .why-item,
+body.light-mode .tech-item {
+  background: #f4f6fb !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .why-item h3,
+body.light-mode .tech-item h4 { color: #0a0a0a !important; }
+body.light-mode .stat-item { background: #f4f6fb !important; border-color: #e0e0e0 !important; }
+body.light-mode .stat-number { color: #0055FF !important; }
+body.light-mode .booking-form,
+body.light-mode .form-step { background: #fff !important; }
+body.light-mode .form-group label { color: #0a0a0a !important; }
+body.light-mode .form-group input,
+body.light-mode .form-group select,
+body.light-mode .form-group textarea {
+  background: #f4f6fb !important;
+  border-color: #e0e0e0 !important;
+  color: #0a0a0a !important;
+}
+body.light-mode .progress-step .step-number { background: #e0e0e0 !important; color: #555 !important; }
+body.light-mode .progress-step.active .step-number { background: #0055FF !important; color: #fff !important; }

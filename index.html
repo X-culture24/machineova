@@ -3,35 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Machineova - Innovative Voting Solutions</title>
+    <title>MachineNova – End-to-End Electoral Technology</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles-final.css">
     <link rel="stylesheet" href="styles-modern.css">
+    <link rel="stylesheet" href="machinenova.css">
+    <link rel="stylesheet" href="effects.css">
 </head>
 <body>
-    <!-- Header -->
+
+    <!-- ═══ HEADER — untouched ═══ -->
     <header class="header">
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="Machineova" class="logo-icon">
+                    <img src="assets/logo.png" alt="MachineNova" class="logo-icon">
                 </div>
                 <nav class="nav">
                     <button class="hamburger" id="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span></span><span></span><span></span>
                     </button>
                     <ul class="nav-menu" id="navMenu">
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="#features">Features</a></li>
+                        <li class="nav-dropdown">
+                            <a href="#platforms" class="dropdown-trigger">Platforms <span class="dd-arrow">&#8964;</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#checkin">Event Check-In</a></li>
+                                <li><a href="#mobilizer">Mobilizer App</a></li>
+                                <li><a href="#agents">Agents &amp; Results Portal</a></li>
+                                <li><a href="#surveys">Surveys &amp; Analytics</a></li>
+                            </ul>
+                        </li>
                         <li><a href="about.html">About</a></li>
                         <li><a href="#faqs">FAQs</a></li>
-                        <li><a href="#testimonials">Testimonials</a></li>
                         <li><a href="book-demo.html">Book Demo</a></li>
                     </ul>
                 </nav>
@@ -40,43 +47,44 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- ═══ HERO — untouched ═══ -->
     <section class="hero">
         <div class="container">
             <div class="hero-box">
                 <div class="hero-content">
                     <div class="hero-text">
-                        <p class="hero-label lazy-text">Fast  •  Secure  •  Transparent</p>
+                        <p class="hero-label lazy-text">Registration  •  Mobilization  •  Election Day  •  Analysis</p>
                         <h1 class="lazy-heading">
-                            <span class="word">Powering</span>
-                            <span class="word">Democracy</span>
-                            <span class="word">with</span>
-                            <span class="word">Innovative</span>
-                            <span class="word">Voting</span>
-                            <span class="word">Solutions</span>
+                            <span class="word">The</span>
+                            <span class="word">Complete</span>
+                            <span class="word">Electoral</span>
+                            <span class="word">Technology</span>
+                            <span class="word">Stack</span>
                         </h1>
-                        <p class="hero-desc lazy-text">Enterprise-grade election management platform trusted by 500+ organizations worldwide. Conduct secure, transparent, and verifiable elections with military-grade encryption and real-time results.</p>
+                        <p class="hero-desc lazy-text">MachineNova is a suite of integrated digital tools built for every stage of the electoral cycle — from grassroots mobilization to real-time national results. One ecosystem. Total visibility.</p>
                         <div class="hero-btns">
                             <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Book a Demo</button>
-                            <button class="btn btn-secondary" onclick="window.location.href='about.html'">Learn More</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('platforms').scrollIntoView({behavior:'smooth'})">Explore Platforms</button>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="hero-stat"><span class="hero-stat-num">4</span><span class="hero-stat-label">Integrated Platforms</span></div>
+                            <div class="hero-stat"><span class="hero-stat-num">Real-Time</span><span class="hero-stat-label">Data Flow</span></div>
+                            <div class="hero-stat"><span class="hero-stat-num">ID-Verified</span><span class="hero-stat-label">Voter Records</span></div>
                         </div>
                     </div>
                     <div class="hero-phone">
-                        <img src="https://i.imgur.com/phone-mockup.png" alt="Voting App" class="phone-image" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
                         <div class="phone" style="display:block">
                             <div class="phone-notch"></div>
                             <div class="phone-screen">
-                                <div class="phone-header">Thanks for Voting!<br>Here's Your Confirmation</div>
-                                <div class="vote-list">
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
-                                    <div class="vote-item"><div class="vote-avatar"></div><div class="vote-name">Candidate Name</div></div>
+                                <div class="phone-header">Live Results Dashboard</div>
+                                <div class="mn-results-list">
+                                    <div class="mn-result-row"><span class="mn-candidate">Region A</span><div class="mn-bar-wrap"><div class="mn-bar" style="width:72%"></div></div><span class="mn-pct">72%</span></div>
+                                    <div class="mn-result-row"><span class="mn-candidate">Region B</span><div class="mn-bar-wrap"><div class="mn-bar" style="width:58%"></div></div><span class="mn-pct">58%</span></div>
+                                    <div class="mn-result-row"><span class="mn-candidate">Region C</span><div class="mn-bar-wrap"><div class="mn-bar" style="width:45%"></div></div><span class="mn-pct">45%</span></div>
+                                    <div class="mn-result-row"><span class="mn-candidate">Region D</span><div class="mn-bar-wrap"><div class="mn-bar" style="width:33%"></div></div><span class="mn-pct">33%</span></div>
                                 </div>
-                                <button class="phone-btn">Confirm Vote</button>
+                                <div class="mn-live-badge">&#9679; LIVE</div>
+                                <button class="phone-btn">View Full Dashboard</button>
                             </div>
                         </div>
                     </div>
@@ -85,508 +93,498 @@
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
+    <!-- ═══════════════════════════════════════════
+         STATS BAR
+         Black bg · 4 bold numbers · gray labels
+    ═══════════════════════════════════════════ -->
+    <section class="cx-stats">
         <div class="container">
-            <h2>Revolutionizing Voting For All</h2>
-            <div class="features-intro">
-                <p>Discover Innovative Paths to Revolutionize Voting Across Various Fields</p>
-                <p>From education to corporate governance, we're reimagining the way we vote for a brighter, more inclusive future</p>
-                <a href="#" class="discover-link">Discover app applications <i class="fas fa-external-link-alt"></i></a>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-img education-img">
-                        <img src="assets/images/educational-balloting.png" alt="Educational Balloting" class="placeholder-img" loading="lazy">
-                    </div>
-                    <h3>Educational Balloting</h3>
-                    <p>Empowering Educational Decision-Making. Seamlessly choose student leaders and counselors with our versatile balloting tool</p>
+            <div class="cx-stats-row">
+                <div class="cx-stat-item">
+                    <span class="cx-stat-n">4<span class="cx-plus">+</span></span>
+                    <span class="cx-stat-l">Integrated Platforms</span>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-img workplace-img">
-                        <img src="assets/images/workplace-balloting.png" alt="Corporate Balloting" class="placeholder-img" loading="lazy">
-                    </div>
-                    <h3>Corporate Balloting</h3>
-                    <p>Streamlining Corporate Decision-Making. Enhance board elections, shareholder voting, and organizational decisions with our secure, efficient balloting solutions designed for modern enterprises</p>
+                <div class="cx-stat-item">
+                    <span class="cx-stat-n">ID<span class="cx-plus">-</span>Verified</span>
+                    <span class="cx-stat-l">Voter Records</span>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-img government-img">
-                        <img src="assets/images/governmental-voting.png" alt="Governmental Voting Solutions" class="placeholder-img" loading="lazy">
-                    </div>
-                    <h3 class="lazy-text">Governmental Voting Solutions</h3>
-                    <p class="lazy-text">Unparalleled Security for Government Voting. Our industry-grade security ensures safe and transparent government voting, fostering trust in the process</p>
-                    <ul class="feature-highlights">
-                        <li><i class="fas fa-check"></i> Multi-level authentication</li>
-                        <li><i class="fas fa-check"></i> Audit trail compliance</li>
-                        <li><i class="fas fa-check"></i> Voter verification</li>
-                    </ul>
+                <div class="cx-stat-item">
+                    <span class="cx-stat-n">Real<span class="cx-plus">-</span>Time</span>
+                    <span class="cx-stat-l">National Data Flow</span>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-img national-img">
-                        <img src="assets/images/governmental-voting.png" alt="National Elections" class="placeholder-img" loading="lazy">
-                    </div>
-                    <h3 class="lazy-text">National Elections</h3>
-                    <p class="lazy-text">Large-scale election infrastructure for national and regional elections. Handles millions of voters with real-time results, multi-language support, and compliance with international electoral standards and observer requirements.</p>
-                    <ul class="feature-highlights">
-                        <li><i class="fas fa-check"></i> Multi-million voter capacity</li>
-                        <li><i class="fas fa-check"></i> International observer tools</li>
-                        <li><i class="fas fa-check"></i> Multi-language interface</li>
-                    </ul>
+                <div class="cx-stat-item">
+                    <span class="cx-stat-n">End<span class="cx-plus">-</span>to<span class="cx-plus">-</span>End</span>
+                    <span class="cx-stat-l">Electoral Coverage</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Support Section -->
-    <section class="support">
+    <!-- ═══════════════════════════════════════════
+         ABOUT — "Turning Field Data Into Electoral Intelligence"
+         Black bg · heading top-left · body top-right
+         Two photos below: large left (with badge) + smaller right
+         Both photos have thin border frame
+    ═══════════════════════════════════════════ -->
+    <section class="cx-about parallax-section">
         <div class="container">
-            <div class="support-content">
-                <div class="support-text">
-                    <p class="support-label">Fast  Secure  Transparent</p>
-                    <h2>No Need to Stress – We've Got Your Back</h2>
-                    <p>We've got the account setup covered, so you can focus on what matters most: a seamless and hassle-free voting experience tailored to your unique needs and goals</p>
-                    <button class="btn btn-outline">Let's Chat-Schedule a Demo</button>
+            <!-- Top row: heading left, body right -->
+            <div class="cx-about-top">
+                <h2 class="cx-about-heading">Turning Field Data Into<br>Electoral Intelligence</h2>
+                <div class="cx-about-body">
+                    <p>We may be a focused team, but our reach knows no bounds. By staying agile and working hand-in-hand with our clients, we transform raw field data into cutting-edge electoral intelligence that makes a lasting impression.</p>
+                    <p>From the first voter scan to the final result, MachineNova gives every level of your campaign the visibility they need to win.</p>
+                    <a href="book-demo.html" class="cx-btn">Book a Demo &rarr;</a>
                 </div>
-                <div class="support-img">
-                    <img src="assets/images/support-team.png" alt="Support Team" class="person-img" loading="lazy">
+            </div>
+            <!-- Bottom row: two photos -->
+            <div class="cx-about-photos">
+                <div class="cx-photo-wrap cx-photo-wrap--large">
+                    <img src="assets/images/support-team.png" alt="MachineNova team at work" loading="lazy">
+                    <div class="cx-photo-badge">A COMPLETE ELECTORAL<br>TECHNOLOGY SUITE</div>
+                </div>
+                <div class="cx-photo-wrap cx-photo-wrap--small">
+                    <img src="assets/images/about-hero-team.svg" alt="Campaign operations" loading="lazy">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Standout Features -->
-    <section class="standout">
+    <!-- ═══════════════════════════════════════════
+         PLATFORMS / SERVICES
+         Black bg · numbered list left · photo + 2 cards right
+    ═══════════════════════════════════════════ -->
+    <section class="cx-services parallax-section" id="platforms">
         <div class="container">
-            <h2 class="lazy-heading"><span class="word">Our</span> <span class="word">Standout</span> <span class="word">Features</span> <span class="word">and</span> <span class="word">Advantages</span></h2>
-            <p class="section-subtitle lazy-text">Enterprise-grade voting infrastructure trusted by organizations worldwide. Our platform combines military-grade security with intuitive design to deliver elections that are verifiable, transparent, and compliant with international standards.</p>
-            <div class="standout-grid-pro">
-                <div class="standout-card">
-                    <div class="card-badges">
-                        <span class="badge-blue">AES-256</span>
-                        <span class="badge-blue">SSL/TLS</span>
-                    </div>
-                    <h3 class="lazy-text">End-to-End Encryption</h3>
-                    <p class="lazy-text">Military-grade encryption protects every vote from submission to tabulation using AES-256 encryption at rest and TLS 1.3 in transit</p>
-                    <div class="card-metric">
-                        <div class="metric-bar"></div>
-                        <span class="lazy-text">SOC 2 Type II Certified</span>
-                    </div>
+            <div class="cx-services-wrap">
+                <!-- Left -->
+                <div class="cx-services-left">
+                    <p class="cx-label">Our Platforms</p>
+                    <h2 class="cx-services-heading">Our <span class="cx-blue">Platforms</span></h2>
+                    <p class="cx-services-body">We offer a suite of integrated electoral technology platforms designed to give your campaign total visibility — from the first voter scan to the final result.</p>
+                    <nav class="cx-service-list">
+                        <a href="#checkin" class="cx-svc-row">
+                            <span class="cx-svc-num">01</span>
+                            <span class="cx-svc-name">Event Check-In Application</span>
+                            <span class="cx-svc-arr">&rarr;</span>
+                        </a>
+                        <a href="#mobilizer" class="cx-svc-row">
+                            <span class="cx-svc-num">02</span>
+                            <span class="cx-svc-name">Mobilizer Application</span>
+                            <span class="cx-svc-arr">&rarr;</span>
+                        </a>
+                        <a href="#agents" class="cx-svc-row">
+                            <span class="cx-svc-num">03</span>
+                            <span class="cx-svc-name">Agents Management &amp; Results Portal</span>
+                            <span class="cx-svc-arr">&rarr;</span>
+                        </a>
+                        <a href="#surveys" class="cx-svc-row">
+                            <span class="cx-svc-num">04</span>
+                            <span class="cx-svc-name">Surveys &amp; Political Analysis</span>
+                            <span class="cx-svc-arr">&rarr;</span>
+                        </a>
+                    </nav>
                 </div>
-
-                <div class="standout-card">
-                    <div class="card-badges">
-                        <span class="badge-blue">IMMUTABLE</span>
-                        <span class="badge-blue">DISTRIBUTED</span>
-                    </div>
-                    <h3 class="lazy-text">Blockchain Verification</h3>
-                    <p class="lazy-text">Distributed ledger technology creates an immutable record of every vote with cryptographic hashing across multiple nodes</p>
-                    <div class="card-metric">
-                        <div class="metric-bar"></div>
-                        <span class="lazy-text">99.99% Uptime Guarantee</span>
-                    </div>
-                </div>
-
-                <div class="standout-card">
-                    <div class="card-badges">
-                        <span class="badge-blue">LIVE UPDATES</span>
-                        <span class="badge-blue">INSTANT RESULTS</span>
-                    </div>
-                    <h3 class="lazy-text">Real-Time Transparency</h3>
-                    <p class="lazy-text">Live voter turnout tracking and instant result tabulation with real-time dashboards providing transparency while maintaining ballot secrecy</p>
-                    <div class="card-metric">
-                        <div class="metric-bar"></div>
-                        <span class="lazy-text">Results in < 60 seconds</span>
-                    </div>
-                </div>
-
-                <div class="standout-card">
-                    <div class="card-badges">
-                        <span class="badge-blue">TAMPER-PROOF</span>
-                        <span class="badge-blue">COMPLIANT</span>
-                    </div>
-                    <h3 class="lazy-text">Comprehensive Audit Trails</h3>
-                    <p class="lazy-text">Every action logged with cryptographic timestamps tracking voter authentication, ballot casting, and result tabulation for post-election verification</p>
-                    <div class="card-metric">
-                        <div class="metric-bar"></div>
-                        <span class="lazy-text">ISO 27001 Compliant</span>
-                    </div>
-                </div>
-
-                <div class="standout-card">
-                    <div class="card-badges">
-                        <span class="badge-blue">ZERO-KNOWLEDGE</span>
-                        <span class="badge-blue">PRIVATE</span>
-                    </div>
-                    <h3 class="lazy-text">Voter Anonymity Guaranteed</h3>
-                    <p class="lazy-text">Advanced cryptographic protocols ensure complete ballot secrecy with zero-knowledge proof system verifying voter eligibility without revealing identity</p>
-                    <div class="card-metric">
-                        <div class="metric-bar"></div>
-                        <span class="lazy-text">GDPR Compliant</span>
-                    </div>
-                </div>
-
-                <div class="standout-card">
-                    <div class="card-icon-wrapper">
-                        <div class="card-icon blue-icon">
-                            <i class="fas fa-dollar-sign"></i>
+                <!-- Right: photo + floating cards -->
+                <div class="cx-services-right">
+                    <div class="cx-svc-photo-wrap">
+                        <img src="assets/images/governmental-voting.png" alt="Platform in action" class="cx-svc-photo" loading="lazy">
+                        <!-- Top-right floating card (blue) -->
+                        <div class="cx-svc-card cx-svc-card--blue">
+                            <p>Not sure how our platforms can help?</p>
+                            <a href="book-demo.html" class="cx-svc-card-link">See how we work &rarr;</a>
+                        </div>
+                        <!-- Bottom-left floating card (dark) -->
+                        <div class="cx-svc-card cx-svc-card--dark">
+                            <p>Looking for electoral experts to guide your strategy?</p>
+                            <a href="book-demo.html" class="cx-svc-card-link">Meet our team &rarr;</a>
                         </div>
                     </div>
-                    <div class="card-badges">
-                        <span class="badge-blue">SCALABLE</span>
-                        <span class="badge-blue">FLEXIBLE</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         MARQUEE — black bg, white bold + blue dots
+    ═══════════════════════════════════════════ -->
+    <div class="cx-marquee" aria-hidden="true">
+        <div class="cx-marquee-inner">
+            <span>Mobilize</span><span class="cx-mdot">&#10022;</span>
+            <span>Verify</span><span class="cx-mdot">&#10022;</span>
+            <span>Monitor</span><span class="cx-mdot">&#10022;</span>
+            <span>Analyse</span><span class="cx-mdot">&#10022;</span>
+            <span>Win</span><span class="cx-mdot">&#10022;</span>
+            <span>Mobilize</span><span class="cx-mdot">&#10022;</span>
+            <span>Verify</span><span class="cx-mdot">&#10022;</span>
+            <span>Monitor</span><span class="cx-mdot">&#10022;</span>
+            <span>Analyse</span><span class="cx-mdot">&#10022;</span>
+            <span>Win</span><span class="cx-mdot">&#10022;</span>
+            <span>Mobilize</span><span class="cx-mdot">&#10022;</span>
+            <span>Verify</span><span class="cx-mdot">&#10022;</span>
+            <span>Monitor</span><span class="cx-mdot">&#10022;</span>
+            <span>Analyse</span><span class="cx-mdot">&#10022;</span>
+            <span>Win</span><span class="cx-mdot">&#10022;</span>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         PLATFORM DETAILS — 01 Check-In
+    ═══════════════════════════════════════════ -->
+    <section class="cx-platform" id="checkin">
+        <div class="container">
+            <div class="cx-plat-grid">
+                <div class="cx-plat-text">
+                    <span class="cx-plat-num">01</span>
+                    <h2>Event Check-In<br><span class="cx-blue">Application</span></h2>
+                    <p>Built for rallies, aspirant forums, and internal party gatherings. Upload your guest list, scan national IDs at the entrance, and get a real-time political picture of every attendee.</p>
+                    <ul class="cx-feat-list">
+                        <li><strong>ID Verification</strong> — Scans the national ID and confirms identity against the loaded guest list instantly.</li>
+                        <li><strong>Voter Lookup</strong> — Indicates whether the attendee is a registered voter and identifies their region.</li>
+                        <li><strong>KYC Checks</strong> — Lightweight Know-Your-Customer verification against trusted records in real time.</li>
+                        <li><strong>Live Statistics &amp; Region Filtering</strong> — Running totals on check-ins, registered voters, and a live regional breakdown.</li>
+                    </ul>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                </div>
+                <div class="cx-plat-card">
+                    <div class="cx-card-label">Event Check-In — Live</div>
+                    <div class="cx-card-stats">
+                        <div class="cx-cs"><span class="cx-cs-n">1,247</span><span>Total Check-Ins</span></div>
+                        <div class="cx-cs cx-cs--blue"><span class="cx-cs-n">984</span><span>Registered Voters</span></div>
+                        <div class="cx-cs"><span class="cx-cs-n">263</span><span>Unregistered</span></div>
                     </div>
-                    <h3 class="lazy-text">Cost-Effective Solutions</h3>
-                    <p class="lazy-text">Cloud-based infrastructure scales automatically, eliminating physical polling stations and manual counting while maintaining highest security standards</p>
-                    <div class="card-metric">
-                        <div class="metric-bar"></div>
-                        <span class="lazy-text">70% Cost Reduction</span>
+                    <div class="cx-bars">
+                        <div class="cx-bar-row"><span>Host Region</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:78%"></div></div><span>78%</span></div>
+                        <div class="cx-bar-row"><span>Visiting</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:22%"></div></div><span>22%</span></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section class="testimonials" id="testimonials">
+    <!-- 02 Mobilizer -->
+    <section class="cx-platform cx-platform--alt" id="mobilizer">
         <div class="container">
-            <div class="testimonials-box">
-                <h2>Customer Testimonials</h2>
-                <p class="testimonials-subtitle">We take immense pride in the trust our users have placed in our voting application. Their experiences speak volumes about the effectiveness, security, and user-friendliness of our system.</p>
-                <div class="testimonials-grid">
-                    <div class="testimonial-card">
-                        <p>I was amazed at how straightforward and secure the voting process was with this app. It's a game-changer for our elections!</p>
-                        <div class="testimonial-author">
-                            <img src="assets/images/testimonial-james.png" alt="James Kimani" class="author-avatar" loading="lazy">
-                            <div class="author-info">
-                                <h4>James Kimani</h4>
-                                <p>Student</p>
+            <div class="cx-plat-grid cx-plat-grid--rev">
+                <div class="cx-plat-card">
+                    <div class="cx-card-label">Mobilizer Leaderboard</div>
+                    <div class="cx-mob-list">
+                        <div class="cx-mob-row"><span class="cx-mob-rank">1</span><span class="cx-mob-name">Mobilizer A</span><span class="cx-mob-count">342 voters</span></div>
+                        <div class="cx-mob-row"><span class="cx-mob-rank">2</span><span class="cx-mob-name">Mobilizer B</span><span class="cx-mob-count">289 voters</span></div>
+                        <div class="cx-mob-row"><span class="cx-mob-rank">3</span><span class="cx-mob-name">Mobilizer C</span><span class="cx-mob-count">214 voters</span></div>
+                        <div class="cx-mob-row"><span class="cx-mob-rank">4</span><span class="cx-mob-name">Mobilizer D</span><span class="cx-mob-count">178 voters</span></div>
+                    </div>
+                    <div class="cx-card-foot">1,023 ID-verified voters captured today</div>
+                </div>
+                <div class="cx-plat-text">
+                    <span class="cx-plat-num">02</span>
+                    <h2>Mobilizer<br><span class="cx-blue">Application</span></h2>
+                    <p>A campaign-period tool for coordinating door-to-door mobilization. Every voter scanned is attributed to the mobilizer who recruited them — replacing anecdotal estimates with ID-verified records.</p>
+                    <ul class="cx-feat-list">
+                        <li><strong>Voter Capture</strong> — Mobilizers scan voter IDs, instantly capturing each contact into the central database.</li>
+                        <li><strong>Attribution</strong> — Every voter linked to the specific mobilizer who recruited them — full accountability.</li>
+                        <li><strong>Performance Metrics</strong> — Per-mobilizer counts identify high performers and areas needing support.</li>
+                        <li><strong>Vote Projection &amp; Regional Coverage</strong> — ID-verified estimate of likely votes and coverage gap maps.</li>
+                    </ul>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Agents Portal -->
+    <section class="cx-platform" id="agents">
+        <div class="container">
+            <div class="cx-plat-grid">
+                <div class="cx-plat-text">
+                    <span class="cx-plat-num">03</span>
+                    <h2>Agents Management<br>&amp; <span class="cx-blue">Results Portal</span></h2>
+                    <p>The operational backbone of election day. Manages the full chain of command from national administrators down to individual polling-station agents, and captures results live.</p>
+                    <div class="cx-tabs">
+                        <button class="cx-tab cx-tab--active" data-tab="structure">Structure</button>
+                        <button class="cx-tab" data-tab="monitoring">Monitoring</button>
+                        <button class="cx-tab" data-tab="results">Results</button>
+                    </div>
+                    <div class="cx-pane cx-pane--active" id="tab-structure">
+                        <ul class="cx-feat-list">
+                            <li><strong>Role-Based Access</strong> — Four permission levels calibrated to each role in the hierarchy.</li>
+                            <li><strong>Geographic Scoping</strong> — Managers restricted to their specific region, constituency, or ward.</li>
+                            <li><strong>Agent Directory</strong> — Single interface listing all agents and managers with contact details.</li>
+                        </ul>
+                    </div>
+                    <div class="cx-pane" id="tab-monitoring">
+                        <ul class="cx-feat-list">
+                            <li><strong>Station Status</strong> — Confirms which polling stations have opened on time from agent reports.</li>
+                            <li><strong>Turnout Tracking</strong> — Hourly breakdowns of voter turnout by polling centre, region, and constituency.</li>
+                            <li><strong>Centralised Visibility</strong> — All field activity in one dashboard so leadership can intervene where needed.</li>
+                        </ul>
+                    </div>
+                    <div class="cx-pane" id="tab-results">
+                        <ul class="cx-feat-list">
+                            <li><strong>Live Tallying</strong> — Results flow from agents to managers and into the portal as they arrive.</li>
+                            <li><strong>Leaderboard View</strong> — Real-time view of which candidates are leading or trailing across each race.</li>
+                            <li><strong>Visual Dashboards</strong> — Maps, charts, and headline figures updating continuously as counting progresses.</li>
+                        </ul>
+                    </div>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                </div>
+                <div class="cx-plat-card">
+                    <div class="cx-card-label">Results Portal — Live Count</div>
+                    <div class="cx-tally">
+                        <div class="cx-tally-row"><span>Candidate A</span><div class="cx-bar-track"><div class="cx-bar-fill cx-bar-fill--lead" style="width:54%"></div></div><span>54%</span></div>
+                        <div class="cx-tally-row"><span>Candidate B</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:31%"></div></div><span>31%</span></div>
+                        <div class="cx-tally-row"><span>Candidate C</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:15%"></div></div><span>15%</span></div>
+                    </div>
+                    <div class="cx-stations">
+                        <span style="color:#4ade80">&#9679;</span> 312 Open &nbsp;
+                        <span style="color:#fbbf24">&#9679;</span> 14 Pending &nbsp;
+                        <span style="color:#f87171">&#9679;</span> 3 Issues
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Surveys -->
+    <section class="cx-platform cx-platform--alt" id="surveys">
+        <div class="container">
+            <div class="cx-plat-grid cx-plat-grid--rev">
+                <div class="cx-plat-card">
+                    <div class="cx-card-label">Regional Intelligence</div>
+                    <div class="cx-card-stats">
+                        <div class="cx-cs"><span class="cx-cs-n">68%</span><span>Registered</span></div>
+                        <div class="cx-cs cx-cs--blue"><span class="cx-cs-n">32%</span><span>Unregistered</span></div>
+                    </div>
+                    <div class="cx-bars">
+                        <div class="cx-bar-row"><span>North</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:82%"></div></div><span>82%</span></div>
+                        <div class="cx-bar-row"><span>South</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:61%"></div></div><span>61%</span></div>
+                        <div class="cx-bar-row"><span>East</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:74%"></div></div><span>74%</span></div>
+                    </div>
+                </div>
+                <div class="cx-plat-text">
+                    <span class="cx-plat-num">04</span>
+                    <h2>Surveys &amp;<br><span class="cx-blue">Political Analysis</span></h2>
+                    <p>Surveys, voter registration data, and demographic analysis combined into regional intelligence that informs both campaign planning and election-day strategy.</p>
+                    <ul class="cx-feat-list">
+                        <li><strong>Registration Analysis</strong> — Quantifies registered vs unregistered voters by region, revealing mobilization opportunity.</li>
+                        <li><strong>Demographic Profiling</strong> — Identifies dominant communities and dynamics relevant to political strategy.</li>
+                        <li><strong>Voter Breakdown</strong> — Region-by-region analysis for targeting mobilization and campaign messaging.</li>
+                        <li><strong>Strategic Insight</strong> — Field data combined with survey work to surface political dynamics in each region.</li>
+                    </ul>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         TEAM — "Meet Our Team"
+         Dark bg · 3-col mixed cards · no icons
+    ═══════════════════════════════════════════ -->
+    <section class="cx-team">
+        <div class="container">
+            <div class="cx-team-hdr">
+                <div>
+                    <p class="cx-label">The People Behind the Platform</p>
+                    <h2 class="cx-team-title">Meet Our <span class="cx-blue">Team</span></h2>
+                </div>
+                <a href="book-demo.html" class="cx-btn-outline">Work with us &rarr;</a>
+            </div>
+            <div class="cx-team-grid">
+                <div class="cx-tc cx-tc--white">
+                    <img src="assets/images/testimonial-james.png" alt="James Kimani" loading="lazy">
+                    <h4>James Kimani</h4>
+                    <p>National Campaign Director</p>
+                    <div class="cx-tc-tags"><span>Strategy</span><span>Operations</span></div>
+                </div>
+                <div class="cx-tc cx-tc--dark">
+                    <img src="assets/images/testimonial-luke.png" alt="Luke Kiptoo" loading="lazy">
+                    <h4>Luke Kiptoo</h4>
+                    <p>Regional Coordinator</p>
+                    <div class="cx-tc-tags"><span>Field Ops</span><span>Mobilization</span></div>
+                </div>
+                <div class="cx-tc cx-tc--blue">
+                    <img src="assets/images/testimonial-alfred.png" alt="Alfred Mututu" loading="lazy">
+                    <h4>Alfred Mututu</h4>
+                    <p>Event &amp; Logistics Manager</p>
+                    <div class="cx-tc-tags"><span>Events</span><span>Check-In</span></div>
+                </div>
+                <div class="cx-tc cx-tc--dark">
+                    <img src="assets/images/testimonial-james.png" alt="Sarah Wanjiku" loading="lazy">
+                    <h4>Sarah Wanjiku</h4>
+                    <p>Data &amp; Analytics Lead</p>
+                    <div class="cx-tc-tags"><span>Analytics</span><span>Surveys</span></div>
+                </div>
+                <div class="cx-tc cx-tc--white">
+                    <img src="assets/images/testimonial-luke.png" alt="David Ochieng" loading="lazy">
+                    <h4>David Ochieng</h4>
+                    <p>Platform Engineer</p>
+                    <div class="cx-tc-tags"><span>Engineering</span><span>Security</span></div>
+                </div>
+                <div class="cx-tc cx-tc--dark">
+                    <img src="assets/images/testimonial-alfred.png" alt="Grace Muthoni" loading="lazy">
+                    <h4>Grace Muthoni</h4>
+                    <p>Client Success Manager</p>
+                    <div class="cx-tc-tags"><span>Support</span><span>Onboarding</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SCROLLING TAGS STRIP
+    ═══════════════════════════════════════════ -->
+    <div class="cx-tags" aria-hidden="true">
+        <div class="cx-tags-inner">
+            <span>Event Check-In</span><span class="cx-tsep">&middot;</span>
+            <span>Mobilizer App</span><span class="cx-tsep">&middot;</span>
+            <span>Agents Portal</span><span class="cx-tsep">&middot;</span>
+            <span>Surveys &amp; Analytics</span><span class="cx-tsep">&middot;</span>
+            <span>ID Verification</span><span class="cx-tsep">&middot;</span>
+            <span>Live Results</span><span class="cx-tsep">&middot;</span>
+            <span>Vote Projection</span><span class="cx-tsep">&middot;</span>
+            <span>Regional Intelligence</span><span class="cx-tsep">&middot;</span>
+            <span>Event Check-In</span><span class="cx-tsep">&middot;</span>
+            <span>Mobilizer App</span><span class="cx-tsep">&middot;</span>
+            <span>Agents Portal</span><span class="cx-tsep">&middot;</span>
+            <span>Surveys &amp; Analytics</span><span class="cx-tsep">&middot;</span>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         FAQs
+    ═══════════════════════════════════════════ -->
+    <section class="cx-faqs" id="faqs">
+        <div class="container">
+            <div class="cx-faqs-grid">
+                <div class="cx-faqs-left">
+                    <p class="cx-label">Got Questions?</p>
+                    <h2>Frequently<br>Asked <span class="cx-blue">Questions</span></h2>
+                    <p>Common questions about the MachineNova platform suite. Can't find what you're looking for?</p>
+                    <a href="book-demo.html" class="cx-btn">Talk to us &rarr;</a>
+                </div>
+                <div class="cx-faqs-right">
+                    <div class="cx-faq" data-open="false">
+                        <button class="cx-faq-q">How do the four platforms share data? <span class="cx-faq-ico">+</span></button>
+                        <div class="cx-faq-a"><p>All four platforms share a common identity, voter, and reporting layer. Data captured by a mobilizer in the field is immediately visible in the national dashboard without any manual transfer.</p></div>
+                    </div>
+                    <div class="cx-faq">
+                        <button class="cx-faq-q">What ID documents does the system support? <span class="cx-faq-ico">+</span></button>
+                        <div class="cx-faq-a"><p>The platform is built around national ID scanning. Specific document types are configured during onboarding to match the identity infrastructure of your country or region.</p></div>
+                    </div>
+                    <div class="cx-faq">
+                        <button class="cx-faq-q">Can agents use the portal without internet? <span class="cx-faq-ico">+</span></button>
+                        <div class="cx-faq-a"><p>The platform is designed for real-time connectivity. Our team works with clients during setup to assess field connectivity and recommend appropriate data plans or offline contingency approaches.</p></div>
+                    </div>
+                    <div class="cx-faq">
+                        <button class="cx-faq-q">How are permissions managed across the hierarchy? <span class="cx-faq-ico">+</span></button>
+                        <div class="cx-faq-a"><p>The Agents Portal uses role-based access control with four levels: national administrator, regional administrator, manager, and agent. Managers can be geographically scoped to a specific region, constituency, or ward.</p></div>
+                    </div>
+                    <div class="cx-faq">
+                        <button class="cx-faq-q">Is MachineNova suitable for smaller campaigns? <span class="cx-faq-ico">+</span></button>
+                        <div class="cx-faq-a"><p>The platform scales from local constituency campaigns up to national elections. You can deploy one platform or the full suite depending on your operational needs.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         CONTACT — "Get in Touch Today!"
+         Left: white bg, heading, info, photo
+         Right: blue bg form card
+    ═══════════════════════════════════════════ -->
+    <section class="cx-contact" id="contact">
+        <div class="container">
+            <div class="cx-contact-grid">
+                <div class="cx-contact-left">
+                    <p class="cx-label">Ready to Get Started?</p>
+                    <h2>Get in Touch <span class="cx-blue">Today!</span></h2>
+                    <p>Whether you're planning a local campaign or a national election, our team is ready to help you deploy the right tools.</p>
+                    <div class="cx-contact-info">
+                        <div>info@machinenova.com</div>
+                        <div>+254 712 345 678</div>
+                        <div>Nairobi, Kenya</div>
+                    </div>
+                    <img src="assets/images/support-team.png" alt="MachineNova team" class="cx-contact-photo" loading="lazy">
+                </div>
+                <div class="cx-contact-right">
+                    <div class="cx-form-card">
+                        <h3>Book a Demo</h3>
+                        <form id="cx-form">
+                            <div class="cx-form-row">
+                                <input type="text" placeholder="Your Name" required>
+                                <input type="email" placeholder="Email Address" required>
                             </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-card">
-                        <p>As an election administrator, I appreciate the efficiency and transparency of this voting system. It has made my job much easier</p>
-                        <div class="testimonial-author">
-                            <img src="assets/images/testimonial-luke.png" alt="Luke Kiptoo" class="author-avatar" loading="lazy">
-                            <div class="author-info">
-                                <h4>Luke Kiptoo</h4>
-                                <p>Election administrator</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="testimonial-card">
-                        <p>This app is a brilliant solution for remote voting. It's user-friendly and ensures the integrity of our elections. Kudos to the team!</p>
-                        <div class="testimonial-author">
-                            <img src="assets/images/testimonial-alfred.png" alt="Alfred Mututu" class="author-avatar" loading="lazy">
-                            <div class="author-info">
-                                <h4>Alfred Mututu</h4>
-                                <p>Project manager</p>
-                            </div>
-                        </div>
+                            <input type="text" placeholder="Organisation / Campaign Name">
+                            <select>
+                                <option value="" disabled selected>Platform of Interest</option>
+                                <option>Event Check-In Application</option>
+                                <option>Mobilizer Application</option>
+                                <option>Agents Management &amp; Results Portal</option>
+                                <option>Surveys &amp; Political Analysis</option>
+                                <option>Full Suite</option>
+                            </select>
+                            <textarea placeholder="Tell us about your campaign..." rows="4"></textarea>
+                            <button type="submit" class="cx-form-btn">Send Message &rarr;</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQs -->
-    <section class="faqs" id="faqs">
+    <!-- ═══════════════════════════════════════════
+         FOOTER
+    ═══════════════════════════════════════════ -->
+    <footer class="cx-footer">
         <div class="container">
-            <h2>FAQs</h2>
-            <p class="faqs-subtitle">We've compiled a list of common questions and answers to assist you. If you have any queries, our FAQs section might provide the information you need.</p>
-            <div class="faqs-list">
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>How secure is the voting process with your application</span>
-                        <button class="faq-toggle"><i class="fas fa-plus"></i></button>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Our voting system is designed with advanced security measures, including end-to-end encryption and strict data protection protocols. It undergoes regular security audits to ensure the integrity of the voting process.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>Is the voting application accessible to all users, including individuals with disabilities?</span>
-                        <button class="faq-toggle"><i class="fas fa-plus"></i></button>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes, we prioritize accessibility. Our application is designed to accommodate users with various abilities, including support for screen readers and keyboard navigation.</p>
+            <div class="cx-footer-top">
+                <div class="cx-footer-brand">
+                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo">
+                    <p>End-to-end electoral technology for parties, administrators, and campaign teams.</p>
+                    <div class="cx-social">
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Fb</a>
+                        <a href="https://x.com" target="_blank" rel="noopener noreferrer">X</a>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">Li</a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Ig</a>
                     </div>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>How can I verify that my vote has been counted?</span>
-                        <button class="faq-toggle"><i class="fas fa-plus"></i></button>
+                <div class="cx-footer-cols">
+                    <div class="cx-footer-col">
+                        <h5>Platforms</h5>
+                        <ul>
+                            <li><a href="#checkin">Event Check-In</a></li>
+                            <li><a href="#mobilizer">Mobilizer App</a></li>
+                            <li><a href="#agents">Agents &amp; Results Portal</a></li>
+                            <li><a href="#surveys">Surveys &amp; Analytics</a></li>
+                        </ul>
                     </div>
-                    <div class="faq-answer">
-                        <p>You'll receive a confirmation and an electronic receipt once your vote is successfully submitted. Additionally, our system maintains transparent audit trails for verification</p>
+                    <div class="cx-footer-col">
+                        <h5>Company</h5>
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="#faqs">FAQs</a></li>
+                            <li><a href="book-demo.html">Book Demo</a></li>
+                        </ul>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Security & Compliance Section -->
-    <section class="security-compliance">
-        <div class="container">
-            <div class="security-header">
-                <h2 class="lazy-heading">
-                    <span class="word">Enterprise-Grade</span>
-                    <span class="word">Security</span>
-                    <span class="word">&</span>
-                    <span class="word">Compliance</span>
-                </h2>
-                <p class="section-subtitle lazy-text">Your election security is our top priority. We maintain the highest standards of data protection and regulatory compliance.</p>
-            </div>
-
-            <div class="security-grid">
-                <div class="security-card">
-                    <div class="security-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <h3>Data Encryption</h3>
-                    <p>AES-256 encryption for data at rest and TLS 1.3 for data in transit. All votes are encrypted before storage.</p>
-                    <div class="security-badge">Military-Grade</div>
-                </div>
-
-                <div class="security-card">
-                    <div class="security-icon">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                    <h3>SOC 2 Type II</h3>
-                    <p>Independently audited and certified for security, availability, processing integrity, and privacy.</p>
-                    <div class="security-badge">Certified</div>
-                </div>
-
-                <div class="security-card">
-                    <div class="security-icon">
-                        <i class="fas fa-shield-check"></i>
-                    </div>
-                    <h3>ISO 27001</h3>
-                    <p>International standard for information security management systems ensuring systematic data protection.</p>
-                    <div class="security-badge">Compliant</div>
-                </div>
-
-                <div class="security-card">
-                    <div class="security-icon">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <h3>GDPR & CCPA</h3>
-                    <p>Full compliance with global data protection regulations including GDPR, CCPA, and regional privacy laws.</p>
-                    <div class="security-badge">Privacy First</div>
-                </div>
-
-                <div class="security-card">
-                    <div class="security-icon">
-                        <i class="fas fa-bug"></i>
-                    </div>
-                    <h3>Penetration Testing</h3>
-                    <p>Quarterly penetration testing by independent security firms to identify and address vulnerabilities.</p>
-                    <div class="security-badge">Tested</div>
-                </div>
-
-                <div class="security-card">
-                    <div class="security-icon">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <h3>Audit Trails</h3>
-                    <p>Comprehensive logging of all activities with tamper-proof audit trails for post-election verification.</p>
-                    <div class="security-badge">Transparent</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Teaser Section -->
-    <section class="pricing-teaser">
-        <div class="container">
-            <div class="pricing-content">
-                <h2>Flexible Pricing for Every Organization</h2>
-                <p>From small student councils to large-scale national elections, we have a plan that fits your needs and budget.</p>
-                
-                <div class="pricing-highlights">
-                    <div class="pricing-highlight">
-                        <i class="fas fa-check-circle"></i>
-                        <span>No setup fees</span>
-                    </div>
-                    <div class="pricing-highlight">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Pay per election</span>
-                    </div>
-                    <div class="pricing-highlight">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Volume discounts</span>
-                    </div>
-                    <div class="pricing-highlight">
-                        <i class="fas fa-check-circle"></i>
-                        <span>NGO pricing available</span>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Get Custom Quote</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Security & Compliance Section -->
-    <!-- Problems We Solve Section -->
-    <section class="problems-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="lazy-heading">
-                    <span class="word">Problems</span>
-                    <span class="word">We</span>
-                    <span class="word">Solve</span>
-                </h2>
-                <p class="section-subtitle lazy-text">Traditional voting faces critical challenges. We provide modern solutions that make elections accessible, secure, and transparent.</p>
-            </div>
-
-            <div class="problems-grid">
-                <div class="problem-card">
-                    <div class="problem-visual">
-                        <img src="assets/images/problem-long-queues.png" alt="Long Voting Queues Problem" class="problem-img" loading="lazy">
-                        <div class="problem-overlay">
-                            <span class="problem-tag">Traditional Challenge</span>
-                        </div>
-                    </div>
-                    <div class="problem-content">
-                        <h3><i class="fas fa-users"></i> Long Queues & Low Turnout</h3>
-                        <p class="problem-desc">Physical polling stations create barriers - long wait times, limited hours, and accessibility issues prevent many eligible voters from participating.</p>
-                    </div>
-                </div>
-                
-                <div class="problem-card">
-                    <div class="problem-visual">
-                        <img src="assets/images/problem-manual-counting.png" alt="Manual Counting Errors" class="problem-img" loading="lazy">
-                        <div class="problem-overlay">
-                            <span class="problem-tag">Human Error Risk</span>
-                        </div>
-                    </div>
-                    <div class="problem-content">
-                        <h3><i class="fas fa-calculator"></i> Manual Counting Errors</h3>
-                        <p class="problem-desc">Hand-counting ballots introduces human error, delays results, and creates opportunities for disputes about accuracy and integrity.</p>
-                    </div>
-                </div>
-                
-                <div class="problem-card">
-                    <div class="problem-visual">
-                        <img src="assets/images/problem-accessibility.png" alt="Accessibility Barriers" class="problem-img" loading="lazy">
-                        <div class="problem-overlay">
-                            <span class="problem-tag">Inclusion Gap</span>
-                        </div>
-                    </div>
-                    <div class="problem-content">
-                        <h3><i class="fas fa-wheelchair"></i> Accessibility Barriers</h3>
-                        <p class="problem-desc">Voters with disabilities, elderly citizens, and those with mobility challenges face significant obstacles in accessing physical polling locations.</p>
-                    </div>
-                </div>
-                
-                <div class="problem-card">
-                    <div class="problem-visual">
-                        <img src="assets/images/problem-security.svg" alt="Security Concerns" class="problem-img" loading="lazy">
-                        <div class="problem-overlay">
-                            <span class="problem-tag">Security Risk</span>
-                        </div>
-                    </div>
-                    <div class="problem-content">
-                        <h3><i class="fas fa-lock"></i> Security Concerns</h3>
-                        <p class="problem-desc">Physical ballots can be lost, damaged, or tampered with. Chain of custody is difficult to maintain and verify across multiple locations.</p>
-                    </div>
-                </div>
-                
-                <div class="problem-card">
-                    <div class="problem-visual">
-                        <img src="assets/images/problem-geographic.png" alt="Geographic Limitations" class="problem-img" loading="lazy">
-                        <div class="problem-overlay">
-                            <span class="problem-tag">Distance Challenge</span>
-                        </div>
-                    </div>
-                    <div class="problem-content">
-                        <h3><i class="fas fa-globe"></i> Geographic Limitations</h3>
-                        <p class="problem-desc">Voters living abroad, in remote areas, or with work conflicts cannot easily participate in elections held on fixed dates and locations.</p>
+                    <div class="cx-footer-col">
+                        <h5>Contact</h5>
+                        <ul>
+                            <li><a href="mailto:info@machinenova.com">info@machinenova.com</a></li>
+                            <li><a href="tel:+254712345678">+254 712 345 678</a></li>
+                            <li>Nairobi, Kenya</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <img src="assets/logo.png" alt="Machineova" class="footer-logo">
-                    <p>Building trust in democratic processes</p>
-                    <div class="footer-certifications">
-                        <span class="cert-badge"><i class="fas fa-shield-check"></i> SOC 2</span>
-                        <span class="cert-badge"><i class="fas fa-certificate"></i> ISO 27001</span>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h4>Solutions</h4>
-                    <ul>
-                        <li><a href="index.html#features">Educational Balloting</a></li>
-                        <li><a href="index.html#features">Corporate Balloting</a></li>
-                        <li><a href="index.html#features">Government Voting</a></li>
-                        <li><a href="index.html#features">National Elections</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="index.html#features">Features</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="index.html#faqs">FAQs</a></li>
-                        <li><a href="book-demo.html">Book Demo</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="#"><i class="fas fa-book"></i> Documentation</a></li>
-                        <li><a href="#"><i class="fas fa-file-alt"></i> Case Studies</a></li>
-                        <li><a href="#"><i class="fas fa-shield-alt"></i> Security</a></li>
-                        <li><a href="#"><i class="fas fa-balance-scale"></i> Compliance</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Follow Us</h4>
-                    <div class="social-icons">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="https://x.com" target="_blank" rel="noopener noreferrer" title="X (Twitter)">
-                            <i class="fab fa-x-twitter"></i>
-                        </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><a href="mailto:info@machineova.com"><i class="fas fa-envelope"></i> info@machineova.com</a></li>
-                        <li><a href="mailto:support@machineova.com"><i class="fas fa-headset"></i> support@machineova.com</a></li>
-                        <li><a href="tel:+254712345678"><i class="fas fa-phone"></i> +254 712 345 678</a></li>
-                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-divider"></div>
-            <div class="footer-bottom">
-                <div class="footer-bottom-content">
-                    <p>&copy; 2026 Machineova. All rights reserved.</p>
-                    <div class="footer-links">
-                        <a href="privacy-policy.html">Privacy Policy</a>
-                        <span class="separator">•</span>
-                        <a href="terms-of-service.html">Terms of Service</a>
-                        <span class="separator">•</span>
-                        <a href="#">Cookie Policy</a>
-                    </div>
+            <div class="cx-footer-bottom">
+                <p>&copy; 2026 MachineNova. All rights reserved.</p>
+                <div>
+                    <a href="privacy-policy.html">Privacy Policy</a>
+                    <span>&middot;</span>
+                    <a href="terms-of-service.html">Terms of Service</a>
                 </div>
             </div>
         </div>
@@ -594,5 +592,7 @@
 
     <script src="script-modern.js"></script>
     <script src="script.js"></script>
+    <script src="machinenova.js"></script>
+    <script src="effects.js"></script>
 </body>
 </html>
