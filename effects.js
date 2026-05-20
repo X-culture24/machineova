@@ -40,24 +40,39 @@
   function initReveal() {
     // Auto-tag common content elements if not already tagged
     var autoTargets = [
+      // Homepage
+      '.cx-trust-strip',
+      '.cx-overview-head h2', '.cx-overview-head p',
+      '.cx-ov-card',
       '.cx-about-heading', '.cx-about-body',
       '.cx-about-photos .cx-photo-wrap',
-      '.cx-services-heading', '.cx-services-body',
-      '.cx-svc-row',
-      '.cx-plat-text h2', '.cx-plat-text > p', '.cx-feat-list',
-      '.cx-plat-card',
+      '.cx-for-head h2', '.cx-for-card',
+      '.cx-spotlight-text h2', '.cx-spotlight-text p', '.cx-spotlight-list',
+      '.cx-cmd-card',
+      '.cx-sec-text h2', '.cx-sec-text p', '.cx-sec-pillar',
+      '.cx-cases-head h2', '.cx-case-card',
+      '.cx-faqs-left h2', '.cx-faqs-left p', '.cx-faq',
+      '.cx-cta-text h2', '.cx-cta-text p', '.cx-form-card',
+      // Platforms page
+      '.cx-plat-text h2', '.cx-plat-text > p', '.cx-plat-lead',
+      '.cx-feat-item', '.cx-data-card',
+      '.cx-services-heading', '.cx-services-body', '.cx-svc-row',
       '.cx-stat-item',
-      '.cx-team-title', '.cx-tc',
-      '.cx-faqs-left h2', '.cx-faqs-left p',
-      '.cx-faq',
-      '.cx-contact-left h2', '.cx-contact-left > p',
-      // About page
+      // Security page
+      '.cx-sec-intro h2', '.cx-sec-intro p', '.cx-sec-card',
+      '.cx-sec-cta h2',
+      // Case studies page
+      '.cx-cs-item',
+      // About page (new)
+      '.cx-ap-text h2', '.cx-ap-text p',
+      '.cx-ap-intro h2', '.cx-ap-intro p',
+      '.cx-ap-plat', '.cx-ap-aud', '.cx-ap-why-item',
+      '.cx-about-cta h2', '.cx-about-cta p',
+      // Legacy about page
       '.about-section h2', '.about-section p',
       '.why-item', '.tech-item', '.stat-item',
       // Book demo
-      '.booking-progress', '.form-step.active h2',
-      // Legal pages
-      '.about-section h3'
+      '.booking-progress', '.form-step.active h2'
     ];
 
     autoTargets.forEach(function (sel) {
@@ -100,6 +115,37 @@
     // Stagger impact stats
     var impactStats = document.querySelector('.impact-stats');
     if (impactStats) impactStats.classList.add('reveal-group');
+
+    // Stagger overview cards (homepage)
+    var overviewGrid = document.querySelector('.cx-overview-grid');
+    if (overviewGrid) overviewGrid.classList.add('reveal-group');
+
+    // Stagger for-grid cards (homepage)
+    var forGrid = document.querySelector('.cx-for-grid');
+    if (forGrid) forGrid.classList.add('reveal-group');
+
+    // Stagger case cards (homepage + case studies)
+    var casesGrid = document.querySelector('.cx-cases-grid');
+    if (casesGrid) casesGrid.classList.add('reveal-group');
+
+    // Stagger security pillars (homepage)
+    var secPillars = document.querySelector('.cx-sec-pillars');
+    if (secPillars) secPillars.classList.add('reveal-group');
+
+    // Stagger security cards (security page)
+    var secCardGrid = document.querySelector('.cx-sec-grid');
+    if (secCardGrid) secCardGrid.classList.add('reveal-group');
+
+    // Stagger feat grids (platforms page)
+    document.querySelectorAll('.cx-feat-grid').forEach(function (g) {
+      g.classList.add('reveal-group');
+    });
+
+    // Stagger about page grids
+    ['cx-ap-platforms', 'cx-ap-audience', 'cx-ap-why'].forEach(function (cls) {
+      var el = document.querySelector('.' + cls);
+      if (el) el.classList.add('reveal-group');
+    });
 
     // Observer
     var observer = new IntersectionObserver(function (entries) {

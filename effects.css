@@ -103,24 +103,270 @@ body.light-mode {
   color: #0a0a0a !important;
 }
 
-/* All dark sections become white/light */
+/* ── Hero in light mode ── */
+body.light-mode .hero {
+  background: #f7f8fc !important;
+}
+body.light-mode .hero-box {
+  background: #ffffff !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .hero h1,
+body.light-mode .hero-label,
+body.light-mode .hero-desc {
+  color: #0a0a0a !important;
+}
+body.light-mode .hero-label { color: #555 !important; }
+body.light-mode .hero-stat-num { color: #0055FF !important; }
+body.light-mode .hero-stat-label { color: #888 !important; }
+body.light-mode .hero-stats { border-color: #e0e0e0 !important; }
+body.light-mode .phone { background: #fff !important; border-color: #e0e0e0 !important; }
+body.light-mode .phone-notch { background: #e0e0e0 !important; }
+
+/* ── Header in light mode ── */
+body.light-mode .header {
+  background: #fff !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .nav-menu a { color: #0a0a0a !important; }
+body.light-mode .nav-menu a:hover { color: #0055FF !important; }
+body.light-mode .hamburger span { background: #0a0a0a !important; }
+body.light-mode .dropdown-menu {
+  background: #fff !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .dropdown-menu li a { color: #333 !important; }
+body.light-mode .dropdown-menu li a:hover { background: #e8eeff !important; color: #0055FF !important; }
+
+/* ── All dark sections become white/light ── */
 body.light-mode .cx-stats,
 body.light-mode .cx-about,
 body.light-mode .cx-platform,
-body.light-mode .cx-team,
+body.light-mode .cx-for,
+body.light-mode .cx-spotlight,
+body.light-mode .cx-security-block,
 body.light-mode .cx-faqs,
-body.light-mode .cx-tags,
-body.light-mode .cx-marquee {
+body.light-mode .cx-contact-cta,
+body.light-mode .cx-about-page-section,
+body.light-mode .cx-plat-section,
+body.light-mode .cx-sec-main,
+body.light-mode .cx-cs-main,
+body.light-mode .cx-page-hero {
   background: #ffffff !important;
   border-color: #e0e0e0 !important;
 }
 
 body.light-mode .cx-services,
 body.light-mode .cx-platform--alt,
-body.light-mode .cx-footer {
-  background: #f4f6fb !important;
+body.light-mode .cx-plat-section--alt,
+body.light-mode .cx-cases-teaser,
+body.light-mode .cx-about-page-section--alt,
+body.light-mode .cx-sec-cta,
+body.light-mode .cx-trust-strip,
+body.light-mode .cx-overview,
+body.light-mode .cx-tags-strip {
+  background: #f7f8fc !important;
   border-color: #e0e0e0 !important;
 }
+
+/* ── Text colors in light mode ── */
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode h5,
+body.light-mode h6,
+body.light-mode .cx-about-heading,
+body.light-mode .cx-section-title,
+body.light-mode .cx-ap-text h2,
+body.light-mode .cx-ap-intro h2,
+body.light-mode .cx-ap-plat h4,
+body.light-mode .cx-ap-aud h4,
+body.light-mode .cx-ap-why-item h4,
+body.light-mode .cx-plat-text h2,
+body.light-mode .cx-plat-lead,
+body.light-mode .cx-spotlight-text h2,
+body.light-mode .cx-sec-text h2,
+body.light-mode .cx-cases-head h2,
+body.light-mode .cx-faqs-left h2,
+body.light-mode .cx-cta-text h2,
+body.light-mode .cx-cs-body h3,
+body.light-mode .cx-cs-lead,
+body.light-mode .cx-sec-card h4,
+body.light-mode .cx-case-card h4,
+body.light-mode .cx-for-card h4,
+body.light-mode .cx-ov-card h3,
+body.light-mode .cx-dc-head,
+body.light-mode .cx-mob-name,
+body.light-mode .cx-faq-q,
+body.light-mode .cx-stat-n,
+body.light-mode .cx-cmd-title,
+body.light-mode .cx-cmd-name,
+body.light-mode .cx-cmd-pct,
+body.light-mode .cx-dc-n,
+body.light-mode .cx-plat-num,
+body.light-mode .cx-sub-heading {
+  color: #0a0a0a !important;
+}
+
+body.light-mode p,
+body.light-mode .cx-about-body p,
+body.light-mode .cx-services-body,
+body.light-mode .cx-plat-text > p,
+body.light-mode .cx-faqs-left p,
+body.light-mode .cx-faq-a p,
+body.light-mode .cx-feat-item p,
+body.light-mode .cx-stat-l,
+body.light-mode .cx-gray-l,
+body.light-mode .cx-ap-text p,
+body.light-mode .cx-ap-intro p,
+body.light-mode .cx-ap-plat p,
+body.light-mode .cx-ap-aud p,
+body.light-mode .cx-ap-why-item p,
+body.light-mode .cx-spotlight-text p,
+body.light-mode .cx-sec-text p,
+body.light-mode .cx-cases-head p,
+body.light-mode .cx-cta-text p,
+body.light-mode .cx-cs-challenge p,
+body.light-mode .cx-cs-solution p,
+body.light-mode .cx-sec-card p,
+body.light-mode .cx-case-card p,
+body.light-mode .cx-for-card p,
+body.light-mode .cx-ov-card p,
+body.light-mode .cx-sec-pillar p,
+body.light-mode .cx-spotlight-list li,
+body.light-mode .cx-feat-item strong,
+body.light-mode .cx-cs-outcome span:last-child,
+body.light-mode .cx-trust-items span,
+body.light-mode .cx-trust-label {
+  color: #444 !important;
+}
+
+/* ── Cards in light mode ── */
+body.light-mode .cx-data-card,
+body.light-mode .cx-cmd-card,
+body.light-mode .cx-form-card,
+body.light-mode .cx-ap-plat,
+body.light-mode .cx-ap-why-item,
+body.light-mode .cx-sec-card,
+body.light-mode .cx-case-card,
+body.light-mode .cx-ov-card,
+body.light-mode .cx-for-card {
+  background: #ffffff !important;
+  border-color: #e0e0e0 !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+}
+body.light-mode .cx-ov-card--featured {
+  background: #0055FF !important;
+  border-color: #0055FF !important;
+}
+body.light-mode .cx-ov-card--featured h3,
+body.light-mode .cx-ov-card--featured p,
+body.light-mode .cx-ov-card--featured .cx-ov-num,
+body.light-mode .cx-ov-card--featured .cx-ov-link { color: #fff !important; }
+
+body.light-mode .cx-mob-row,
+body.light-mode .cx-dc-s { background: #f7f8fc !important; }
+body.light-mode .cx-dc-s--blue { background: #e8eeff !important; border-color: rgba(0,85,255,0.2) !important; }
+body.light-mode .cx-bar-track,
+body.light-mode .cx-cmd-track { background: #e0e0e0 !important; }
+body.light-mode .cx-dc-foot,
+body.light-mode .cx-mob-count { color: #0055FF !important; }
+body.light-mode .cx-dc-bar span:last-child { color: #0055FF !important; }
+body.light-mode .cx-faq { border-color: #e0e0e0 !important; }
+body.light-mode .cx-cta-details div { border-color: #e0e0e0 !important; color: #555 !important; }
+
+/* ── Service list in light mode ── */
+body.light-mode .cx-svc-row { color: #0a0a0a !important; border-color: #e0e0e0 !important; }
+body.light-mode .cx-svc-row:first-child { border-color: #e0e0e0 !important; }
+body.light-mode .cx-svc-num { color: #aaa !important; }
+body.light-mode .cx-svc-arr { color: #aaa !important; }
+body.light-mode .cx-svc-row:hover { color: #0055FF !important; }
+
+/* ── Floating cards in light mode ── */
+body.light-mode .cx-float-card { background: #fff !important; border-color: #e0e0e0 !important; }
+body.light-mode .cx-float-card p { color: #555 !important; }
+
+/* ── Platform nav in light mode ── */
+body.light-mode .cx-plat-nav { background: #f7f8fc !important; border-color: #e0e0e0 !important; }
+body.light-mode .cx-plat-nav a { color: #555 !important; }
+body.light-mode .cx-plat-nav a:hover { color: #0055FF !important; border-color: #0055FF !important; }
+
+/* ── Feat items in light mode ── */
+body.light-mode .cx-feat-item { border-color: #e0e0e0 !important; }
+body.light-mode .cx-feat-item strong { color: #0a0a0a !important; }
+body.light-mode .cx-feat-item:hover { border-color: #0055FF !important; }
+
+/* ── About page photo border ── */
+body.light-mode .cx-photo-wrap,
+body.light-mode .cx-ap-photo-main,
+body.light-mode .cx-ap-photo-side { border-color: #e0e0e0 !important; }
+
+/* ── Case studies in light mode ── */
+body.light-mode .cx-cs-item { border-color: #e0e0e0 !important; }
+body.light-mode .cx-cs-num { color: #0a0a0a !important; }
+
+/* ── Marquee stays dark always ── */
+body.light-mode .cx-marquee { background: #0a0a0a !important; }
+body.light-mode .cx-marquee-inner span { color: #fff !important; }
+
+/* ── Footer stays dark always ── */
+body.light-mode .cx-footer { background: #0a0a0a !important; border-color: #1a1a1a !important; }
+body.light-mode .cx-footer-top { border-color: #1a1a1a !important; }
+body.light-mode .cx-footer-bottom { color: #444 !important; }
+
+/* ── Form inputs in light mode ── */
+body.light-mode .cx-form input,
+body.light-mode .cx-form select,
+body.light-mode .cx-form textarea {
+  background: #f7f8fc !important;
+  border-color: #e0e0e0 !important;
+  color: #0a0a0a !important;
+}
+body.light-mode .cx-form input::placeholder,
+body.light-mode .cx-form textarea::placeholder { color: #aaa !important; }
+body.light-mode .cx-form-card { background: #fff !important; border-color: #e0e0e0 !important; }
+body.light-mode .cx-form-card h3 { color: #0a0a0a !important; }
+
+/* ── About/legal pages in light mode ── */
+body.light-mode .about-content,
+body.light-mode .booking-section,
+body.light-mode .page-hero { background: #fff !important; }
+body.light-mode .about-section h2,
+body.light-mode .about-section h3 { color: #0a0a0a !important; }
+body.light-mode .about-section p,
+body.light-mode .about-section li { color: #444 !important; }
+body.light-mode .why-item,
+body.light-mode .tech-item {
+  background: #f7f8fc !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .why-item h3,
+body.light-mode .tech-item h4 { color: #0a0a0a !important; }
+body.light-mode .stat-item { background: #f7f8fc !important; border-color: #e0e0e0 !important; }
+body.light-mode .stat-number { color: #0055FF !important; }
+body.light-mode .booking-form,
+body.light-mode .form-step { background: #fff !important; }
+body.light-mode .form-group label { color: #0a0a0a !important; }
+body.light-mode .form-group input,
+body.light-mode .form-group select,
+body.light-mode .form-group textarea {
+  background: #f7f8fc !important;
+  border-color: #e0e0e0 !important;
+  color: #0a0a0a !important;
+}
+body.light-mode .progress-step .step-number { background: #e0e0e0 !important; color: #555 !important; }
+body.light-mode .progress-step.active .step-number { background: #0055FF !important; color: #fff !important; }
+
+/* ── Social icons in light mode ── */
+body.light-mode .cx-social a {
+  background: #f7f8fc !important;
+  border-color: #e0e0e0 !important;
+}
+body.light-mode .cx-social a i { color: #555 !important; }
+body.light-mode .cx-social a:hover { background: #0055FF !important; border-color: #0055FF !important; }
+body.light-mode .cx-social a:hover i { color: #fff !important; }
+
 
 /* Text colors in light mode */
 body.light-mode .cx-about-heading,

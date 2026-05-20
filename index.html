@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MachineNova – End-to-End Electoral Technology</title>
+    <title>MachineNova – Election Operations Infrastructure</title>
+    <meta name="description" content="MachineNova provides integrated platforms for voter mobilization, field coordination, polling-agent management, real-time results operations, and political analytics.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles-final.css">
     <link rel="stylesheet" href="styles-modern.css">
@@ -15,7 +17,7 @@
 </head>
 <body>
 
-    <!-- ═══ HEADER — untouched ═══ -->
+    <!-- ═══ HEADER ═══ -->
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -23,31 +25,30 @@
                     <img src="assets/logo.png" alt="MachineNova" class="logo-icon">
                 </div>
                 <nav class="nav">
-                    <button class="hamburger" id="hamburger">
-                        <span></span><span></span><span></span>
-                    </button>
+                    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
                     <ul class="nav-menu" id="navMenu">
-                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html" class="active">Home</a></li>
                         <li class="nav-dropdown">
-                            <a href="#platforms" class="dropdown-trigger">Platforms <span class="dd-arrow">&#8964;</span></a>
+                            <a href="platforms.html" class="dropdown-trigger">Platforms <span class="dd-arrow">&#8964;</span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#checkin">Event Check-In</a></li>
-                                <li><a href="#mobilizer">Mobilizer App</a></li>
-                                <li><a href="#agents">Agents &amp; Results Portal</a></li>
-                                <li><a href="#surveys">Surveys &amp; Analytics</a></li>
+                                <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                                <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                                <li><a href="platforms.html#command-center">Election Operations Command Center</a></li>
+                                <li><a href="platforms.html#analytics">Results &amp; Tallying</a></li>
                             </ul>
                         </li>
+                        <li><a href="security.html">Security</a></li>
+                        <li><a href="case-studies.html">Case Studies</a></li>
                         <li><a href="about.html">About</a></li>
-                        <li><a href="#faqs">FAQs</a></li>
-                        <li><a href="book-demo.html">Book Demo</a></li>
+                        <li><a href="book-demo.html">Contact</a></li>
                     </ul>
                 </nav>
-                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Book a Demo</button>
+                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Request Demo</button>
             </div>
         </div>
     </header>
 
-    <!-- ═══ HERO — untouched ═══ -->
+    <!-- ═══ HERO — UNTOUCHED ═══ -->
     <section class="hero">
         <div class="container">
             <div class="hero-box">
@@ -64,7 +65,7 @@
                         <p class="hero-desc lazy-text">MachineNova is a suite of integrated digital tools built for every stage of the electoral cycle — from grassroots mobilization to real-time national results. One ecosystem. Total visibility.</p>
                         <div class="hero-btns">
                             <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Book a Demo</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('platforms').scrollIntoView({behavior:'smooth'})">Explore Platforms</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('platforms-overview').scrollIntoView({behavior:'smooth'})">View Technology Portfolio</button>
                         </div>
                         <div class="hero-stats">
                             <div class="hero-stat"><span class="hero-stat-num">4</span><span class="hero-stat-label">Integrated Platforms</span></div>
@@ -93,425 +94,305 @@
         </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════
-         STATS BAR
-         Black bg · 4 bold numbers · gray labels
-    ═══════════════════════════════════════════ -->
-    <section class="cx-stats">
+    <!-- ═══ TRUSTED BY STRIP ═══ -->
+    <div class="cx-trust-strip">
         <div class="container">
-            <div class="cx-stats-row">
-                <div class="cx-stat-item">
-                    <span class="cx-stat-n">4<span class="cx-plus">+</span></span>
-                    <span class="cx-stat-l">Integrated Platforms</span>
+            <span class="cx-trust-label">Trusted Election Infrastructure for</span>
+            <div class="cx-trust-items">
+                <span>Political Parties</span>
+                <span class="cx-trust-dot">·</span>
+                <span>Independent Candidates</span>
+                <span class="cx-trust-dot">·</span>
+                <span>Campaign Secretariats</span>
+                <span class="cx-trust-dot">·</span>
+                <span>Election Observers</span>
+                <span class="cx-trust-dot">·</span>
+                <span>Civic Organizations</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PLATFORM OVERVIEW ═══ -->
+    <section class="cx-overview" id="platforms-overview">
+        <div class="container">
+            <div class="cx-overview-head">
+                <div>
+                    <span class="cx-label">Election Operations Infrastructure</span>
+                    <h2>A Unified Election<br>Operating System</h2>
                 </div>
-                <div class="cx-stat-item">
-                    <span class="cx-stat-n">ID<span class="cx-plus">-</span>Verified</span>
-                    <span class="cx-stat-l">Voter Records</span>
-                </div>
-                <div class="cx-stat-item">
-                    <span class="cx-stat-n">Real<span class="cx-plus">-</span>Time</span>
-                    <span class="cx-stat-l">National Data Flow</span>
-                </div>
-                <div class="cx-stat-item">
-                    <span class="cx-stat-n">End<span class="cx-plus">-</span>to<span class="cx-plus">-</span>End</span>
-                    <span class="cx-stat-l">Electoral Coverage</span>
-                </div>
+                <p class="cx-overview-sub">Four integrated platforms. One shared data layer. What a mobilizer captures in the field appears on the national command dashboard in real time — no manual aggregation, no silos.</p>
+            </div>
+            <div class="cx-overview-grid">
+                <a href="platforms.html#event-intelligence" class="cx-ov-card">
+                    <span class="cx-ov-num">01</span>
+                    <h3>Event Intelligence</h3>
+                    <p>ID scanning, voter lookup, KYC verification, and live attendance analytics for political events and rallies.</p>
+                    <span class="cx-ov-link">Explore platform &rarr;</span>
+                </a>
+                <a href="platforms.html#mobilizer" class="cx-ov-card">
+                    <span class="cx-ov-num">02</span>
+                    <h3>Mobilizer Platform</h3>
+                    <p>Door-to-door voter capture with mobilizer attribution, performance metrics, and ID-verified vote projection.</p>
+                    <span class="cx-ov-link">Explore platform &rarr;</span>
+                </a>
+                <a href="platforms.html#command-center" class="cx-ov-card cx-ov-card--featured">
+                    <span class="cx-ov-num">03</span>
+                    <h3>Election Operations Command Center</h3>
+                    <p>Full election-day command chain — national admin to polling-station agents — with live result aggregation and visual dashboards.</p>
+                    <span class="cx-ov-link">Explore platform &rarr;</span>
+                </a>
+                <a href="platforms.html#analytics" class="cx-ov-card">
+                    <span class="cx-ov-num">04</span>
+                    <h3>Analytics &amp; Intelligence</h3>
+                    <p>Registration analysis, demographic profiling, and strategic regional intelligence to inform campaign planning.</p>
+                    <span class="cx-ov-link">Explore platform &rarr;</span>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════
-         ABOUT — "Turning Field Data Into Electoral Intelligence"
-         Black bg · heading top-left · body top-right
-         Two photos below: large left (with badge) + smaller right
-         Both photos have thin border frame
-    ═══════════════════════════════════════════ -->
-    <section class="cx-about parallax-section">
-        <div class="container">
-            <!-- Top row: heading left, body right -->
-            <div class="cx-about-top">
-                <h2 class="cx-about-heading">Turning Field Data Into<br>Electoral Intelligence</h2>
-                <div class="cx-about-body">
-                    <p>We may be a focused team, but our reach knows no bounds. By staying agile and working hand-in-hand with our clients, we transform raw field data into cutting-edge electoral intelligence that makes a lasting impression.</p>
-                    <p>From the first voter scan to the final result, MachineNova gives every level of your campaign the visibility they need to win.</p>
-                    <a href="book-demo.html" class="cx-btn">Book a Demo &rarr;</a>
-                </div>
-            </div>
-            <!-- Bottom row: two photos -->
-            <div class="cx-about-photos">
-                <div class="cx-photo-wrap cx-photo-wrap--large">
-                    <img src="assets/images/support-team.png" alt="MachineNova team at work" loading="lazy">
-                    <div class="cx-photo-badge">A COMPLETE ELECTORAL<br>TECHNOLOGY SUITE</div>
-                </div>
-                <div class="cx-photo-wrap cx-photo-wrap--small">
-                    <img src="assets/images/about-hero-team.svg" alt="Campaign operations" loading="lazy">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         PLATFORMS / SERVICES
-         Black bg · numbered list left · photo + 2 cards right
-    ═══════════════════════════════════════════ -->
-    <section class="cx-services parallax-section" id="platforms">
-        <div class="container">
-            <div class="cx-services-wrap">
-                <!-- Left -->
-                <div class="cx-services-left">
-                    <p class="cx-label">Our Platforms</p>
-                    <h2 class="cx-services-heading">Our <span class="cx-blue">Platforms</span></h2>
-                    <p class="cx-services-body">We offer a suite of integrated electoral technology platforms designed to give your campaign total visibility — from the first voter scan to the final result.</p>
-                    <nav class="cx-service-list">
-                        <a href="#checkin" class="cx-svc-row">
-                            <span class="cx-svc-num">01</span>
-                            <span class="cx-svc-name">Event Check-In Application</span>
-                            <span class="cx-svc-arr">&rarr;</span>
-                        </a>
-                        <a href="#mobilizer" class="cx-svc-row">
-                            <span class="cx-svc-num">02</span>
-                            <span class="cx-svc-name">Mobilizer Application</span>
-                            <span class="cx-svc-arr">&rarr;</span>
-                        </a>
-                        <a href="#agents" class="cx-svc-row">
-                            <span class="cx-svc-num">03</span>
-                            <span class="cx-svc-name">Agents Management &amp; Results Portal</span>
-                            <span class="cx-svc-arr">&rarr;</span>
-                        </a>
-                        <a href="#surveys" class="cx-svc-row">
-                            <span class="cx-svc-num">04</span>
-                            <span class="cx-svc-name">Surveys &amp; Political Analysis</span>
-                            <span class="cx-svc-arr">&rarr;</span>
-                        </a>
-                    </nav>
-                </div>
-                <!-- Right: photo + floating cards -->
-                <div class="cx-services-right">
-                    <div class="cx-svc-photo-wrap">
-                        <img src="assets/images/governmental-voting.png" alt="Platform in action" class="cx-svc-photo" loading="lazy">
-                        <!-- Top-right floating card (blue) -->
-                        <div class="cx-svc-card cx-svc-card--blue">
-                            <p>Not sure how our platforms can help?</p>
-                            <a href="book-demo.html" class="cx-svc-card-link">See how we work &rarr;</a>
-                        </div>
-                        <!-- Bottom-left floating card (dark) -->
-                        <div class="cx-svc-card cx-svc-card--dark">
-                            <p>Looking for electoral experts to guide your strategy?</p>
-                            <a href="book-demo.html" class="cx-svc-card-link">Meet our team &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         MARQUEE — black bg, white bold + blue dots
-    ═══════════════════════════════════════════ -->
+    <!-- ═══ MARQUEE ═══ -->
     <div class="cx-marquee" aria-hidden="true">
         <div class="cx-marquee-inner">
             <span>Mobilize</span><span class="cx-mdot">&#10022;</span>
             <span>Verify</span><span class="cx-mdot">&#10022;</span>
+            <span>Coordinate</span><span class="cx-mdot">&#10022;</span>
             <span>Monitor</span><span class="cx-mdot">&#10022;</span>
             <span>Analyse</span><span class="cx-mdot">&#10022;</span>
             <span>Win</span><span class="cx-mdot">&#10022;</span>
             <span>Mobilize</span><span class="cx-mdot">&#10022;</span>
             <span>Verify</span><span class="cx-mdot">&#10022;</span>
-            <span>Monitor</span><span class="cx-mdot">&#10022;</span>
-            <span>Analyse</span><span class="cx-mdot">&#10022;</span>
-            <span>Win</span><span class="cx-mdot">&#10022;</span>
-            <span>Mobilize</span><span class="cx-mdot">&#10022;</span>
-            <span>Verify</span><span class="cx-mdot">&#10022;</span>
+            <span>Coordinate</span><span class="cx-mdot">&#10022;</span>
             <span>Monitor</span><span class="cx-mdot">&#10022;</span>
             <span>Analyse</span><span class="cx-mdot">&#10022;</span>
             <span>Win</span><span class="cx-mdot">&#10022;</span>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         PLATFORM DETAILS — 01 Check-In
-    ═══════════════════════════════════════════ -->
-    <section class="cx-platform" id="checkin">
+    <!-- ═══ ABOUT / POSITIONING ═══ -->
+    <section class="cx-about">
         <div class="container">
-            <div class="cx-plat-grid">
-                <div class="cx-plat-text">
-                    <span class="cx-plat-num">01</span>
-                    <h2>Event Check-In<br><span class="cx-blue">Application</span></h2>
-                    <p>Built for rallies, aspirant forums, and internal party gatherings. Upload your guest list, scan national IDs at the entrance, and get a real-time political picture of every attendee.</p>
-                    <ul class="cx-feat-list">
-                        <li><strong>ID Verification</strong> — Scans the national ID and confirms identity against the loaded guest list instantly.</li>
-                        <li><strong>Voter Lookup</strong> — Indicates whether the attendee is a registered voter and identifies their region.</li>
-                        <li><strong>KYC Checks</strong> — Lightweight Know-Your-Customer verification against trusted records in real time.</li>
-                        <li><strong>Live Statistics &amp; Region Filtering</strong> — Running totals on check-ins, registered voters, and a live regional breakdown.</li>
+            <div class="cx-about-top">
+                <h2 class="cx-about-heading">Turning Field Data Into<br>Electoral Intelligence</h2>
+                <div class="cx-about-body">
+                    <p>MachineNova is not a collection of apps. It is an election operating system — a single, integrated infrastructure that connects every level of your campaign, from grassroots mobilizers to national leadership, through one shared data layer.</p>
+                    <p>Every voter scan, every agent report, every result submission flows into the same system in real time. No spreadsheets. No manual aggregation. No information gaps.</p>
+                    <a href="about.html" class="cx-btn">Learn About Us &rarr;</a>
+                </div>
+            </div>
+            <div class="cx-about-photos">
+                <div class="cx-photo-wrap cx-photo-wrap--large">
+                    <img src="assets/images/support-team.png" alt="MachineNova operations team" loading="lazy">
+                    <div class="cx-photo-badge">ELECTION OPERATIONS<br>INFRASTRUCTURE</div>
+                </div>
+                <div class="cx-photo-wrap cx-photo-wrap--small">
+                    <img src="assets/images/about-hero-team.svg" alt="Campaign field operations" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ WHO IT'S FOR ═══ -->
+    <section class="cx-for">
+        <div class="container">
+            <div class="cx-for-head">
+                <span class="cx-label">Designed For</span>
+                <h2>Built for Every Level<br>of the Campaign</h2>
+            </div>
+            <div class="cx-for-grid">
+                <div class="cx-for-card">
+                    <span class="cx-for-num">01</span>
+                    <h4>Political Parties</h4>
+                    <p>National and regional party structures deploying agents, mobilizers, and coordinators across multiple constituencies.</p>
+                </div>
+                <div class="cx-for-card">
+                    <span class="cx-for-num">02</span>
+                    <h4>Independent Candidates</h4>
+                    <p>Candidates running independent campaigns who need professional-grade field coordination and results monitoring.</p>
+                </div>
+                <div class="cx-for-card">
+                    <span class="cx-for-num">03</span>
+                    <h4>Campaign Secretariats</h4>
+                    <p>Central campaign offices that need real-time visibility into field operations, mobilization progress, and election-day status.</p>
+                </div>
+                <div class="cx-for-card">
+                    <span class="cx-for-num">04</span>
+                    <h4>Election Observers &amp; NGOs</h4>
+                    <p>Civic organizations and observer missions requiring structured field reporting, station monitoring, and data collection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ COMMAND CENTER SPOTLIGHT ═══ -->
+    <section class="cx-spotlight">
+        <div class="container">
+            <div class="cx-spotlight-grid">
+                <div class="cx-spotlight-text">
+                    <span class="cx-label">Flagship Platform</span>
+                    <h2>Election Operations<br>Command Center</h2>
+                    <p>The most comprehensive platform in the MachineNova suite. Manages the full chain of command from national administrators down to individual polling-station agents — and captures results live as counting begins.</p>
+                    <ul class="cx-spotlight-list">
+                        <li>Role-based access across four hierarchy levels</li>
+                        <li>Geographic scoping by region, constituency, or ward</li>
+                        <li>Live polling station status from agent reports</li>
+                        <li>Hourly turnout tracking by polling centre</li>
+                        <li>Real-time result aggregation as votes are counted</li>
+                        <li>Visual dashboards with maps, charts, and leaderboards</li>
                     </ul>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                    <a href="platforms.html#command-center" class="cx-btn">Explore Command Center &rarr;</a>
                 </div>
-                <div class="cx-plat-card">
-                    <div class="cx-card-label">Event Check-In — Live</div>
-                    <div class="cx-card-stats">
-                        <div class="cx-cs"><span class="cx-cs-n">1,247</span><span>Total Check-Ins</span></div>
-                        <div class="cx-cs cx-cs--blue"><span class="cx-cs-n">984</span><span>Registered Voters</span></div>
-                        <div class="cx-cs"><span class="cx-cs-n">263</span><span>Unregistered</span></div>
-                    </div>
-                    <div class="cx-bars">
-                        <div class="cx-bar-row"><span>Host Region</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:78%"></div></div><span>78%</span></div>
-                        <div class="cx-bar-row"><span>Visiting</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:22%"></div></div><span>22%</span></div>
+                <div class="cx-spotlight-visual">
+                    <div class="cx-cmd-card">
+                        <div class="cx-cmd-header">
+                            <span class="cx-cmd-title">Operations Command — Live</span>
+                            <span class="cx-cmd-live">&#9679; LIVE</span>
+                        </div>
+                        <div class="cx-cmd-tally">
+                            <div class="cx-cmd-row">
+                                <span class="cx-cmd-name">Candidate A</span>
+                                <div class="cx-cmd-track"><div class="cx-cmd-fill cx-cmd-fill--lead" style="width:54%"></div></div>
+                                <span class="cx-cmd-pct">54%</span>
+                            </div>
+                            <div class="cx-cmd-row">
+                                <span class="cx-cmd-name">Candidate B</span>
+                                <div class="cx-cmd-track"><div class="cx-cmd-fill" style="width:31%"></div></div>
+                                <span class="cx-cmd-pct">31%</span>
+                            </div>
+                            <div class="cx-cmd-row">
+                                <span class="cx-cmd-name">Candidate C</span>
+                                <div class="cx-cmd-track"><div class="cx-cmd-fill" style="width:15%"></div></div>
+                                <span class="cx-cmd-pct">15%</span>
+                            </div>
+                        </div>
+                        <div class="cx-cmd-stations">
+                            <div class="cx-cmd-st cx-cmd-st--open">312 Stations Open</div>
+                            <div class="cx-cmd-st cx-cmd-st--pend">14 Pending</div>
+                            <div class="cx-cmd-st cx-cmd-st--issue">3 Issues</div>
+                        </div>
+                        <div class="cx-cmd-agents">
+                            <div class="cx-cmd-agent-row">
+                                <span>Region A</span>
+                                <div class="cx-cmd-track"><div class="cx-cmd-fill" style="width:88%"></div></div>
+                                <span>88% reporting</span>
+                            </div>
+                            <div class="cx-cmd-agent-row">
+                                <span>Region B</span>
+                                <div class="cx-cmd-track"><div class="cx-cmd-fill" style="width:72%"></div></div>
+                                <span>72% reporting</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 02 Mobilizer -->
-    <section class="cx-platform cx-platform--alt" id="mobilizer">
+    <!-- ═══ SECURITY TRUST BLOCK ═══ -->
+    <section class="cx-security-block">
         <div class="container">
-            <div class="cx-plat-grid cx-plat-grid--rev">
-                <div class="cx-plat-card">
-                    <div class="cx-card-label">Mobilizer Leaderboard</div>
-                    <div class="cx-mob-list">
-                        <div class="cx-mob-row"><span class="cx-mob-rank">1</span><span class="cx-mob-name">Mobilizer A</span><span class="cx-mob-count">342 voters</span></div>
-                        <div class="cx-mob-row"><span class="cx-mob-rank">2</span><span class="cx-mob-name">Mobilizer B</span><span class="cx-mob-count">289 voters</span></div>
-                        <div class="cx-mob-row"><span class="cx-mob-rank">3</span><span class="cx-mob-name">Mobilizer C</span><span class="cx-mob-count">214 voters</span></div>
-                        <div class="cx-mob-row"><span class="cx-mob-rank">4</span><span class="cx-mob-name">Mobilizer D</span><span class="cx-mob-count">178 voters</span></div>
-                    </div>
-                    <div class="cx-card-foot">1,023 ID-verified voters captured today</div>
+            <div class="cx-sec-grid">
+                <div class="cx-sec-text">
+                    <span class="cx-label">Security &amp; Compliance</span>
+                    <h2>Built for the Scrutiny<br>of Democratic Processes</h2>
+                    <p>Political organizations operate under intense scrutiny. MachineNova is built with role-based access control, encrypted data transmission, comprehensive audit trails, and controlled permission structures — so every action is accountable.</p>
+                    <a href="security.html" class="cx-btn-outline">View Security Architecture &rarr;</a>
                 </div>
-                <div class="cx-plat-text">
-                    <span class="cx-plat-num">02</span>
-                    <h2>Mobilizer<br><span class="cx-blue">Application</span></h2>
-                    <p>A campaign-period tool for coordinating door-to-door mobilization. Every voter scanned is attributed to the mobilizer who recruited them — replacing anecdotal estimates with ID-verified records.</p>
-                    <ul class="cx-feat-list">
-                        <li><strong>Voter Capture</strong> — Mobilizers scan voter IDs, instantly capturing each contact into the central database.</li>
-                        <li><strong>Attribution</strong> — Every voter linked to the specific mobilizer who recruited them — full accountability.</li>
-                        <li><strong>Performance Metrics</strong> — Per-mobilizer counts identify high performers and areas needing support.</li>
-                        <li><strong>Vote Projection &amp; Regional Coverage</strong> — ID-verified estimate of likely votes and coverage gap maps.</li>
-                    </ul>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                <div class="cx-sec-pillars">
+                    <div class="cx-sec-pillar">
+                        <span class="cx-sec-title">Role-Based Access</span>
+                        <p>Four permission levels. Every user sees only what their role requires.</p>
+                    </div>
+                    <div class="cx-sec-pillar">
+                        <span class="cx-sec-title">Encrypted Transmission</span>
+                        <p>All data in transit and at rest is encrypted end-to-end.</p>
+                    </div>
+                    <div class="cx-sec-pillar">
+                        <span class="cx-sec-title">Audit Trails</span>
+                        <p>Every action logged with timestamps for post-election verification.</p>
+                    </div>
+                    <div class="cx-sec-pillar">
+                        <span class="cx-sec-title">Geographic Controls</span>
+                        <p>Managers scoped to specific regions, constituencies, or wards.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 03 Agents Portal -->
-    <section class="cx-platform" id="agents">
+    <!-- ═══ CASE STUDIES TEASER ═══ -->
+    <section class="cx-cases-teaser">
         <div class="container">
-            <div class="cx-plat-grid">
-                <div class="cx-plat-text">
-                    <span class="cx-plat-num">03</span>
-                    <h2>Agents Management<br>&amp; <span class="cx-blue">Results Portal</span></h2>
-                    <p>The operational backbone of election day. Manages the full chain of command from national administrators down to individual polling-station agents, and captures results live.</p>
-                    <div class="cx-tabs">
-                        <button class="cx-tab cx-tab--active" data-tab="structure">Structure</button>
-                        <button class="cx-tab" data-tab="monitoring">Monitoring</button>
-                        <button class="cx-tab" data-tab="results">Results</button>
-                    </div>
-                    <div class="cx-pane cx-pane--active" id="tab-structure">
-                        <ul class="cx-feat-list">
-                            <li><strong>Role-Based Access</strong> — Four permission levels calibrated to each role in the hierarchy.</li>
-                            <li><strong>Geographic Scoping</strong> — Managers restricted to their specific region, constituency, or ward.</li>
-                            <li><strong>Agent Directory</strong> — Single interface listing all agents and managers with contact details.</li>
-                        </ul>
-                    </div>
-                    <div class="cx-pane" id="tab-monitoring">
-                        <ul class="cx-feat-list">
-                            <li><strong>Station Status</strong> — Confirms which polling stations have opened on time from agent reports.</li>
-                            <li><strong>Turnout Tracking</strong> — Hourly breakdowns of voter turnout by polling centre, region, and constituency.</li>
-                            <li><strong>Centralised Visibility</strong> — All field activity in one dashboard so leadership can intervene where needed.</li>
-                        </ul>
-                    </div>
-                    <div class="cx-pane" id="tab-results">
-                        <ul class="cx-feat-list">
-                            <li><strong>Live Tallying</strong> — Results flow from agents to managers and into the portal as they arrive.</li>
-                            <li><strong>Leaderboard View</strong> — Real-time view of which candidates are leading or trailing across each race.</li>
-                            <li><strong>Visual Dashboards</strong> — Maps, charts, and headline figures updating continuously as counting progresses.</li>
-                        </ul>
-                    </div>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+            <div class="cx-cases-head">
+                <span class="cx-label">Deployments</span>
+                <h2>Operationally Proven</h2>
+                <p>MachineNova has been deployed across regional and national campaign operations. Here are representative deployment scenarios.</p>
+            </div>
+            <div class="cx-cases-grid">
+                <div class="cx-case-card">
+                    <span class="cx-case-tag">Regional Deployment</span>
+                    <h4>Regional Party Mobilization</h4>
+                    <p>A regional party deployed the Mobilizer Platform across 12 constituencies. Field teams captured over 40,000 ID-verified voter contacts in 3 weeks, with full attribution and geographic coverage mapping.</p>
+                    <a href="case-studies.html" class="cx-case-link">Read deployment &rarr;</a>
                 </div>
-                <div class="cx-plat-card">
-                    <div class="cx-card-label">Results Portal — Live Count</div>
-                    <div class="cx-tally">
-                        <div class="cx-tally-row"><span>Candidate A</span><div class="cx-bar-track"><div class="cx-bar-fill cx-bar-fill--lead" style="width:54%"></div></div><span>54%</span></div>
-                        <div class="cx-tally-row"><span>Candidate B</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:31%"></div></div><span>31%</span></div>
-                        <div class="cx-tally-row"><span>Candidate C</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:15%"></div></div><span>15%</span></div>
-                    </div>
-                    <div class="cx-stations">
-                        <span style="color:#4ade80">&#9679;</span> 312 Open &nbsp;
-                        <span style="color:#fbbf24">&#9679;</span> 14 Pending &nbsp;
-                        <span style="color:#f87171">&#9679;</span> 3 Issues
-                    </div>
+                <div class="cx-case-card">
+                    <span class="cx-case-tag">National Deployment</span>
+                    <h4>National Agent Coordination</h4>
+                    <p>The Election Operations Command Center was deployed across 329 polling stations. National leadership had live visibility into station status, turnout, and results from a single dashboard.</p>
+                    <a href="case-studies.html" class="cx-case-link">Read deployment &rarr;</a>
                 </div>
+                <div class="cx-case-card">
+                    <span class="cx-case-tag">Event Intelligence</span>
+                    <h4>Political Rally Intelligence</h4>
+                    <p>The Event Intelligence Platform was used at a major political rally. Organisers received real-time data on registered voters in attendance, regional breakdown, and KYC verification — all at the gate.</p>
+                    <a href="case-studies.html" class="cx-case-link">Read deployment &rarr;</a>
+                </div>
+            </div>
+            <div class="cx-cases-cta">
+                <a href="case-studies.html" class="cx-btn">View All Case Studies &rarr;</a>
             </div>
         </div>
     </section>
 
-    <!-- 04 Surveys -->
-    <section class="cx-platform cx-platform--alt" id="surveys">
-        <div class="container">
-            <div class="cx-plat-grid cx-plat-grid--rev">
-                <div class="cx-plat-card">
-                    <div class="cx-card-label">Regional Intelligence</div>
-                    <div class="cx-card-stats">
-                        <div class="cx-cs"><span class="cx-cs-n">68%</span><span>Registered</span></div>
-                        <div class="cx-cs cx-cs--blue"><span class="cx-cs-n">32%</span><span>Unregistered</span></div>
-                    </div>
-                    <div class="cx-bars">
-                        <div class="cx-bar-row"><span>North</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:82%"></div></div><span>82%</span></div>
-                        <div class="cx-bar-row"><span>South</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:61%"></div></div><span>61%</span></div>
-                        <div class="cx-bar-row"><span>East</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:74%"></div></div><span>74%</span></div>
-                    </div>
-                </div>
-                <div class="cx-plat-text">
-                    <span class="cx-plat-num">04</span>
-                    <h2>Surveys &amp;<br><span class="cx-blue">Political Analysis</span></h2>
-                    <p>Surveys, voter registration data, and demographic analysis combined into regional intelligence that informs both campaign planning and election-day strategy.</p>
-                    <ul class="cx-feat-list">
-                        <li><strong>Registration Analysis</strong> — Quantifies registered vs unregistered voters by region, revealing mobilization opportunity.</li>
-                        <li><strong>Demographic Profiling</strong> — Identifies dominant communities and dynamics relevant to political strategy.</li>
-                        <li><strong>Voter Breakdown</strong> — Region-by-region analysis for targeting mobilization and campaign messaging.</li>
-                        <li><strong>Strategic Insight</strong> — Field data combined with survey work to surface political dynamics in each region.</li>
-                    </ul>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         TEAM — "Meet Our Team"
-         Dark bg · 3-col mixed cards · no icons
-    ═══════════════════════════════════════════ -->
-    <section class="cx-team">
-        <div class="container">
-            <div class="cx-team-hdr">
-                <div>
-                    <p class="cx-label">The People Behind the Platform</p>
-                    <h2 class="cx-team-title">Meet Our <span class="cx-blue">Team</span></h2>
-                </div>
-                <a href="book-demo.html" class="cx-btn-outline">Work with us &rarr;</a>
-            </div>
-            <div class="cx-team-grid">
-                <div class="cx-tc cx-tc--white">
-                    <img src="assets/images/testimonial-james.png" alt="James Kimani" loading="lazy">
-                    <h4>James Kimani</h4>
-                    <p>National Campaign Director</p>
-                    <div class="cx-tc-tags"><span>Strategy</span><span>Operations</span></div>
-                </div>
-                <div class="cx-tc cx-tc--dark">
-                    <img src="assets/images/testimonial-luke.png" alt="Luke Kiptoo" loading="lazy">
-                    <h4>Luke Kiptoo</h4>
-                    <p>Regional Coordinator</p>
-                    <div class="cx-tc-tags"><span>Field Ops</span><span>Mobilization</span></div>
-                </div>
-                <div class="cx-tc cx-tc--blue">
-                    <img src="assets/images/testimonial-alfred.png" alt="Alfred Mututu" loading="lazy">
-                    <h4>Alfred Mututu</h4>
-                    <p>Event &amp; Logistics Manager</p>
-                    <div class="cx-tc-tags"><span>Events</span><span>Check-In</span></div>
-                </div>
-                <div class="cx-tc cx-tc--dark">
-                    <img src="assets/images/testimonial-james.png" alt="Sarah Wanjiku" loading="lazy">
-                    <h4>Sarah Wanjiku</h4>
-                    <p>Data &amp; Analytics Lead</p>
-                    <div class="cx-tc-tags"><span>Analytics</span><span>Surveys</span></div>
-                </div>
-                <div class="cx-tc cx-tc--white">
-                    <img src="assets/images/testimonial-luke.png" alt="David Ochieng" loading="lazy">
-                    <h4>David Ochieng</h4>
-                    <p>Platform Engineer</p>
-                    <div class="cx-tc-tags"><span>Engineering</span><span>Security</span></div>
-                </div>
-                <div class="cx-tc cx-tc--dark">
-                    <img src="assets/images/testimonial-alfred.png" alt="Grace Muthoni" loading="lazy">
-                    <h4>Grace Muthoni</h4>
-                    <p>Client Success Manager</p>
-                    <div class="cx-tc-tags"><span>Support</span><span>Onboarding</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════
-         SCROLLING TAGS STRIP
-    ═══════════════════════════════════════════ -->
-    <div class="cx-tags" aria-hidden="true">
-        <div class="cx-tags-inner">
-            <span>Event Check-In</span><span class="cx-tsep">&middot;</span>
-            <span>Mobilizer App</span><span class="cx-tsep">&middot;</span>
-            <span>Agents Portal</span><span class="cx-tsep">&middot;</span>
-            <span>Surveys &amp; Analytics</span><span class="cx-tsep">&middot;</span>
-            <span>ID Verification</span><span class="cx-tsep">&middot;</span>
-            <span>Live Results</span><span class="cx-tsep">&middot;</span>
-            <span>Vote Projection</span><span class="cx-tsep">&middot;</span>
-            <span>Regional Intelligence</span><span class="cx-tsep">&middot;</span>
-            <span>Event Check-In</span><span class="cx-tsep">&middot;</span>
-            <span>Mobilizer App</span><span class="cx-tsep">&middot;</span>
-            <span>Agents Portal</span><span class="cx-tsep">&middot;</span>
-            <span>Surveys &amp; Analytics</span><span class="cx-tsep">&middot;</span>
-        </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════
-         FAQs
-    ═══════════════════════════════════════════ -->
+    <!-- ═══ FAQs ═══ -->
     <section class="cx-faqs" id="faqs">
         <div class="container">
             <div class="cx-faqs-grid">
                 <div class="cx-faqs-left">
-                    <p class="cx-label">Got Questions?</p>
-                    <h2>Frequently<br>Asked <span class="cx-blue">Questions</span></h2>
-                    <p>Common questions about the MachineNova platform suite. Can't find what you're looking for?</p>
-                    <a href="book-demo.html" class="cx-btn">Talk to us &rarr;</a>
+                    <span class="cx-label">Common Questions</span>
+                    <h2>Frequently Asked<br>Questions</h2>
+                    <p>Questions about the MachineNova platform suite. Can't find what you need?</p>
+                    <a href="book-demo.html" class="cx-btn">Talk to our team &rarr;</a>
                 </div>
                 <div class="cx-faqs-right">
-                    <div class="cx-faq" data-open="false">
-                        <button class="cx-faq-q">How do the four platforms share data? <span class="cx-faq-ico">+</span></button>
-                        <div class="cx-faq-a"><p>All four platforms share a common identity, voter, and reporting layer. Data captured by a mobilizer in the field is immediately visible in the national dashboard without any manual transfer.</p></div>
-                    </div>
-                    <div class="cx-faq">
-                        <button class="cx-faq-q">What ID documents does the system support? <span class="cx-faq-ico">+</span></button>
-                        <div class="cx-faq-a"><p>The platform is built around national ID scanning. Specific document types are configured during onboarding to match the identity infrastructure of your country or region.</p></div>
-                    </div>
-                    <div class="cx-faq">
-                        <button class="cx-faq-q">Can agents use the portal without internet? <span class="cx-faq-ico">+</span></button>
-                        <div class="cx-faq-a"><p>The platform is designed for real-time connectivity. Our team works with clients during setup to assess field connectivity and recommend appropriate data plans or offline contingency approaches.</p></div>
-                    </div>
-                    <div class="cx-faq">
-                        <button class="cx-faq-q">How are permissions managed across the hierarchy? <span class="cx-faq-ico">+</span></button>
-                        <div class="cx-faq-a"><p>The Agents Portal uses role-based access control with four levels: national administrator, regional administrator, manager, and agent. Managers can be geographically scoped to a specific region, constituency, or ward.</p></div>
-                    </div>
-                    <div class="cx-faq">
-                        <button class="cx-faq-q">Is MachineNova suitable for smaller campaigns? <span class="cx-faq-ico">+</span></button>
-                        <div class="cx-faq-a"><p>The platform scales from local constituency campaigns up to national elections. You can deploy one platform or the full suite depending on your operational needs.</p></div>
-                    </div>
+                    <div class="cx-faq"><button class="cx-faq-q">How do the four platforms share data? <span class="cx-faq-icon">+</span></button><div class="cx-faq-a"><p>All four platforms share a common identity, voter, and reporting layer. Data captured by a mobilizer in the field is immediately visible in the national command dashboard without any manual transfer or aggregation.</p></div></div>
+                    <div class="cx-faq"><button class="cx-faq-q">What ID documents does the system support? <span class="cx-faq-icon">+</span></button><div class="cx-faq-a"><p>The platform is built around national ID scanning. Specific document types are configured during onboarding to match the identity infrastructure of your country or region.</p></div></div>
+                    <div class="cx-faq"><button class="cx-faq-q">How are permissions managed across the hierarchy? <span class="cx-faq-icon">+</span></button><div class="cx-faq-a"><p>The Command Center uses role-based access control with four levels: national administrator, regional administrator, manager, and agent. Managers can be geographically scoped to a specific region, constituency, or ward.</p></div></div>
+                    <div class="cx-faq"><button class="cx-faq-q">Is MachineNova suitable for smaller campaigns? <span class="cx-faq-icon">+</span></button><div class="cx-faq-a"><p>The platform scales from local constituency campaigns up to national elections. You can deploy one platform or the full suite depending on your operational needs.</p></div></div>
+                    <div class="cx-faq"><button class="cx-faq-q">Can agents operate in low-connectivity environments? <span class="cx-faq-icon">+</span></button><div class="cx-faq-a"><p>Our team works with clients during setup to assess field connectivity and recommend appropriate data plans or contingency approaches for low-connectivity environments.</p></div></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════
-         CONTACT — "Get in Touch Today!"
-         Left: white bg, heading, info, photo
-         Right: blue bg form card
-    ═══════════════════════════════════════════ -->
-    <section class="cx-contact" id="contact">
+    <!-- ═══ CONTACT CTA ═══ -->
+    <section class="cx-contact-cta">
         <div class="container">
-            <div class="cx-contact-grid">
-                <div class="cx-contact-left">
-                    <p class="cx-label">Ready to Get Started?</p>
-                    <h2>Get in Touch <span class="cx-blue">Today!</span></h2>
-                    <p>Whether you're planning a local campaign or a national election, our team is ready to help you deploy the right tools.</p>
-                    <div class="cx-contact-info">
+            <div class="cx-cta-grid">
+                <div class="cx-cta-text">
+                    <span class="cx-label">Get Started</span>
+                    <h2>Ready to Deploy<br>Election Infrastructure?</h2>
+                    <p>Whether you're planning a constituency campaign or a national election, our team will help you deploy the right platforms for your operational needs.</p>
+                    <div class="cx-cta-details">
                         <div>info@machinenova.com</div>
                         <div>+254 712 345 678</div>
                         <div>Nairobi, Kenya</div>
                     </div>
-                    <img src="assets/images/support-team.png" alt="MachineNova team" class="cx-contact-photo" loading="lazy">
                 </div>
-                <div class="cx-contact-right">
+                <div class="cx-cta-form-wrap">
                     <div class="cx-form-card">
-                        <h3>Book a Demo</h3>
-                        <form id="cx-form">
+                        <h3>Request a Demo</h3>
+                        <form id="cx-home-form" class="cx-form">
                             <div class="cx-form-row">
                                 <input type="text" placeholder="Your Name" required>
                                 <input type="email" placeholder="Email Address" required>
@@ -519,14 +400,14 @@
                             <input type="text" placeholder="Organisation / Campaign Name">
                             <select>
                                 <option value="" disabled selected>Platform of Interest</option>
-                                <option>Event Check-In Application</option>
-                                <option>Mobilizer Application</option>
-                                <option>Agents Management &amp; Results Portal</option>
-                                <option>Surveys &amp; Political Analysis</option>
+                                <option>Event Intelligence Platform</option>
+                                <option>Mobilizer Platform</option>
+                                <option>Election Operations Command Center</option>
+                                <option>Analytics &amp; Intelligence</option>
                                 <option>Full Suite</option>
                             </select>
-                            <textarea placeholder="Tell us about your campaign..." rows="4"></textarea>
-                            <button type="submit" class="cx-form-btn">Send Message &rarr;</button>
+                            <textarea placeholder="Tell us about your campaign and operational needs..." rows="3"></textarea>
+                            <button type="submit" class="cx-btn cx-btn-full">Send Request &rarr;</button>
                         </form>
                     </div>
                 </div>
@@ -534,39 +415,37 @@
         </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════
-         FOOTER
-    ═══════════════════════════════════════════ -->
+    <!-- ═══ FOOTER ═══ -->
     <footer class="cx-footer">
         <div class="container">
             <div class="cx-footer-top">
                 <div class="cx-footer-brand">
                     <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo">
-                    <p>End-to-end electoral technology for parties, administrators, and campaign teams.</p>
+                    <p>Election Operations Infrastructure for Modern Political Campaigns.</p>
                     <div class="cx-social">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Fb</a>
-                        <a href="https://x.com" target="_blank" rel="noopener noreferrer">X</a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">Li</a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Ig</a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
                 <div class="cx-footer-cols">
                     <div class="cx-footer-col">
                         <h5>Platforms</h5>
                         <ul>
-                            <li><a href="#checkin">Event Check-In</a></li>
-                            <li><a href="#mobilizer">Mobilizer App</a></li>
-                            <li><a href="#agents">Agents &amp; Results Portal</a></li>
-                            <li><a href="#surveys">Surveys &amp; Analytics</a></li>
+                            <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                            <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                            <li><a href="platforms.html#command-center">Command Center</a></li>
+                            <li><a href="platforms.html#analytics">Analytics &amp; Intelligence</a></li>
                         </ul>
                     </div>
                     <div class="cx-footer-col">
                         <h5>Company</h5>
                         <ul>
-                            <li><a href="index.html">Home</a></li>
                             <li><a href="about.html">About</a></li>
-                            <li><a href="#faqs">FAQs</a></li>
-                            <li><a href="book-demo.html">Book Demo</a></li>
+                            <li><a href="security.html">Security</a></li>
+                            <li><a href="case-studies.html">Case Studies</a></li>
+                            <li><a href="book-demo.html">Contact</a></li>
                         </ul>
                     </div>
                     <div class="cx-footer-col">
@@ -577,15 +456,18 @@
                             <li>Nairobi, Kenya</li>
                         </ul>
                     </div>
+                    <div class="cx-footer-col">
+                        <h5>Legal</h5>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="cx-footer-bottom">
                 <p>&copy; 2026 MachineNova. All rights reserved.</p>
-                <div>
-                    <a href="privacy-policy.html">Privacy Policy</a>
-                    <span>&middot;</span>
-                    <a href="terms-of-service.html">Terms of Service</a>
-                </div>
+                <p>Election Operations Infrastructure</p>
             </div>
         </div>
     </footer>

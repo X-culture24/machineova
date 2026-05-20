@@ -38,15 +38,53 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  opacity: 1;
+  /* opacity managed by effects.css — do not set here */
   transition: opacity 0.3s ease;
 }
 
-/* Heading Font Consistency */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading) !important;
-  font-weight: 700;
+/* ── Fix hero font — override Inter with Poppins/Roboto ── */
+.hero,
+.hero *,
+.hero-box,
+.hero-content,
+.hero-label,
+.hero-desc,
+.hero-btns,
+.hero-stats {
+  font-family: var(--font-primary) !important;
 }
+.hero h1,
+.hero h2,
+.hero h3 {
+  font-family: var(--font-heading) !important;
+}
+
+/* ── Fix button text visibility ── */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.cta-btn,
+.cx-btn,
+.cx-btn-outline {
+  color: #fff !important;
+}
+.btn-secondary {
+  color: #fff !important;
+  border-color: #fff !important;
+}
+.btn-secondary:hover {
+  color: #000 !important;
+}
+.cx-btn-outline {
+  color: var(--white, #fff) !important;
+}
+/* About CTA button is on blue bg — needs white text */
+.cx-about-cta .cx-btn {
+  color: #0055FF !important;
+  background: #fff !important;
+}
+
 
 /* Body Text Font Consistency */
 p, span, a, button, input, textarea, label, div {
@@ -237,7 +275,7 @@ p, span, a, button, input, textarea, label, div {
   line-height: inherit !important;
 }.standout-item h3{font-size:1.15rem;margin-bottom:0.8rem;font-weight:700;font-family:'Inter',sans-serif!important}.standout-item p{color:var(--text-gray);font-size:0.85rem;line-height:1.7;font-weight:400;font-family:'Inter',sans-serif!important}
 .testimonials{padding:80px 0;background:#000;font-family:'Inter',sans-serif}.testimonials *{font-family:'Inter',sans-serif!important}.testimonials-box{background:var(--dark-gray);border-radius:20px;padding:60px;border:1px solid var(--border);position:relative;overflow:hidden;font-family:'Inter',sans-serif}.testimonials-box::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(0,102,255,0.03) 0%,transparent 50%);animation:rotate 25s linear infinite}.testimonials h2{font-size:2.8rem;margin-bottom:1rem;font-weight:800;position:relative;z-index:1;opacity:0;transition:all 0.6s ease;font-family:'Inter',sans-serif!important}.testimonials h2.visible{opacity:1;transform:translateY(0)}.testimonials-subtitle{color:var(--text-gray);margin-bottom:3rem;font-size:0.95rem;line-height:1.8;position:relative;z-index:1;font-weight:400;opacity:0;transition:all 0.6s ease;font-family:'Inter',sans-serif!important}.testimonials-subtitle.visible{opacity:1;transform:translateY(0)}.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;position:relative;z-index:1}.testimonial-card{background:#000;border:1px solid var(--border);border-radius:15px;padding:2rem;transition:all 0.4s ease;cursor:pointer;opacity:0;transform:translateY(30px);font-family:'Inter',sans-serif}.testimonial-card *{font-family:'Inter',sans-serif!important}.testimonial-card.visible{opacity:1;transform:translateY(0)}.testimonial-card:hover{border-color:var(--blue);transform:translateY(-5px);box-shadow:0 15px 40px rgba(0,102,255,0.2)}.testimonial-card p{color:var(--text-gray);font-size:0.9rem;line-height:1.8;margin-bottom:1.5rem;font-weight:400;font-family:'Inter',sans-serif!important}.testimonial-author{display:flex;gap:1rem;align-items:center}.author-avatar{width:48px;height:48px;background:linear-gradient(135deg,var(--blue),var(--blue-hover));border-radius:50%;transition:transform 0.3s ease}.testimonial-card:hover .author-avatar{transform:scale(1.1)}.author-info h4{font-size:0.95rem;margin-bottom:0.2rem;font-weight:700;font-family:'Inter',sans-serif!important}.author-info p{color:var(--text-dark-gray);font-size:0.8rem;margin:0;font-weight:500;font-family:'Inter',sans-serif!important}
-.faqs{padding:80px 0;background:#000;position:relative;font-family:'Inter',sans-serif}.faqs *{font-family:'Inter',sans-serif!important}.faqs::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}.faqs h2{font-size:2.8rem;margin-bottom:1rem;font-weight:800;opacity:0;transition:all 0.6s ease;font-family:'Inter',sans-serif!important}.faqs h2.visible{opacity:1;transform:translateY(0)}.faqs-subtitle{color:var(--text-gray);margin-bottom:3rem;font-size:0.95rem;line-height:1.8;max-width:800px;font-weight:400;opacity:0;transition:all 0.6s ease;font-family:'Inter',sans-serif!important}.faqs-subtitle.visible{opacity:1;transform:translateY(0)}.faqs-list{max-width:900px}.faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden;transition:all 0.3s ease;opacity:0;transform:translateY(20px);font-family:'Inter',sans-serif}.faq-item *{font-family:'Inter',sans-serif!important}.faq-item.visible{opacity:1;transform:translateY(0)}.faq-item:hover{border-color:var(--blue)}.faq-question{display:flex;justify-space-between;align-items:center;padding:1.5rem;cursor:pointer;background:#000;transition:all 0.3s ease;font-family:'Inter',sans-serif}.faq-question:hover{background:var(--dark-gray)}.faq-question span{font-size:0.95rem;font-weight:600;flex:1;padding-right:1rem;font-family:'Inter',sans-serif!important}.faq-toggle{background:var(--blue);border:none;color:#fff;font-size:1rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;border-radius:8px;flex-shrink:0;font-family:'Inter',sans-serif!important}.faq-toggle i{transition:transform 0.3s ease}.faq-item.active .faq-toggle{background:var(--blue-hover)}.faq-item.active .faq-toggle i{transform:rotate(45deg)}.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.5s ease,padding 0.5s ease;opacity:0;padding:0 1.5rem;font-family:'Inter',sans-serif}.faq-item.active .faq-answer{max-height:500px;opacity:1;padding:0 1.5rem 1.5rem}.faq-answer p{color:var(--text-gray);font-size:0.9rem;line-height:1.8;font-weight:400;margin:0;font-family:'Inter',sans-serif!important}
+.faqs{padding:80px 0;background:#000;position:relative;font-family:'Inter',sans-serif}.faqs *{font-family:'Inter',sans-serif!important}.faqs::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}.faqs h2{font-size:2.8rem;margin-bottom:1rem;font-weight:800;opacity:0;transition:all 0.6s ease;font-family:'Inter',sans-serif!important}.faqs h2.visible{opacity:1;transform:translateY(0)}.faqs-subtitle{color:var(--text-gray);margin-bottom:3rem;font-size:0.95rem;line-height:1.8;max-width:800px;font-weight:400;opacity:0;transition:all 0.6s ease;font-family:'Inter',sans-serif!important}.faqs-subtitle.visible{opacity:1;transform:translateY(0)}.faqs-list{max-width:900px}.faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden;transition:all 0.3s ease;opacity:0;transform:translateY(20px);font-family:'Inter',sans-serif}.faq-item *{font-family:'Inter',sans-serif!important}.faq-item.visible{opacity:1;transform:translateY(0)}.faq-item:hover{border-color:var(--blue)}.faq-question{display:flex;justify-content:space-between;align-items:center;padding:1.5rem;cursor:pointer;background:#000;transition:all 0.3s ease;font-family:'Inter',sans-serif}.faq-question:hover{background:var(--dark-gray)}.faq-question span{font-size:0.95rem;font-weight:600;flex:1;padding-right:1rem;font-family:'Inter',sans-serif!important}.faq-toggle{background:var(--blue);border:none;color:#fff;font-size:1rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all 0.3s ease;border-radius:8px;flex-shrink:0;font-family:'Inter',sans-serif!important}.faq-toggle i{transition:transform 0.3s ease}.faq-item.active .faq-toggle{background:var(--blue-hover)}.faq-item.active .faq-toggle i{transform:rotate(45deg)}.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.5s ease,padding 0.5s ease;opacity:0;padding:0 1.5rem;font-family:'Inter',sans-serif}.faq-item.active .faq-answer{max-height:500px;opacity:1;padding:0 1.5rem 1.5rem}.faq-answer p{color:var(--text-gray);font-size:0.9rem;line-height:1.8;font-weight:400;margin:0;font-family:'Inter',sans-serif!important}
 .footer{background:#000;border-top:1px solid var(--border);padding:3rem 0 1.5rem;position:relative;font-family:'Inter',sans-serif}.footer *{font-family:'Inter',sans-serif!important}.footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}.footer-logo{height:50px;width:auto;max-width:250px;object-fit:contain;margin-bottom:1rem;filter:drop-shadow(0 4px 12px rgba(168,85,247,0.3));transition:all 0.3s ease}.footer-logo:hover{transform:scale(1.05);filter:drop-shadow(0 6px 16px rgba(168,85,247,0.5))}.footer-content{display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:2rem;font-family:'Inter',sans-serif}.footer-col h4{font-size:1.15rem;margin-bottom:1rem;font-weight:700;font-family:'Inter',sans-serif!important}.footer-col p{color:var(--text-gray);font-size:0.9rem;line-height:1.7;font-weight:400;font-family:'Inter',sans-serif!important}.footer-col ul{list-style:none}.footer-col ul li{margin-bottom:0.6rem}.footer-col ul li a{color:var(--text-gray);text-decoration:none;font-size:0.9rem;font-weight:500;transition:all 0.3s ease;display:inline-block;font-family:'Inter',sans-serif!important}.footer-col ul li a:hover{color:var(--blue);transform:translateX(5px)}.social-icons{display:flex;gap:0.8rem}.social-icons a{width:40px;height:40px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:1rem;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(0,102,255,0.3)}.social-icons a i{color:#fff;font-size:1rem}.social-icons a:hover{background:var(--blue-hover);transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,102,255,0.4)}.footer-bottom{text-align:center;padding-top:2rem;border-top:1px solid var(--border);color:var(--text-dark-gray);font-size:0.85rem;font-weight:500;font-family:'Inter',sans-serif!important}
 /* ========================================
    MOBILE RESPONSIVENESS - ENHANCED

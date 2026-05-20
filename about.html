@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Machineova</title>
+    <title>About – MachineNova Election Operations Infrastructure</title>
+    <meta name="description" content="MachineNova is an election operations infrastructure company. We build integrated platforms for voter mobilization, field coordination, agent management, and real-time results operations.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles-modern.css">
     <link rel="stylesheet" href="machinenova.css">
@@ -18,279 +18,234 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <img src="assets/logo.png" alt="Machineova" class="logo-icon">
+                    <img src="assets/logo.png" alt="MachineNova" class="logo-icon">
                 </div>
                 <nav class="nav">
                     <button class="hamburger" id="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span></span><span></span><span></span>
                     </button>
                     <ul class="nav-menu" id="navMenu">
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="index.html#features">Features</a></li>
+                        <li class="nav-dropdown">
+                            <a href="platforms.html" class="dropdown-trigger">Platforms <span class="dd-arrow">&#8964;</span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                                <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                                <li><a href="platforms.html#command-center">Election Operations Command Center</a></li>
+                                <li><a href="platforms.html#analytics">Results &amp; Tallying</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="security.html">Security</a></li>
+                        <li><a href="case-studies.html">Case Studies</a></li>
                         <li><a href="about.html" class="active">About</a></li>
-                        <li><a href="index.html#faqs">FAQs</a></li>
-                        <li><a href="index.html#testimonials">Testimonials</a></li>
-                        <li><a href="book-demo.html">Book Demo</a></li>
+                        <li><a href="book-demo.html">Contact</a></li>
                     </ul>
                 </nav>
-                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Book a Demo</button>
+                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Request Demo</button>
             </div>
         </div>
     </header>
 
-    <section class="page-hero about-hero">
-        <div class="hero-background">
-            <div class="hero-pattern"></div>
-        </div>
+    <!-- Page Hero -->
+    <section class="cx-page-hero reveal">
         <div class="container">
-            <div class="page-hero-content">
-                <div class="hero-text-content">
-                    <h1>About Machineova</h1>
-                    <p>Building Trust in Democratic Processes</p>
-                    <div class="hero-badges">
-                        <span class="hero-badge"><i class="fas fa-shield-check"></i> SOC 2 Certified</span>
-                        <span class="hero-badge"><i class="fas fa-globe"></i> 50+ Countries</span>
-                        <span class="hero-badge"><i class="fas fa-award"></i> ISO 27001</span>
-                    </div>
-                </div>
-            </div>
+            <span class="cx-label">About MachineNova</span>
+            <h1>Election Operations<br>Infrastructure</h1>
+            <p>We build the technology that connects every level of a political campaign — from grassroots mobilizers to national leadership — through one integrated, real-time data layer.</p>
         </div>
     </section>
 
-    <section class="about-content">
+    <!-- Who We Are -->
+    <section class="cx-about-page-section">
         <div class="container">
-            <div class="about-section about-intro-grid">
-                <div class="about-text">
-                    <h2>Who We Are</h2>
-                    <p>Machineova started in 2019 when a group of election observers noticed the same problems everywhere: long queues, disputed results, and voters who couldn't participate because they were too far away or had mobility challenges. We built this platform to fix those problems.</p>
-                    <p>Today, we work with universities, corporations, NGOs, and government agencies across 50 countries. Our system has processed over 2.5 million votes in more than 500 elections. We're not trying to replace traditional voting entirely—we're just making it possible for more people to participate securely when in-person voting isn't practical.</p>
+            <div class="cx-ap-grid">
+                <div class="cx-ap-text reveal reveal--left">
+                    <span class="cx-label">Who We Are</span>
+                    <h2>Not a Software Company.<br>An Election Infrastructure Partner.</h2>
+                    <p>MachineNova was built by people who understand how political campaigns actually operate — the complexity of managing hundreds of field agents, the pressure of election-day coordination, and the critical importance of having accurate, real-time data when decisions need to be made fast.</p>
+                    <p>We are a startup with a focused mission: to give political parties, candidates, and campaign organizations the operational infrastructure they need to run modern, data-driven campaigns. Our platforms are not generic tools adapted for elections — they are purpose-built for the specific demands of electoral operations.</p>
+                    <p>We are based in Nairobi, Kenya, and we build for the African political context — where field operations are complex, connectivity can be variable, and the stakes of getting election-day coordination right are high.</p>
                 </div>
-                <div class="about-image">
-                    <img src="assets/images/governmental-voting.png" alt="Democratic Voting" class="about-img" loading="lazy">
-                    <div class="image-overlay">
-                        <div class="overlay-stat">
-                            <span class="stat-big">500+</span>
-                            <span class="stat-label">Elections Conducted</span>
+                <div class="cx-ap-visual reveal reveal--right">
+                    <div class="cx-ap-photo-stack">
+                        <div class="cx-ap-photo-main">
+                            <img src="assets/images/support-team.png" alt="MachineNova team" loading="lazy">
+                            <div class="cx-photo-badge">ELECTION OPERATIONS<br>INFRASTRUCTURE</div>
+                        </div>
+                        <div class="cx-ap-photo-side">
+                            <img src="assets/images/about-hero-team.svg" alt="Campaign field operations" loading="lazy">
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="about-section about-reverse-grid">
-                <div class="about-image">
-                    <img src="assets/images/educational-balloting.png" alt="What We Do" class="about-img" loading="lazy">
-                    <div class="image-badge-group">
-                        <span class="floating-badge">Secure</span>
-                        <span class="floating-badge">Transparent</span>
-                        <span class="floating-badge">Accessible</span>
-                    </div>
-                </div>
-                <div class="about-text">
-                    <h2>What We Do</h2>
-                    <p>We provide secure digital voting infrastructure for organizations that need to run elections. Our platform handles everything from voter registration and authentication to ballot casting and result tabulation. Here's what that means in practice:</p>
-                    <ul class="vision-list">
-                        <li><i class="fas fa-check-circle"></i> Universities can run student government elections without setting up polling stations</li>
-                        <li><i class="fas fa-check-circle"></i> Corporations can conduct board elections with shareholders across different time zones</li>
-                        <li><i class="fas fa-check-circle"></i> NGOs can gather member input on policy decisions without flying everyone to one location</li>
-                        <li><i class="fas fa-check-circle"></i> Government agencies can run local referendums with full audit trails</li>
-                        <li><i class="fas fa-check-circle"></i> Trade unions can conduct leadership elections with members working different shifts</li>
-                        <li><i class="fas fa-check-circle"></i> Professional associations can vote on regulatory changes with geographically dispersed members</li>
-                    </ul>
-                </div>
+    <!-- What We Build -->
+    <section class="cx-about-page-section cx-about-page-section--alt">
+        <div class="container">
+            <div class="cx-ap-intro reveal">
+                <span class="cx-label">What We Build</span>
+                <h2>A Unified Election Operating System</h2>
+                <p>MachineNova is not a collection of separate apps. It is a single, integrated infrastructure where every platform shares a common identity, voter, and reporting layer. Data captured at the grassroots level flows directly into national dashboards in real time — no manual aggregation, no information gaps.</p>
             </div>
-
-            <div class="about-section">
-                <h2>Why Organizations Work With Us</h2>
-                <div class="why-grid">
-                    <div class="why-item">
-                        <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
-                        <h3>Security That Actually Works</h3>
-                        <p>We use the same encryption standards as banks (AES-256) and maintain SOC 2 Type II certification. Every vote is encrypted, every action is logged, and the system is audited quarterly by independent security firms.</p>
-                    </div>
-                    <div class="why-item">
-                        <div class="why-icon"><i class="fas fa-users"></i></div>
-                        <h3>Real Experience</h3>
-                        <p>We've run elections for organizations with 50 voters and organizations with 500,000 voters. We've handled contested elections, recounts, and observer access. We know what can go wrong and we've built systems to prevent it.</p>
-                    </div>
-                    <div class="why-item">
-                        <div class="why-icon"><i class="fas fa-headset"></i></div>
-                        <h3>Support When You Need It</h3>
-                        <p>Elections don't happen on a 9-to-5 schedule. Our support team is available 24/7 during your election period. We'll train your staff, help voters who get stuck, and make sure everything runs smoothly.</p>
-                    </div>
-                    <div class="why-item">
-                        <div class="why-icon"><i class="fas fa-globe"></i></div>
-                        <h3>Compliance Built In</h3>
-                        <p>We meet GDPR requirements, follow ISO 27001 standards, and work with legal teams to ensure compliance with local election laws. We maintain documentation for auditors and can provide observer access during elections.</p>
-                    </div>
+            <div class="cx-ap-platforms reveal-group">
+                <div class="cx-ap-plat reveal">
+                    <span class="cx-ap-plat-num">01</span>
+                    <h4>Event Intelligence Platform</h4>
+                    <p>ID scanning, voter lookup, KYC verification, and live attendance analytics for political events and rallies. Organisers see not just who attended, but how many are registered voters in the relevant electoral area — data that directly informs follow-up mobilization.</p>
                 </div>
-            </div>
-
-            <div class="about-section impact-section">
-                <div class="impact-header">
-                    <div class="impact-text">
-                        <h2>Our Impact</h2>
-                        <p>Real numbers from real elections across the globe</p>
-                    </div>
-                    <div class="impact-visual">
-                        <img src="assets/images/support-team.png" alt="Global Impact" class="impact-img" loading="lazy">
-                    </div>
+                <div class="cx-ap-plat reveal">
+                    <span class="cx-ap-plat-num">02</span>
+                    <h4>Mobilizer Platform</h4>
+                    <p>Door-to-door voter capture with mobilizer attribution, performance metrics, and ID-verified vote projection. Every voter scanned is linked to the mobilizer who recruited them, replacing anecdotal estimates with defensible, verified field data.</p>
                 </div>
-                <div class="impact-stats">
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-vote-yea"></i></div>
-                        <h3 class="stat-number" data-target="500">0</h3>
-                        <p>Elections Conducted</p>
-                        <small class="stat-domain">elections</small>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-check-double"></i></div>
-                        <h3 class="stat-number" data-target="2500000">0</h3>
-                        <p>Votes Cast Securely</p>
-                        <small class="stat-domain">votes</small>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-globe-americas"></i></div>
-                        <h3 class="stat-number" data-target="50">0</h3>
-                        <p>Countries Served</p>
-                        <small class="stat-domain">geographic</small>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon"><i class="fas fa-star"></i></div>
-                        <h3 class="stat-number" data-target="99">0</h3>
-                        <p>Client Satisfaction Rate</p>
-                        <small class="stat-domain">satisfaction</small>
-                    </div>
+                <div class="cx-ap-plat reveal">
+                    <span class="cx-ap-plat-num">03</span>
+                    <h4>Election Operations Command Center</h4>
+                    <p>The operational backbone of election day. Manages the full chain of command from national administrators to individual polling-station agents. Captures and aggregates results live as counting begins, with visual dashboards for national leadership.</p>
                 </div>
-            </div>
-
-            <div class="about-section">
-                <h2>How It Works</h2>
-                <p>Our platform is built on three core components that work together to ensure secure, transparent elections:</p>
-                <div class="tech-features">
-                    <div class="tech-item">
-                        <h4><i class="fas fa-lock"></i> Encryption & Blockchain</h4>
-                        <p>Votes are encrypted using AES-256 before transmission. Once cast, they're recorded on a distributed ledger that can't be altered. This means you can verify votes were counted correctly without compromising voter privacy.</p>
-                    </div>
-                    <div class="tech-item">
-                        <h4><i class="fas fa-fingerprint"></i> Voter Authentication</h4>
-                        <p>We support multiple authentication methods: email verification, SMS codes, biometric options, or integration with your existing ID systems. You choose what makes sense for your election's security requirements.</p>
-                    </div>
-                    <div class="tech-item">
-                        <h4><i class="fas fa-mobile-alt"></i> Multi-Device Access</h4>
-                        <p>Voters can participate from any device—phone, tablet, or computer. The interface adapts to screen size and works with assistive technologies for voters with disabilities.</p>
-                    </div>
-                    <div class="tech-item">
-                        <h4><i class="fas fa-chart-line"></i> Live Monitoring</h4>
-                        <p>Election administrators see real-time turnout data and can monitor system health. Results are tabulated instantly when polls close, with full audit logs available for review.</p>
-                    </div>
+                <div class="cx-ap-plat reveal">
+                    <span class="cx-ap-plat-num">04</span>
+                    <h4>Analytics &amp; Intelligence</h4>
+                    <p>Registration analysis, demographic profiling, and strategic regional intelligence. Combines field data with survey work to surface the political dynamics at play in each region — informing both campaign planning and election-day strategy.</p>
                 </div>
-            </div>
-
-            <div class="about-section">
-                <h2>Working With NGOs and Democratic Organizations</h2>
-                <p>A significant portion of our work involves supporting civil society organizations, election monitoring groups, and democratic development programs. We understand budget constraints and the need for transparency in these contexts.</p>
-                <ul class="commitment-list">
-                    <li><i class="fas fa-hand-holding-heart"></i> <strong>NGO Pricing:</strong> We offer reduced rates for registered non-profits and can work with grant budgets. Many of our NGO clients use funding from USAID, EU democracy programs, or foundations like the National Endowment for Democracy.</li>
-                    <li><i class="fas fa-graduation-cap"></i> <strong>Training & Documentation:</strong> We provide training materials in multiple languages and can conduct remote training sessions for election staff. All documentation is available for your grant reporting requirements.</li>
-                    <li><i class="fas fa-handshake"></i> <strong>Observer Access:</strong> International and domestic election observers can be granted read-only access to monitor the process in real-time, with full audit logs available for post-election review.</li>
-                    <li><i class="fas fa-certificate"></i> <strong>Compliance Documentation:</strong> We provide all technical documentation needed for electoral commissions, legal reviews, and certification processes. Our system has been certified for use in multiple jurisdictions.</li>
-                    <li><i class="fas fa-language"></i> <strong>Language Support:</strong> The platform currently supports 30+ languages with right-to-left text support for Arabic, Hebrew, and other RTL languages. We can add additional languages as needed.</li>
-                </ul>
-            </div>
-
-            <div class="cta-section">
-                <h2>Let's Talk About Your Election</h2>
-                <p>Every election is different. Schedule a call to discuss your specific requirements, timeline, and budget.</p>
-                <button class="btn btn-primary" onclick="window.location.href='book-demo.html'">Schedule a Demo</button>
             </div>
         </div>
     </section>
 
-    <footer class="footer">
+    <!-- Who We Serve -->
+    <section class="cx-about-page-section">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <img src="assets/logo.png" alt="Machineova" class="footer-logo">
-                    <p>Building trust in democratic processes</p>
-                    <div class="footer-certifications">
-                        <span class="cert-badge"><i class="fas fa-shield-check"></i> SOC 2</span>
-                        <span class="cert-badge"><i class="fas fa-certificate"></i> ISO 27001</span>
-                    </div>
+            <div class="cx-ap-intro reveal">
+                <span class="cx-label">Who We Serve</span>
+                <h2>Built for Every Level<br>of the Campaign</h2>
+            </div>
+            <div class="cx-ap-audience reveal-group">
+                <div class="cx-ap-aud reveal">
+                    <h4>Political Parties</h4>
+                    <p>National and regional party structures deploying agents, mobilizers, and coordinators across multiple constituencies. MachineNova gives party leadership real-time visibility into field operations and election-day status across the entire structure.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Solutions</h4>
-                    <ul>
-                        <li><a href="index.html#features">Educational Balloting</a></li>
-                        <li><a href="index.html#features">Corporate Balloting</a></li>
-                        <li><a href="index.html#features">Government Voting</a></li>
-                        <li><a href="index.html#features">National Elections</a></li>
-                    </ul>
+                <div class="cx-ap-aud reveal">
+                    <h4>Independent Candidates</h4>
+                    <p>Candidates running independent campaigns who need professional-grade field coordination and results monitoring without the infrastructure of a large party organization.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="index.html#features">Features</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="index.html#faqs">FAQs</a></li>
-                        <li><a href="book-demo.html">Book Demo</a></li>
-                    </ul>
+                <div class="cx-ap-aud reveal">
+                    <h4>Campaign Secretariats</h4>
+                    <p>Central campaign offices that need real-time visibility into field operations, mobilization progress, and election-day status — and the ability to intervene quickly when issues arise.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="#"><i class="fas fa-book"></i> Documentation</a></li>
-                        <li><a href="#"><i class="fas fa-file-alt"></i> Case Studies</a></li>
-                        <li><a href="#"><i class="fas fa-shield-alt"></i> Security</a></li>
-                        <li><a href="#"><i class="fas fa-balance-scale"></i> Compliance</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Follow Us</h4>
-                    <div class="social-icons">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="https://x.com" target="_blank" rel="noopener noreferrer" title="X (Twitter)">
-                            <i class="fab fa-x-twitter"></i>
-                        </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><a href="mailto:info@machineova.com"><i class="fas fa-envelope"></i> info@machineova.com</a></li>
-                        <li><a href="mailto:support@machineova.com"><i class="fas fa-headset"></i> support@machineova.com</a></li>
-                        <li><a href="tel:+254712345678"><i class="fas fa-phone"></i> +254 712 345 678</a></li>
-                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</a></li>
-                    </ul>
+                <div class="cx-ap-aud reveal">
+                    <h4>Election Observers &amp; NGOs</h4>
+                    <p>Civic organizations and observer missions requiring structured field reporting, station monitoring, and data collection. MachineNova provides the infrastructure for systematic, accountable observation operations.</p>
                 </div>
             </div>
-            <div class="footer-divider"></div>
-            <div class="footer-bottom">
-                <div class="footer-bottom-content">
-                    <p>&copy; 2026 Machineova. All rights reserved.</p>
-                    <div class="footer-links">
-                        <a href="privacy-policy.html">Privacy Policy</a>
-                        <span class="separator">•</span>
-                        <a href="terms-of-service.html">Terms of Service</a>
-                        <span class="separator">•</span>
-                        <a href="#">Cookie Policy</a>
+        </div>
+    </section>
+
+    <!-- Why MachineNova -->
+    <section class="cx-about-page-section cx-about-page-section--alt">
+        <div class="container">
+            <div class="cx-ap-intro reveal">
+                <span class="cx-label">Why MachineNova</span>
+                <h2>What Makes the Difference</h2>
+            </div>
+            <div class="cx-ap-why reveal-group">
+                <div class="cx-ap-why-item reveal">
+                    <h4>One Shared Data Layer</h4>
+                    <p>All four platforms share a common identity, voter, and reporting layer. What a mobilizer captures in the field appears on the national command dashboard in real time. No silos. No duplication. No manual aggregation.</p>
+                </div>
+                <div class="cx-ap-why-item reveal">
+                    <h4>Purpose-Built for Electoral Operations</h4>
+                    <p>MachineNova is not a generic CRM or field management tool adapted for elections. Every feature — from the mobilizer attribution system to the agent hierarchy in the Command Center — was designed specifically for how political campaigns operate.</p>
+                </div>
+                <div class="cx-ap-why-item reveal">
+                    <h4>Built for Non-Technical Field Staff</h4>
+                    <p>Our platforms are designed to be used by mobilizers and agents in the field, under pressure, often with limited technical background. The interfaces are simple and direct. The complexity is in the backend — not in what the user sees.</p>
+                </div>
+                <div class="cx-ap-why-item reveal">
+                    <h4>Accountability at Every Level</h4>
+                    <p>Role-based access control, geographic scoping, manager verification layers, and comprehensive audit trails mean that every action in the system is attributed, controlled, and auditable. This is not just a security feature — it is how you run a disciplined campaign operation.</p>
+                </div>
+                <div class="cx-ap-why-item reveal">
+                    <h4>Real-Time, Not Batch</h4>
+                    <p>Every capture, every report, every result submission is visible to the appropriate level of the hierarchy in real time. Campaign leadership does not wait for end-of-day reports. They see what is happening as it happens.</p>
+                </div>
+                <div class="cx-ap-why-item reveal">
+                    <h4>Startup Speed, Enterprise Discipline</h4>
+                    <p>We are a startup. That means we move fast, we are responsive to client needs, and we build what campaigns actually require — not what a large software company thinks they need. But we build it with the discipline and security standards that election-grade operations demand.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cx-about-cta reveal">
+        <div class="container">
+            <h2>Ready to Deploy<br>Election Infrastructure?</h2>
+            <p>Talk to our team about the right platform configuration for your campaign or organization.</p>
+            <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="cx-footer">
+        <div class="container">
+            <div class="cx-footer-top">
+                <div class="cx-footer-brand">
+                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo">
+                    <p>Election Operations Infrastructure for Modern Political Campaigns.</p>
+                    <div class="cx-social">
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
+                <div class="cx-footer-cols">
+                    <div class="cx-footer-col">
+                        <h5>Platforms</h5>
+                        <ul>
+                            <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                            <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                            <li><a href="platforms.html#command-center">Command Center</a></li>
+                            <li><a href="platforms.html#analytics">Analytics &amp; Intelligence</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Company</h5>
+                        <ul>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="security.html">Security</a></li>
+                            <li><a href="case-studies.html">Case Studies</a></li>
+                            <li><a href="book-demo.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Contact</h5>
+                        <ul>
+                            <li><a href="mailto:info@machinenova.com">info@machinenova.com</a></li>
+                            <li>+254 712 345 678</li>
+                            <li>Nairobi, Kenya</li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Legal</h5>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="cx-footer-bottom">
+                <p>&copy; 2026 MachineNova. All rights reserved.</p>
+                <p>Election Operations Infrastructure</p>
             </div>
         </div>
     </footer>
 
-    <script src="script-modern.js"></script>
     <script src="script.js"></script>
+    <script src="machinenova.js"></script>
     <script src="effects.js"></script>
 </body>
+</html>
