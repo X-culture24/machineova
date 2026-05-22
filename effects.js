@@ -25,7 +25,6 @@
 
     initReveal();
     initParallax();
-    initThemeToggle();
     initProgressBar();
     initSmoothScroll();
   });
@@ -204,40 +203,6 @@
     }, { passive: true });
 
     updateParallax();
-  }
-
-
-  /* ── 4. LIGHT / DARK MODE TOGGLE ──────────────────────────────
-     Floating button bottom-right. Persists via localStorage.
-     Light mode: white bg, black + blue text.
-  ──────────────────────────────────────────────────────────────── */
-  function initThemeToggle() {
-    var btn = document.createElement('button');
-    btn.className = 'mn-theme-toggle';
-    btn.setAttribute('aria-label', 'Toggle light/dark mode');
-    btn.setAttribute('title', 'Toggle light mode');
-
-    function setTheme(isLight) {
-      if (isLight) {
-        document.body.classList.add('light-mode');
-        btn.textContent = '◑';
-        localStorage.setItem('mn-theme', 'light');
-      } else {
-        document.body.classList.remove('light-mode');
-        btn.textContent = '◐';
-        localStorage.setItem('mn-theme', 'dark');
-      }
-    }
-
-    // Restore saved preference
-    var saved = localStorage.getItem('mn-theme');
-    setTheme(saved === 'light');
-
-    btn.addEventListener('click', function () {
-      setTheme(!document.body.classList.contains('light-mode'));
-    });
-
-    document.body.appendChild(btn);
   }
 
 
