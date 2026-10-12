@@ -97,16 +97,27 @@ class Voter {
   final int age;
   final String? pollingCenter;
 
+  /// Which reference resolved the ID: 'voter_register' or 'id_registry' (national ID records).
+  final String source;
+
   Voter.fromJson(Map<String, dynamic> j)
       : nationalId = j['national_id'],
         name = j['name'],
-        sex = j['sex'],
-        dob = j['dob'],
+        sex = j['sex'] ?? '',
+        dob = j['dob'] ?? '',
         age = _i(j['age']),
-        county = j['county'],
-        constituency = j['constituency'],
-        ward = j['ward'],
-        pollingCenter = _s(j['polling_center']);
+        county = j['county'] ?? '',
+        constituency = j['constituency'] ?? '',
+        ward = j['ward'] ?? '',
+        pollingCenter = _s(j['polling_center']),
+        source = j['source'] ?? 'voter_register';
+
+  /// Identity confirmed from national ID records, but not on the voter register.
+  bool get idOnly => source == 'id_registry';
+
+  String get sexLabel => sex == 'F' ? 'Female' : sex == 'M' ? 'Male' : 'Sex unknown';
+
+  String get area => [county, constituency, ward].where((s) => s.isNotEmpty).join(' · ');
 }
 
 class Prior {

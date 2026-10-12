@@ -247,7 +247,8 @@ func (s *Server) mobilizeLookup(w http.ResponseWriter, r *http.Request, p *Princ
 	if prior != nil {
 		status = statusAlreadyMobilized
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"status": status, "voter": v, "in_register": v != nil, "previous": prior})
+	writeJSON(w, http.StatusOK, map[string]any{"status": status, "voter": v, "in_register": v != nil,
+		"registered_voter": v != nil && v.Source == sourceVoterRegister, "previous": prior})
 }
 
 func (s *Server) createMobilization(w http.ResponseWriter, r *http.Request, p *Principal) {

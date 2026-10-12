@@ -2,7 +2,7 @@
 DATABASE_URL ?= postgres://postgres@localhost:5432/checkin?sslmode=disable
 export DATABASE_URL
 
-.PHONY: api dashboard mobile db bootstrap import-register import-registry build test e2e
+.PHONY: api dashboard mobile db bootstrap import-register import-idregistry import-registry build test e2e e2e-idlookup
 
 db:                 ## Create the local database (Postgres.app / local server)
 	createdb checkin 2>/dev/null || true
@@ -15,6 +15,9 @@ bootstrap:          ## Create the first platform admin: make bootstrap EMAIL=...
 
 import-register:    ## Load the voter register: make import-register FILE=path/to/register.csv
 	cd backend && go run ./cmd/import-register -file "$(abspath $(FILE))"
+
+import-idregistry:  ## Load national ID (NRB) extracts for ID lookup: make import-idregistry FILES="a.csv b.csv" (default: datasets/*.csv)
+	cd backend && go run ./cmd/import-idregistry -files "$(shell ls $(abspath $(or $(FILES),$(wildcard datasets/*.csv))) | paste -sd, -)"
 
 import-registry:    ## Load polling stations / parties: make import-registry STATIONS=stations.csv PARTIES=parties.csv
 	cd backend && go run ./cmd/import-registry $(if $(STATIONS),-stations "$(abspath $(STATIONS))") $(if $(PARTIES),-parties "$(abspath $(PARTIES))")
@@ -39,3 +42,12 @@ build:
 test:
 	cd backend && go vet ./... && go test ./...
 	cd dashboard && npm run typecheck
+
+e2e-idlookup:       ## ID lookup / check-in end-to-end on a throwaway copy of the loaded DB (needs id_registry loaded)
+	@lsof -iTCP:8199 -sTCP:LISTEN >/dev/null && { echo "port 8199 is busy"; exit 1; } || true
+	dropdb --if-exists checkin_e2e_id && createdb -T checkin checkin_e2e_id
+	cd backend && go build -o bin/e2e-api ./cmd/api \
+		&& DATABASE_URL=postgres://postgres@localhost:5432/checkin_e2e_id?sslmode=disable go run ./cmd/bootstrap -email ops@test.local -password testpass123
+	DATABASE_URL=postgres://postgres@localhost:5432/checkin_e2e_id?sslmode=disable ADDR=:8199 backend/bin/e2e-api & pid=$$!; sleep 2; \
+		DATABASE_URL=postgres://postgres@localhost:5432/checkin_e2e_id?sslmode=disable API=http://localhost:8199 python3 backend/scripts/e2e_idlookup.py; \
+		status=$$?; kill $$pid; dropdb checkin_e2e_id; exit $$status

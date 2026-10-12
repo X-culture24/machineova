@@ -78,3 +78,54 @@ func TestComputePace(t *testing.T) {
 		t.Errorf("past target date: %+v", p)
 	}
 }
+
+func TestRegistryKey(t *testing.T) {
+	cases := map[string]string{"01234567": "1234567", " 12 345 678 ": "12345678", "ID-0099": "99", "000": "", "abc": ""}
+	for in, want := range cases {
+		if got := registryKey(in); got != want {
+			t.Errorf("registryKey(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestTitleCase(t *testing.T) {
+	if got := titleCase("KWALE / MATUGA"); got != "Kwale / Matuga" {
+		t.Errorf("got %q", got)
+	}
+	if got := titleCase("  TAITA/TAVETA "); got != "Taita/taveta" {
+		t.Errorf("got %q", got)
+	}
+}
+
+func TestRegionMatchIDRegistryUsesCountyOnly(t *testing.T) {
+	// NRB sub-county/location never equal IEBC constituency/ward names, so they must not count.
+	if !regionMatch(sourceIDRegistry, "Kwale", "Kwale / Matuga", "Tiwi", sp("kwale"), sp("Matuga"), sp("Tsimba Golini")) {
+		t.Error("same county should be in region for ID-registry records")
+	}
+	if regionMatch(sourceIDRegistry, "Kilifi", "Malindi", "Ganda", sp("Kwale"), nil, nil) {
+		t.Error("different county should be out of region")
+	}
+	if regionMatch(sourceVoterRegister, "Kwale", "Kwale / Matuga", "Tiwi", sp("Kwale"), sp("Matuga"), nil) {
+		t.Error("voter-register records keep the full constituency check")
+	}
+}
+
+func TestCountyName(t *testing.T) {
+	cases := map[string]string{"HOMABAY": "Homa Bay", "MURANGA": "Murang'a", "TAITA/TAVETA": "Taita-Taveta",
+		"ELGEYO MARAKWET": "Elgeyo-Marakwet", "THARAKA NITHI": "Tharaka-Nithi", "nairobi city": "Nairobi",
+		"RIFT VALLEY PROVINCE": "Rift Valley Province"}
+	for in, want := range cases {
+		if got := countyName(in); got != want {
+			t.Errorf("countyName(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestInAreaIgnoresSpellingVariants(t *testing.T) {
+	if !inArea("Taita-Taveta", "Voi", "Mbololo", sp("TAITA/TAVETA"), sp("voi"), nil) {
+		t.Error("county/constituency spelling variants should match")
+	}
+	if !inArea("Homa Bay", "", "", sp("HOMABAY"), nil, nil) {
+		t.Error("HOMABAY should match Homa Bay")
+	}
+}

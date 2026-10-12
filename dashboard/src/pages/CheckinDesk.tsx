@@ -130,11 +130,22 @@ export default function CheckinDesk() {
                     <span className="avatar">{initials(v.name)}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 700, fontSize: 16 }}>{v.name}</div>
-                      <small className="muted">ID {v.national_id} · {v.sex === "F" ? "Female" : "Male"} · {v.age} yrs</small>
+                      <small className="muted">
+                        {[`ID ${v.national_id}`, v.sex === "F" ? "Female" : v.sex === "M" ? "Male" : "Sex unknown", v.dob && `${v.age} yrs`]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </small>
                       <div><small>{area(v.county, v.constituency, v.ward, v.polling_center)}</small></div>
                     </div>
                     <div className="stack" style={{ gap: 4, alignItems: "flex-end" }}>
-                      <Badge tone="teal">MATCHED</Badge>
+                      {v.source === "id_registry" ? (
+                        <>
+                          <Badge tone="teal">ID VERIFIED</Badge>
+                          <Badge tone="amber">NOT ON VOTER REGISTER</Badge>
+                        </>
+                      ) : (
+                        <Badge tone="teal">REGISTERED VOTER</Badge>
+                      )}
                       <RegionBadge inRegion={lookup.in_region ?? true} />
                     </div>
                   </div>

@@ -58,6 +58,32 @@ national_id,name,sex,dob,county,constituency,ward,polling_center
 
 Columns can come in any order. `sex` is F/M (or Female/Male), `dob` is `YYYY-MM-DD`, and spaces inside ID numbers are removed. Re-importing updates rows by `national_id`.
 
+### National ID records (NRB extracts) — ID lookup fallback
+
+When an ID is not on the voter register, lookup falls back to `id_registry`, loaded from the
+NRB extracts in `datasets/` (git-ignored — personal data, never commit):
+
+```sh
+make import-idregistry                       # all datasets/*.csv
+make import-idregistry FILES="a.csv b.csv"   # specific files; earlier files win on duplicate IDs
+```
+
+Expected columns: `IDNO, FULLNAME, DATE_BIRTH (YYYYMMDD), SEX, COUNTY, SUBCOUNTY, DIVISION,
+LOCATION, SUBLOCATION, VILLAGE`. Tens of millions of rows stream through an unlogged staging
+table and are swapped in atomically, so lookups keep working during a reload. Parents' names,
+tribe, clan and family columns in the extracts are deliberately not loaded.
+
+How lookup behaves for these records:
+
+- `in_register: true` (identity found — clients skip manual entry), `registered_voter: false`,
+  `voter.source: "id_registry"`; the apps show **ID verified · Not on voter register**.
+- IDs match ignoring spaces and leading zeros.
+- NRB has no electoral geography: check-ins store county, with sub-county and location in the
+  constituency and ward fields; in/out-of-region for these records compares **county only**.
+
+`make e2e-idlookup` runs an end-to-end lookup → check-in → duplicate → mobilize test against the
+loaded database (it creates a throwaway org and prints no personal data).
+
 ### Polling stations & parties CSV (Election Ops registry)
 
 ```
