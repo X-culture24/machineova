@@ -76,6 +76,8 @@ export interface Voter {
   constituency: string;
   ward: string;
   polling_center?: string;
+  /** Voter registration date (YYYY-MM-DD), registered voters only. */
+  registered_on?: string;
   /** Which reference resolved the ID: the voter register, or national ID records only. */
   source: "voter_register" | "id_registry";
 }

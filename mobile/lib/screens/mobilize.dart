@@ -82,7 +82,8 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
       if (v != null) {
         // Pre-fill editable details from the register.
         _f.name.text = v.name;
-        _f.sex = v.sex;
+        // Only F/M are dropdown values; unknown sex stays unset for the operator to pick.
+        _f.sex = (v.sex == 'F' || v.sex == 'M') ? v.sex : null;
         _f.dob.text = v.dob;
         _f.county.text = v.county;
         _f.constituency.text = v.constituency;

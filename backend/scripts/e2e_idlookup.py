@@ -43,10 +43,13 @@ def login(u, p):
 
 
 run = uuid.uuid4().hex[:6]
-kwale_id = sql("SELECT national_id FROM id_registry WHERE county='KWALE' AND sex IS NOT NULL AND dob IS NOT NULL "
-               "AND sub_county IS NOT NULL AND location IS NOT NULL LIMIT 1 OFFSET 1000")
-kilifi_id = sql("SELECT national_id FROM id_registry WHERE county='KILIFI' AND sex IS NOT NULL AND dob IS NOT NULL "
-                "AND sub_county IS NOT NULL AND location IS NOT NULL LIMIT 1 OFFSET 2000")
+# People in the national ID records who are NOT on the voter register.
+not_reg = ("AND sex IS NOT NULL AND dob IS NOT NULL AND sub_county IS NOT NULL AND location IS NOT NULL "
+           "AND NOT EXISTS (SELECT 1 FROM register_voters r WHERE r.national_id = i.national_id)")
+kwale_id = sql(f"SELECT national_id FROM id_registry i WHERE county='KWALE' {not_reg} LIMIT 1 OFFSET 1000")
+kilifi_id = sql(f"SELECT national_id FROM id_registry i WHERE county='KILIFI' {not_reg} LIMIT 1 OFFSET 2000")
+# A registered voter in Kwale (only when a voter register is loaded).
+reg_id = sql("SELECT national_id FROM register_voters WHERE county='Kwale' AND registered_on IS NOT NULL LIMIT 1 OFFSET 500")
 ok("picked registry IDs for test", kwale_id and kilifi_id)
 missing = "999" + run.translate(str.maketrans("abcdef", "123456"))  # not a real ID format in the extracts
 
@@ -72,6 +75,18 @@ ok("details filled: sex, dob, age, county, admin area",
    v.get("sex") in ("F", "M") and len(v.get("dob", "")) == 10 and v.get("age", 0) > 0 and v.get("county") == "Kwale"
    and (v.get("admin_area") or {}).get("location"), {k: bool(v.get(k)) for k in ("sex", "dob", "age", "county")})
 ok("same-county person is in region", lk.get("in_region") is True, lk.get("in_region"))
+
+# 1b. A registered voter resolves from the voter register with polling centre + registration date
+if reg_id:
+    st, lr = call("GET", f"/checkins/lookup?event_id={eid}&national_id={reg_id}", tok=own)
+    rv = lr.get("voter") or {}
+    ok("registered voter: source voter_register, registered_voter true",
+       rv.get("source") == "voter_register" and lr.get("registered_voter") is True, (rv.get("source"), lr.get("registered_voter")))
+    ok("registered voter has polling centre, ward and registration date",
+       rv.get("polling_center") and rv.get("ward") and rv.get("registered_on"), {k: bool(rv.get(k)) for k in ("polling_center", "ward", "registered_on")})
+    ok("registered voter in Kwale is in region for a Kwale event", lr.get("in_region") is True, lr.get("in_region"))
+else:
+    print("SKIP registered-voter checks (no voter register loaded)")
 
 # 2. Leading zeros / spaces typed or scanned still match
 st, lk0 = call("GET", f"/checkins/lookup?event_id={eid}&national_id=0{kwale_id}", tok=own)
