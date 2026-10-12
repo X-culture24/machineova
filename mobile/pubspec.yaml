@@ -12,7 +12,6 @@ dependencies:
     sdk: flutter
   http: ^1.2.2
   shared_preferences: ^2.3.2
-  mobile_scanner: ^6.0.2
   intl: ^0.19.0
   url_launcher: ^6.3.1
   flutter_secure_storage: ^9.2.2
@@ -20,11 +19,39 @@ dependencies:
   # Native AES-GCM on Android/iOS (falls back to pure Dart elsewhere).
   cryptography_flutter: ^2.3.2
   local_auth: ^2.3.0
+  camera: ^0.12.1
+  google_mlkit_text_recognition: ^0.17.1
+  google_mlkit_barcode_scanning: ^0.16.1
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/brand/icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/brand/icon_foreground.png
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/brand/
+  fonts:
+    - family: Lexend
+      fonts:
+        - asset: assets/fonts/Lexend-400.ttf
+          weight: 400
+        - asset: assets/fonts/Lexend-500.ttf
+          weight: 500
+        - asset: assets/fonts/Lexend-600.ttf
+          weight: 600
+        - asset: assets/fonts/Lexend-700.ttf
+          weight: 700
+        - asset: assets/fonts/Lexend-800.ttf
+          weight: 800

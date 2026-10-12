@@ -4,6 +4,8 @@ import 'offline/prefetch.dart';
 import 'offline/sync.dart';
 import 'screens/lock_screen.dart';
 import 'screens/login.dart';
+import 'screens/onboarding.dart';
+import 'screens/splash.dart';
 import 'security/app_lock.dart';
 import 'screens/ops/ops_shell.dart';
 import 'screens/shell.dart';
@@ -23,10 +25,13 @@ class CheckinApp extends StatefulWidget {
 }
 
 class _CheckinAppState extends State<CheckinApp> with WidgetsBindingObserver {
+  bool? _onboarded;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    Onboarding.isDone().then((v) => setState(() => _onboarded = v));
   }
 
   @override
@@ -55,10 +60,11 @@ class _CheckinAppState extends State<CheckinApp> with WidgetsBindingObserver {
       home: ListenableBuilder(
         listenable: Listenable.merge([session, appLock]),
         builder: (context, _) {
-          if (session.restoring) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          if (session.restoring || _onboarded == null) return const SplashScreen();
+          if (session.me == null) {
+            if (_onboarded == false) return OnboardingScreen(onDone: () => setState(() => _onboarded = true));
+            return const LoginScreen();
           }
-          if (session.me == null) return const LoginScreen();
           // Nothing with data is built until the PIN is set or entered.
           switch (appLock.state) {
             case AppLockState.needsPin:

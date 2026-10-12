@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../api/models.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
-import 'scan.dart';
+import '../scan/scan_screen.dart';
 
 /// ID entry with Look up + Scan ID, shared by the check-in and mobilize flows.
 class IdEntry extends StatelessWidget {
@@ -21,55 +21,84 @@ class IdEntry extends StatelessWidget {
       required this.onLookup,
       required this.onChanged});
 
+  Future<void> _scan(BuildContext context) async {
+    final id = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const ScanScreen()));
+    if (id != null) {
+      controller.text = id;
+      onChanged();
+      onLookup();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SectionCard(
       title: 'Find a voter',
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        // Scanning is the fast path in a queue; typing is the fallback.
+        Material(
+          color: color,
+          borderRadius: BorderRadius.circular(18),
+          child: InkWell(
+            key: const Key('scan-id'),
+            borderRadius: BorderRadius.circular(18),
+            onTap: busy ? null : () => _scan(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: Row(children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(14)),
+                  child: const Icon(Icons.document_scanner_outlined, color: Colors.white),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Scan ID card',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    Text('Front or back — reads the ID number',
+                        style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  ]),
+                ),
+                const Icon(Icons.chevron_right, color: Colors.white),
+              ]),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        const Row(children: [
+          Expanded(child: Divider()),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Text('or type it', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+          ),
+          Expanded(child: Divider()),
+        ]),
+        const SizedBox(height: 14),
         TextField(
+          key: const Key('id-input'),
           controller: controller,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]'))],
           style: const TextStyle(fontSize: 22, letterSpacing: 2, fontWeight: FontWeight.w600),
-          decoration: const InputDecoration(labelText: 'ID number'),
+          decoration: InputDecoration(
+            labelText: 'ID number',
+            prefixIcon: Icon(Icons.badge_outlined, color: color),
+          ),
           textInputAction: TextInputAction.search,
           onChanged: (_) => onChanged(),
           onSubmitted: (_) => onLookup(),
         ),
         const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
-            child: FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: color),
-              onPressed: busy ? null : onLookup,
-              child: Text(busy ? 'Looking up…' : 'Look up'),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-                foregroundColor: color,
-                side: BorderSide(color: color),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Scan ID'),
-              onPressed: busy
-                  ? null
-                  : () async {
-                      final id = await Navigator.of(context)
-                          .push<String>(MaterialPageRoute(builder: (_) => const ScanScreen()));
-                      if (id != null) {
-                        controller.text = id;
-                        onChanged();
-                        onLookup();
-                      }
-                    },
-            ),
-          ),
-        ]),
+        OutlinedButton.icon(
+          key: const Key('lookup'),
+          style: OutlinedButton.styleFrom(foregroundColor: color, side: BorderSide(color: color, width: 1.4)),
+          icon: busy
+              ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: color))
+              : const Icon(Icons.search),
+          label: Text(busy ? 'Looking up…' : 'Look up'),
+          onPressed: busy ? null : onLookup,
+        ),
       ]),
     );
   }
