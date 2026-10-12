@@ -765,3 +765,15 @@ body > section, body > footer { overflow-x: clip; }
 @media (max-width: 1024px) {
   .js-reveal .reveal.reveal--from-right, .js-reveal .reveal.reveal--from-left { transform: translate3d(0, 28px, 0) scale(.97); }
 }
+
+/* Booking wizard: option cards and placeholders in light mode */
+.checkbox-item { border-radius: var(--r-md) !important; transition: border-color .2s ease, background-color .2s ease; }
+.checkbox-item:has(input:checked) { border-color: var(--purple) !important; box-shadow: 0 0 0 1px var(--purple) inset; }
+html[data-theme="light"] .checkbox-item { background: #ffffff !important; border: 1px solid #e3dcee !important; }
+html[data-theme="light"] .checkbox-item:hover { border-color: #c9b3f0 !important; background: #fbf8ff !important; }
+html[data-theme="light"] .checkbox-item span { color: #17121f !important; }
+html[data-theme="light"] .checkbox-item p { color: #5d5669 !important; }
+html[data-theme="light"] .checkbox-item i { color: var(--purple) !important; }
+html[data-theme="light"] :is(input, textarea)::placeholder { color: #8a8396 !important; }
+html[data-theme="light"] .step-number { background: #f1ecf8 !important; color: #4d4659 !important; border-color: #e3dcee !important; }
+html[data-theme="light"] .progress-step.active .step-number { background: var(--grad) !important; color: #fff !important; }
