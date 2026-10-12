@@ -22,8 +22,27 @@ type voter struct {
 	Constituency  string  `json:"constituency"`
 	Ward          string  `json:"ward"`
 	PollingCenter *string `json:"polling_center,omitempty"`
+	// Source is which reference resolved the ID: sourceVoterRegister or sourceIDRegistry.
+	Source string `json:"source"`
+	// AdminArea is the NRB administrative location, set for ID-registry matches.
+	AdminArea *adminArea `json:"admin_area,omitempty"`
 }
 
+type adminArea struct {
+	SubCounty   *string `json:"sub_county,omitempty"`
+	Division    *string `json:"division,omitempty"`
+	Location    *string `json:"location,omitempty"`
+	SubLocation *string `json:"sub_location,omitempty"`
+	Village     *string `json:"village,omitempty"`
+}
+
+const (
+	sourceVoterRegister = "voter_register"
+	sourceIDRegistry    = "id_registry"
+)
+
+// registerLookup resolves an ID against the voter register, falling back to the national
+// ID registry (NRB). It returns nil when neither knows the ID.
 func (s *Server) registerLookup(ctx context.Context, nationalID string) (*voter, error) {
 	var v voter
 	var dob time.Time
@@ -32,16 +51,93 @@ func (s *Server) registerLookup(ctx context.Context, nationalID string) (*voter,
 		SELECT national_id, name, sex, dob, county, constituency, ward, polling_center
 		FROM register_voters WHERE national_id = $1`, nationalID).
 		Scan(&v.NationalID, &v.Name, &v.Sex, &dob, &v.County, &v.Constituency, &v.Ward, &pc)
+	if err == nil {
+		v.DOB = dob.Format(time.DateOnly)
+		v.Age = ageOn(dob, time.Now())
+		v.PollingCenter = &pc
+		v.Source = sourceVoterRegister
+		return &v, nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+	return s.idRegistryLookup(ctx, nationalID)
+}
+
+func (s *Server) idRegistryLookup(ctx context.Context, nationalID string) (*voter, error) {
+	key := registryKey(nationalID)
+	if key == "" {
+		return nil, nil
+	}
+	var v voter
+	var sex, county *string
+	var dob *time.Time
+	a := adminArea{}
+	err := s.db.QueryRow(ctx, `
+		SELECT name, sex, dob, county, sub_county, division, location, sub_location, village
+		FROM id_registry WHERE national_id = $1`, key).
+		Scan(&v.Name, &sex, &dob, &county, &a.SubCounty, &a.Division, &a.Location, &a.SubLocation, &a.Village)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	v.DOB = dob.Format(time.DateOnly)
-	v.Age = ageOn(dob, time.Now())
-	v.PollingCenter = &pc
+	v.NationalID = nationalID
+	v.Source = sourceIDRegistry
+	v.AdminArea = &a
+	if sex != nil {
+		v.Sex = *sex
+	}
+	if dob != nil {
+		v.DOB = dob.Format(time.DateOnly)
+		v.Age = ageOn(*dob, time.Now())
+	}
+	if county != nil {
+		v.County = countyName(*county)
+	}
+	// NRB has no electoral geography. Its sub-county and location stand in for
+	// constituency and ward so check-ins still carry a location; region checks for
+	// these records compare county only (see regionMatch).
+	if a.SubCounty != nil {
+		v.Constituency = titleCase(*a.SubCounty)
+	}
+	if a.Location != nil {
+		v.Ward = titleCase(*a.Location)
+	}
 	return &v, nil
+}
+
+// registryKey normalises an ID for id_registry: digits only, no leading zeros
+// (matches cmd/import-idregistry).
+func registryKey(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if r >= '0' && r <= '9' {
+			b.WriteRune(r)
+		}
+	}
+	return strings.TrimLeft(b.String(), "0")
+}
+
+// titleCase turns NRB's upper-case place names ("KWALE / MATUGA") into display case.
+func titleCase(s string) string {
+	words := strings.Fields(strings.ToLower(s))
+	for i, w := range words {
+		if w == "" {
+			continue
+		}
+		words[i] = strings.ToUpper(w[:1]) + w[1:]
+	}
+	return strings.Join(words, " ")
+}
+
+// regionMatch decides in/out of region. ID-registry records only know the county reliably.
+func regionMatch(source, county, constituency, ward string, aCounty, aConst, aWard *string) bool {
+	if source == sourceIDRegistry {
+		return inArea(county, "", "", aCounty, nil, nil)
+	}
+	return inArea(county, constituency, ward, aCounty, aConst, aWard)
 }
 
 func ageOn(dob, now time.Time) int {
@@ -54,7 +150,7 @@ func ageOn(dob, now time.Time) int {
 
 // inArea reports whether a location falls within an area; nil area levels match anything.
 func inArea(county, constituency, ward string, aCounty, aConst, aWard *string) bool {
-	eq := func(a *string, v string) bool { return a == nil || strings.EqualFold(*a, v) }
+	eq := func(a *string, v string) bool { return a == nil || placeKey(*a) == placeKey(v) }
 	return eq(aCounty, county) && eq(aConst, constituency) && eq(aWard, ward)
 }
 
@@ -94,9 +190,12 @@ func (s *Server) checkinLookup(w http.ResponseWriter, r *http.Request, p *Princi
 		s.internal(w, r, err)
 		return
 	}
-	resp := map[string]any{"status": statusReady, "voter": v, "in_register": v != nil, "in_region": true}
+	// in_register: a reference register knows this ID (the client can skip manual entry).
+	// registered_voter: specifically on the voter register.
+	resp := map[string]any{"status": statusReady, "voter": v, "in_register": v != nil,
+		"registered_voter": v != nil && v.Source == sourceVoterRegister, "in_region": true}
 	if v != nil {
-		resp["in_region"] = inArea(v.County, v.Constituency, v.Ward, e.County, e.Constituency, e.Ward)
+		resp["in_region"] = regionMatch(v.Source, v.County, v.Constituency, v.Ward, e.County, e.Constituency, e.Ward)
 	}
 
 	if e.ListOnly {
@@ -137,6 +236,8 @@ type personInput struct {
 	County       string  `json:"county"`
 	Constituency string  `json:"constituency"`
 	Ward         string  `json:"ward"`
+	// source records which register filled the blanks (not part of the request body).
+	source string
 }
 
 // resolve fills blanks from the register and validates the result.
@@ -150,6 +251,7 @@ func (s *Server) resolvePerson(ctx context.Context, in *personInput) (string, er
 		return "", err
 	}
 	if v != nil {
+		in.source = v.Source
 		fill := func(dst *string, src string) {
 			if strings.TrimSpace(*dst) == "" {
 				*dst = src
@@ -160,7 +262,7 @@ func (s *Server) resolvePerson(ctx context.Context, in *personInput) (string, er
 		fill(&in.County, v.County)
 		fill(&in.Constituency, v.Constituency)
 		fill(&in.Ward, v.Ward)
-		if in.DOB == nil || *in.DOB == "" {
+		if (in.DOB == nil || *in.DOB == "") && v.DOB != "" {
 			in.DOB = &v.DOB
 		}
 	}
@@ -230,7 +332,7 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 			return
 		}
 	}
-	inRegion := inArea(in.County, in.Constituency, in.Ward, e.County, e.Constituency, e.Ward)
+	inRegion := regionMatch(in.source, in.County, in.Constituency, in.Ward, e.County, e.Constituency, e.Ward)
 
 	var id string
 	var at time.Time

@@ -69,13 +69,15 @@ export interface Member {
 export interface Voter {
   national_id: string;
   name: string;
-  sex: "F" | "M";
+  sex: "F" | "M" | "";
   dob: string;
   age: number;
   county: string;
   constituency: string;
   ward: string;
   polling_center?: string;
+  /** Which reference resolved the ID: the voter register, or national ID records only. */
+  source: "voter_register" | "id_registry";
 }
 
 export interface Prior {
@@ -88,6 +90,8 @@ export interface Lookup {
   status: "ready" | "already_checked_in" | "not_on_list" | "already_mobilized";
   voter: Voter | null;
   in_register: boolean;
+  /** On the voter register specifically (false for ID-registry-only matches). */
+  registered_voter?: boolean;
   in_region?: boolean;
   previous?: Prior | null;
 }

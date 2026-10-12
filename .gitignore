@@ -3,3 +3,6 @@
 *.local
 # Duplicate source PDFs
 *\ (1).pdf
+
+# National ID / voter register extracts — personal data, never commit
+datasets/

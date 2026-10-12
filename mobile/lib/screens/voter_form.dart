@@ -98,12 +98,16 @@ class VoterCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(v.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-            Text('ID ${v.nationalId} · ${v.sex == 'F' ? 'Female' : 'Male'} · ${v.age} yrs',
+            Text(['ID ${v.nationalId}', v.sexLabel, if (v.dob.isNotEmpty) '${v.age} yrs'].join(' · '),
                 style: const TextStyle(color: AppColors.muted, fontSize: 12)),
-            Text([v.county, v.constituency, v.ward].join(' · '), style: const TextStyle(fontSize: 12)),
+            if (v.area.isNotEmpty) Text(v.area, style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 6),
             Wrap(spacing: 6, children: [
-              Pill('MATCHED', fg: color, bg: Colors.white),
+              if (v.idOnly) ...[
+                Pill('ID VERIFIED', fg: color, bg: Colors.white),
+                const Pill('NOT ON VOTER REGISTER', fg: Color(0xFFB45309), bg: Color(0xFFFFF7E6)),
+              ] else
+                Pill('REGISTERED VOTER', fg: color, bg: Colors.white),
               if (inRegion != null) RegionPill(inRegion!),
             ]),
           ]),
