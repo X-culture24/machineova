@@ -66,6 +66,23 @@ export interface Member {
   active: boolean;
 }
 
+/** Where a person comes from per their national ID record. */
+export interface HomeArea {
+  county?: string;
+  sub_county?: string;
+  division?: string;
+  location?: string;
+  sub_location?: string;
+  village?: string;
+}
+
+export const homeLine = (h?: HomeArea | null) =>
+  h
+    ? [h.village, h.sub_location, h.location, h.sub_county, h.county]
+        .filter((p, i, all): p is string => !!p && all.indexOf(p) === i)
+        .join(", ")
+    : "";
+
 export interface Voter {
   national_id: string;
   name: string;
@@ -80,6 +97,8 @@ export interface Voter {
   registered_on?: string;
   /** Which reference resolved the ID: the voter register, or national ID records only. */
   source: "voter_register" | "id_registry";
+  /** Home area from the national ID record. */
+  home?: HomeArea | null;
 }
 
 export interface Prior {

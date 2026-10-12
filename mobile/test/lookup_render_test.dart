@@ -26,6 +26,36 @@ void main() {
     });
   }
 
+  testWidgets('out-of-area voter shows where they are registered and where they come from', (t) async {
+    final l = Lookup.fromJson({
+      'status': 'ready',
+      'in_register': true,
+      'registered_voter': true,
+      'in_region': false,
+      'voter': {
+        'national_id': '98765433',
+        'name': 'Kevin Odhiambo',
+        'sex': 'M',
+        'dob': '1988-11-21',
+        'age': 37,
+        'county': 'Kisumu',
+        'constituency': 'Kisumu Central',
+        'ward': 'Kondele',
+        'polling_center': 'Kondele Primary School',
+        'registered_on': '2017-01-20',
+        'source': 'voter_register',
+        'home': {'county': 'Siaya', 'sub_county': 'Bondo', 'location': 'Sakwa Central', 'village': 'Sirongo'},
+      },
+    });
+    expect(l.inRegion, isFalse);
+    expect(l.voter!.home!.line, 'Sirongo, Sakwa Central, Bondo, Siaya');
+    await t.pumpWidget(MaterialApp(theme: buildTheme(), home: Scaffold(body: OriginPanel(l.voter!))));
+    expect(t.takeException(), isNull);
+    expect(find.text('Outside this area'), findsOneWidget);
+    expect(find.text('Kondele, Kisumu Central, Kisumu · Kondele Primary School'), findsOneWidget);
+    expect(find.text('Sirongo, Sakwa Central, Bondo, Siaya'), findsOneWidget);
+  });
+
   test('unknown ID parses to no voter', () {
     expect(Lookup.fromJson(fixtures['unknown'] as Map<String, dynamic>).voter, isNull);
   });

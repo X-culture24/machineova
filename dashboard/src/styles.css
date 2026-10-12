@@ -349,3 +349,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   table.cards td:first-child[data-label], table.cards td:not([data-label]):first-child + td[data-label] { grid-column: 1 / -1; }
   table.cards td:empty, table.cards td:has(> input[type=checkbox]) { display: none; }
 }
+
+/* Out-of-area voter: where they're registered and where they come from (from records). */
+.origin-panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fdf1df;
+  border: 1px solid rgba(224, 137, 26, 0.4);
+}

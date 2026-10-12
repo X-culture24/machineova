@@ -92,6 +92,25 @@ class Drive {
   String get area => [county, constituency, ward].whereType<String>().join(' · ');
 }
 
+/// Where a person comes from per their national ID record.
+class HomeArea {
+  final String? county, subCounty, division, location, subLocation, village;
+  HomeArea.fromJson(Map<String, dynamic> j)
+      : county = _s(j['county']),
+        subCounty = _s(j['sub_county']),
+        division = _s(j['division']),
+        location = _s(j['location']),
+        subLocation = _s(j['sub_location']),
+        village = _s(j['village']);
+
+  /// Smallest place first: "Village, Sub-location, Location, Sub-county, County".
+  String get line => [village, subLocation, location, subCounty, county]
+      .whereType<String>()
+      .where((p) => p.isNotEmpty)
+      .fold<List<String>>([], (acc, p) => acc.contains(p) ? acc : (acc..add(p)))
+      .join(', ');
+}
+
 class Voter {
   final String nationalId, name, sex, dob, county, constituency, ward;
   final int age;
@@ -102,6 +121,9 @@ class Voter {
 
   /// Voter registration date (YYYY-MM-DD), registered voters only.
   final String? registeredOn;
+
+  /// Home area from the national ID record (null when the ID records don't know them).
+  final HomeArea? home;
 
   Voter.fromJson(Map<String, dynamic> j)
       : nationalId = j['national_id'],
@@ -114,7 +136,8 @@ class Voter {
         ward = j['ward'] ?? '',
         pollingCenter = _s(j['polling_center']),
         source = j['source'] ?? 'voter_register',
-        registeredOn = _s(j['registered_on']);
+        registeredOn = _s(j['registered_on']),
+        home = j['home'] == null ? null : HomeArea.fromJson(j['home']);
 
   /// Found, but the register lacks a name or sex (operator must fill them in).
   bool get missingIdentity => name.trim().isEmpty || (sex != 'F' && sex != 'M');

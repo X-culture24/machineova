@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ApiError, api, type Lookup } from "../api";
-import { Badge, Card, Empty, ErrorNote, Field, Loading, PageHeader, RegionBadge, Toggle } from "../components/ui";
+import { ApiError, api, homeLine, type Lookup } from "../api";
+import { Badge, Card, Empty, ErrorNote, Field, Loading, PageHeader, RegionBadge } from "../components/ui";
 import { area, initials, time } from "../format";
 import { useAsync } from "../useAsync";
 
@@ -23,7 +23,6 @@ export default function CheckinDesk() {
   // Confirm form state.
   const [phone, setPhone] = useState("");
   const [manual, setManual] = useState({ name: "", sex: "", dob: "" });
-  const [outside, setOutside] = useState(false);
   const [loc, setLoc] = useState({ county: "", constituency: "", ward: "" });
 
   const reset = () => {
@@ -31,7 +30,6 @@ export default function CheckinDesk() {
     setLookup(null);
     setPhone("");
     setManual({ name: "", sex: "", dob: "" });
-    setOutside(false);
     setLoc({ county: "", constituency: "", ward: "" });
     idRef.current?.focus();
   };
@@ -61,7 +59,7 @@ export default function CheckinDesk() {
         national_id: nid,
         phone,
         ...(lookup.in_register ? {} : manual),
-        ...(outside || !lookup.in_register ? loc : {}),
+        ...(!lookup.in_register ? loc : {}),
       });
       setFlash({ tone: "green", text: `✓ ${res.name} checked in${res.in_region ? "" : " (out of region)"}` });
       reset();
@@ -138,6 +136,7 @@ export default function CheckinDesk() {
                       <div><small>{area(v.county, v.constituency, v.ward, v.polling_center)}</small></div>
                       {v.registered_on && <div><small className="muted">Registered {v.registered_on}</small></div>}
                       {v.source === "id_registry" && <div><small className="muted">Identity from national ID records</small></div>}
+                      {v.source === "voter_register" && homeLine(v.home) && <div><small className="muted">From: {homeLine(v.home)}</small></div>}
                     </div>
                     <div className="stack" style={{ gap: 4, alignItems: "flex-end" }}>
                       {v.source === "id_registry" ? (
@@ -163,8 +162,25 @@ export default function CheckinDesk() {
                   </>
                 )}
                 <Field label="Phone"><input type="tel" placeholder="+254…" value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
-                {v && <Toggle label="Registered outside this region" checked={outside} onChange={setOutside} />}
-                {(outside || !v) && (
+                {v && lookup.in_region === false && (
+                  <div className="origin-panel">
+                    <strong>Outside this area</strong>
+                    {v.source === "voter_register" && (
+                      <div>
+                        <small className="muted">REGISTERED TO VOTE IN</small>
+                        <div>{area(v.county, v.constituency, v.ward, v.polling_center)}</div>
+                      </div>
+                    )}
+                    {homeLine(v.home) && (
+                      <div>
+                        <small className="muted">COMES FROM (NATIONAL ID)</small>
+                        <div>{homeLine(v.home)}</div>
+                      </div>
+                    )}
+                    <small className="muted">From official records — no need to ask the voter.</small>
+                  </div>
+                )}
+                {!v && (
                   <div className="form-grid">
                     <Field label="County"><input required value={loc.county} onChange={(e) => setLoc({ ...loc, county: e.target.value })} /></Field>
                     <Field label="Constituency"><input required value={loc.constituency} onChange={(e) => setLoc({ ...loc, constituency: e.target.value })} /></Field>
