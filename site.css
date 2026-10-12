@@ -82,19 +82,7 @@ html.nav-open, html.nav-open body { overflow: hidden; }
 }
 
 /* Reveal: only hidden once JS opts in, so content never disappears without JS */
-.js-reveal .reveal {
-  opacity: 0;
-  transform: translate3d(0, 22px, 0);
-  transition: opacity .7s var(--ease), transform .7s var(--ease);
-}
-.js-reveal .reveal.is-visible { opacity: 1; transform: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-  .js-reveal .reveal { opacity: 1; transform: none; }
-  .cx-marquee-inner { animation: none !important; }
-}
+/* Reveal styles live in the "SCROLL REVEAL" block at the end of this file */
 
 /* ── 3. Rounded corners ─────────────────────────────────────────── */
 .cx-btn, .cx-btn-outline, .btn, .cta-btn, .phone-btn,
@@ -177,8 +165,6 @@ input, select, textarea { border-radius: var(--r-sm) !important; }
 
 /* ── 4. Lazy images ─────────────────────────────────────────────── */
 img { max-width: 100%; height: auto; }
-.js-lazy img[loading="lazy"] { opacity: 0; transition: opacity .6s ease; }
-.js-lazy img[loading="lazy"].is-loaded { opacity: 1; }
 
 /* ── 5. Screenshot components ───────────────────────────────────── */
 .shot {
@@ -706,3 +692,76 @@ html[data-theme="light"] body .header, html[data-theme="light"] body .header.is-
 }
 html body .cx-plat-nav { background: #101012 !important; }
 html[data-theme="light"] body .cx-plat-nav { background: #ffffff !important; }
+
+
+/* ================================================================
+   SCROLL REVEAL — staggered entrances (set up by site.js)
+   ================================================================ */
+.js-reveal .reveal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  /* !important so legacy hover transitions can't cancel the entrance;
+     hover properties are folded in, the stagger comes from --rd */
+  transition: opacity .85s var(--ease), transform 1s var(--ease), filter .85s var(--ease),
+              background-color .25s ease, border-color .25s ease, box-shadow .35s ease, color .25s ease !important;
+  transition-delay: var(--rd, 0ms), var(--rd, 0ms), var(--rd, 0ms), 0ms, 0ms, 0ms, 0ms !important;
+  will-change: opacity, transform;
+}
+.js-reveal .reveal.reveal--rise   { transform: translate3d(0, 36px, 0); }
+.js-reveal .reveal.reveal--card   { transform: translate3d(0, 34px, 0) scale(.96); }
+.js-reveal .reveal.reveal--zoom   { transform: translate3d(0, 24px, 0) scale(.94); filter: saturate(.6); }
+.js-reveal .reveal.reveal--from-right { transform: translate3d(56px, 0, 0) scale(.97); }
+.js-reveal .reveal.reveal--from-left  { transform: translate3d(-56px, 0, 0) scale(.97); }
+.js-reveal .reveal.is-visible {
+  opacity: 1; transform: none; filter: none; will-change: auto;
+}
+/* Reduced-motion: gentle fades only, nothing moves */
+.js-reveal.motion-soft .reveal { transform: none !important; transition: opacity .9s ease !important; transition-delay: var(--rd, 0ms) !important; }
+
+/* ================================================================
+   LAZY IMAGES — shimmer while loading, blur-up when ready
+   ================================================================ */
+.js-lazy img[loading="lazy"] {
+  opacity: 0; filter: blur(16px); transform: scale(1.04);
+  transition: opacity .7s ease, filter .9s var(--ease), transform 1.1s var(--ease);
+}
+.js-lazy img[loading="lazy"].is-loaded { opacity: 1; filter: none; transform: none; }
+.img-loading {
+  background-color: #17161b !important;
+  background-image: linear-gradient(100deg, rgba(255,255,255,0) 20%, rgba(180,124,255,.14) 50%, rgba(255,255,255,0) 80%) !important;
+  background-size: 220% 100% !important;
+  animation: mnShimmer 1.4s linear infinite;
+}
+.shot.img-loading img, .phone-shot.img-loading img { min-height: 140px; }
+html[data-theme="light"] .img-loading {
+  background-color: #f1ecf8 !important;
+  background-image: linear-gradient(100deg, rgba(255,255,255,0) 20%, rgba(139,44,245,.12) 50%, rgba(255,255,255,0) 80%) !important;
+}
+@keyframes mnShimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* ================================================================
+   MARQUEE — always moving; slower and pause-on-hover
+   ================================================================ */
+.cx-marquee-inner { animation: cxmarquee 28s linear infinite !important; will-change: transform; }
+.cx-marquee:hover .cx-marquee-inner { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.smooth-scroll { scroll-behavior: auto !important; }
+  .cx-marquee-inner { animation-duration: 60s !important; }
+  .js-lazy img[loading="lazy"] { filter: none; transform: none; transition: opacity .6s ease; }
+  .img-loading { animation: none; }
+}
+/* keep hover lifts working after an element has revealed */
+.js-reveal .reveal.is-visible:is(.shot, .cx-ov-card, .cx-for-card, .mn-card):hover { transform: translateY(-4px); }
+.js-reveal .reveal.is-visible.phone-shot:hover { transform: translateY(-6px) rotate(-.4deg); }
+.js-reveal:not(.motion-soft) .reveal.is-visible:is(.cx-case-card, .cx-sec-card, .cx-feat-item):hover { transform: translateY(-3px); }
+.js-reveal .reveal.is-done {
+  transition: opacity .3s ease, transform .35s var(--ease), filter .3s ease,
+              background-color .25s ease, border-color .25s ease, box-shadow .35s ease, color .25s ease !important;
+  transition-delay: 0ms !important;
+}
+/* Side-slide entrances must never widen the page */
+body > section, body > footer { overflow-x: clip; }
+@media (max-width: 1024px) {
+  .js-reveal .reveal.reveal--from-right, .js-reveal .reveal.reveal--from-left { transform: translate3d(0, 28px, 0) scale(.97); }
+}

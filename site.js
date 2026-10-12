@@ -109,49 +109,97 @@
     '.mn-table-wrap', '.mn-callout', '.mn-tabs', '.booking-progress'
   ];
 
-  function initReveal() {
-    if (!hasIO || reduceMotion) return;
-    root.classList.add('js-reveal');
+  // Which entrance each kind of element gets
+  var VARIANTS = [
+    ['.shot, .phone-shot, .cx-photo-wrap, .cx-ap-photo-main, .cx-ap-photo-side, .cx-data-card, .cx-cmd-card', 'reveal--zoom'],
+    ['.mn-card, .cx-feat-item, .cx-ov-card, .cx-for-card, .cx-case-card, .cx-sec-card, .cx-sec-pillar, .cx-ap-plat, .cx-ap-why-item, .mn-stat, .mn-steps li, .cx-faq, .phone-row figure, .cx-cs-item', 'reveal--card'],
+    ['h1, h2, .mn-head, .cx-plat-text h2, .cx-sec-text, .cx-faqs-left, .cx-cases-head', 'reveal--rise']
+  ];
 
-    // include elements tagged .reveal directly in the markup
-    var els = document.querySelectorAll(REVEAL.join(',') + ', .reveal');
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        var el = entry.target;
-        // stagger siblings that enter together
-        var idx = Array.prototype.indexOf.call(el.parentNode.children, el);
-        el.style.transitionDelay = Math.min(idx, 5) * 70 + 'ms';
-        el.classList.add('is-visible');
-        io.unobserve(el);
-      });
-    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  function initReveal() {
+    if (!hasIO) return;
+    root.classList.add('js-reveal');
+    if (reduceMotion) root.classList.add('motion-soft');   // fades only, no movement
+
+    // Items inside sideways-scrolling strips stay visible (they can scroll past
+    // the observer); the strip itself reveals as one block instead.
+    var els = Array.prototype.slice.call(document.querySelectorAll(REVEAL.join(',') + ', .reveal, .mn-strip'))
+      .filter(function (el) { return !el.parentElement.closest('.mn-strip'); });
 
     els.forEach(function (el) {
-      // Anything already on screen (e.g. after a #hash jump) shows immediately
-      var r = el.getBoundingClientRect();
       el.classList.add('reveal');
-      if (r.top < window.innerHeight && r.bottom > 0) {
-        el.classList.add('is-visible');
-      } else {
-        io.observe(el);
+      for (var i = 0; i < VARIANTS.length; i++) {
+        if (el.matches(VARIANTS[i][0])) { el.classList.add(VARIANTS[i][1]); break; }
       }
+      // platform visuals slide in from their own side of the grid
+      var vis = el.closest('.cx-plat-visual, .cx-ap-visual, .cx-cs-visual');
+      if (vis) el.classList.add(vis.closest('.cx-plat-grid--rev') ? 'reveal--from-left' : 'reveal--from-right');
     });
 
-    // Hero text: lazy-text fades in
+    // Elements that enter together cascade in reading order
+    function show(batch) {
+      batch.sort(function (a, b) {
+        var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        return (ra.top - rb.top) || (ra.left - rb.left);
+      });
+      batch.forEach(function (el, i) {
+        el.style.setProperty('--rd', Math.min(i, 7) * 90 + 'ms');
+        el.classList.add('is-visible');
+        // clear the delay afterwards so hover transitions stay snappy
+        // after the entrance, switch to snappy hover timing
+        setTimeout(function () { el.style.setProperty('--rd', '0ms'); el.classList.add('is-done'); }, 1200 + Math.min(i, 7) * 90);
+      });
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      var batch = [];
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        batch.push(entry.target);
+        io.unobserve(entry.target);
+      });
+      if (batch.length) show(batch);
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+    var firstScreen = [];
+    els.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) firstScreen.push(el);
+      else io.observe(el);
+    });
+    // Animate what is already on screen too, once the first frame has painted
+    requestAnimationFrame(function () { requestAnimationFrame(function () { show(firstScreen); }); });
+
     document.querySelectorAll('.lazy-text').forEach(function (el) { el.classList.add('visible'); });
   }
 
-  /* ── Lazy images: fade in once decoded ───────────────────────── */
+  /* ── Lazy images: shimmer placeholder, then blur-up once decoded ── */
   function initLazyImages() {
     root.classList.add('js-lazy');
     document.querySelectorAll('img[loading="lazy"]').forEach(function (img) {
-      function done() { img.classList.add('is-loaded'); }
-      if (img.complete && img.naturalWidth) done();
-      else {
-        img.addEventListener('load', done, { once: true });
-        img.addEventListener('error', done, { once: true });
+      var holder = img.parentElement;
+      function done() {
+        var reveal = function () {
+          img.classList.add('is-loaded');
+          if (holder) holder.classList.remove('img-loading');
+        };
+        // decode off the main thread before showing, so the fade never stutters
+        if (img.decode) img.decode().then(reveal, reveal); else reveal();
       }
+      if (img.complete && img.naturalWidth) { img.classList.add('is-loaded'); return; }
+      if (holder) holder.classList.add('img-loading');
+      img.addEventListener('load', done, { once: true });
+      img.addEventListener('error', done, { once: true });
+    });
+
+    // Warm up images in hidden tab panels when the visitor hovers or focuses the tab
+    document.querySelectorAll('[role="tab"]').forEach(function (tab) {
+      function warm() {
+        var panel = document.getElementById(tab.getAttribute('aria-controls'));
+        if (panel) panel.querySelectorAll('img[loading="lazy"]').forEach(function (im) { im.loading = 'eager'; });
+      }
+      tab.addEventListener('pointerenter', warm, { once: true });
+      tab.addEventListener('focus', warm, { once: true });
     });
   }
 
