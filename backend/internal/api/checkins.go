@@ -28,16 +28,39 @@ type voter struct {
 	RegisteredOn *string `json:"registered_on,omitempty"`
 	// Source is which reference resolved the ID: sourceVoterRegister or sourceIDRegistry.
 	Source string `json:"source"`
-	// AdminArea is the NRB administrative location, set for ID-registry matches.
-	AdminArea *adminArea `json:"admin_area,omitempty"`
+	// Home is where the person comes from per their national ID record (NRB), for any match
+	// the ID records know — shown when someone is outside the event/drive area.
+	Home *homeArea `json:"home,omitempty"`
 }
 
-type adminArea struct {
+type homeArea struct {
+	County      *string `json:"county,omitempty"`
 	SubCounty   *string `json:"sub_county,omitempty"`
 	Division    *string `json:"division,omitempty"`
 	Location    *string `json:"location,omitempty"`
 	SubLocation *string `json:"sub_location,omitempty"`
 	Village     *string `json:"village,omitempty"`
+}
+
+// tidy puts NRB upper-case names into display case (county names into their official form).
+func (h *homeArea) tidy() {
+	if h.County != nil {
+		c := places.CountyName(*h.County)
+		h.County = &c
+	}
+	for _, f := range []**string{&h.SubCounty, &h.Division, &h.Location, &h.SubLocation, &h.Village} {
+		if *f != nil {
+			t := places.TitleCase(**f)
+			*f = &t
+		}
+	}
+}
+
+func str(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
 }
 
 const (
@@ -64,11 +87,16 @@ func (s *Server) registerLookup(ctx context.Context, nationalID string) (*voter,
 			d := regOn.Format(time.DateOnly)
 			v.RegisteredOn = &d
 		}
-		// Some register rows carry only the ID and area: take identity from the ID registry.
+		// Home area from the ID records; also fills identity some register rows lack.
+		id, err := s.idRegistryLookup(ctx, nationalID)
+		if err != nil {
+			return nil, err
+		}
+		if id != nil {
+			v.Home = id.Home
+		}
 		if name == nil || sex == nil || dob == nil {
-			if id, err := s.idRegistryLookup(ctx, nationalID); err != nil {
-				return nil, err
-			} else if id != nil {
+			if id != nil {
 				if name == nil {
 					name = &id.Name
 				}
@@ -106,22 +134,23 @@ func (s *Server) idRegistryLookup(ctx context.Context, nationalID string) (*vote
 		return nil, nil
 	}
 	var v voter
-	var sex, county *string
+	var sex *string
 	var dob *time.Time
-	a := adminArea{}
+	h := homeArea{}
 	err := s.db.QueryRow(ctx, `
 		SELECT name, sex, dob, county, sub_county, division, location, sub_location, village
 		FROM id_registry WHERE national_id = $1`, key).
-		Scan(&v.Name, &sex, &dob, &county, &a.SubCounty, &a.Division, &a.Location, &a.SubLocation, &a.Village)
+		Scan(&v.Name, &sex, &dob, &h.County, &h.SubCounty, &h.Division, &h.Location, &h.SubLocation, &h.Village)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
+	h.tidy()
 	v.NationalID = nationalID
 	v.Source = sourceIDRegistry
-	v.AdminArea = &a
+	v.Home = &h
 	if sex != nil {
 		v.Sex = *sex
 	}
@@ -129,18 +158,12 @@ func (s *Server) idRegistryLookup(ctx context.Context, nationalID string) (*vote
 		v.DOB = dob.Format(time.DateOnly)
 		v.Age = ageOn(*dob, time.Now())
 	}
-	if county != nil {
-		v.County = places.CountyName(*county)
-	}
-	// NRB has no electoral geography. Its sub-county and location stand in for
-	// constituency and ward so check-ins still carry a location; region checks for
+	// NRB has no electoral geography. Its county, sub-county and location stand in for
+	// county, constituency and ward so records still carry a location; region checks for
 	// these records compare county only (see regionMatch).
-	if a.SubCounty != nil {
-		v.Constituency = places.TitleCase(*a.SubCounty)
-	}
-	if a.Location != nil {
-		v.Ward = places.TitleCase(*a.Location)
-	}
+	v.County = str(h.County)
+	v.Constituency = str(h.SubCounty)
+	v.Ward = str(h.Location)
 	return &v, nil
 }
 
@@ -260,8 +283,18 @@ type personInput struct {
 	County       string  `json:"county"`
 	Constituency string  `json:"constituency"`
 	Ward         string  `json:"ward"`
-	// source records which register filled the blanks (not part of the request body).
+	// Set from the registers, never from the request body.
 	source string
+	home   *homeArea
+}
+
+// homeArgs are the home_* column values (all NULL when the ID records don't know the person).
+func (in *personInput) homeArgs() []any {
+	h := in.home
+	if h == nil {
+		return []any{nil, nil, nil, nil, nil}
+	}
+	return []any{h.County, h.SubCounty, h.Location, h.SubLocation, h.Village}
 }
 
 // resolve fills blanks from the register and validates the result.
@@ -276,16 +309,24 @@ func (s *Server) resolvePerson(ctx context.Context, in *personInput) (string, er
 	}
 	if v != nil {
 		in.source = v.Source
+		in.home = v.Home
 		fill := func(dst *string, src string) {
 			if strings.TrimSpace(*dst) == "" {
 				*dst = src
 			}
 		}
+		// The registers decide where a known person is from — not what the agent types,
+		// so an out-of-area person can't be recorded as local.
+		set := func(dst *string, src string) {
+			if src != "" {
+				*dst = src
+			}
+		}
 		fill(&in.Name, v.Name)
 		fill(&in.Sex, v.Sex)
-		fill(&in.County, v.County)
-		fill(&in.Constituency, v.Constituency)
-		fill(&in.Ward, v.Ward)
+		set(&in.County, v.County)
+		set(&in.Constituency, v.Constituency)
+		set(&in.Ward, v.Ward)
 		if (in.DOB == nil || *in.DOB == "") && v.DOB != "" {
 			in.DOB = &v.DOB
 		}
@@ -362,11 +403,13 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 	var at time.Time
 	err = s.db.QueryRow(r.Context(), `
 		INSERT INTO checkins (org_id, event_id, national_id, name, sex, dob, phone, county, constituency, ward, in_region, checked_in_by,
-		                      checked_in_at, checkin_day)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,($13::timestamptz AT TIME ZONE 'Africa/Nairobi')::date)
+		                      checked_in_at, checkin_day,
+		                      home_county, home_sub_county, home_location, home_sub_location, home_village)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,($13::timestamptz AT TIME ZONE 'Africa/Nairobi')::date,
+		        $14,$15,$16,$17,$18)
 		RETURNING id, checked_in_at`,
-		p.OrgID, e.ID, in.NationalID, in.Name, in.Sex, in.DOB, emptyNil(in.Phone), in.County, in.Constituency, in.Ward,
-		inRegion, p.UserID, recordedAt(r)).Scan(&id, &at)
+		append([]any{p.OrgID, e.ID, in.NationalID, in.Name, in.Sex, in.DOB, emptyNil(in.Phone), in.County, in.Constituency, in.Ward,
+			inRegion, p.UserID, recordedAt(r)}, in.homeArgs()...)...).Scan(&id, &at)
 	if isUniqueViolation(err) {
 		writeErrCode(w, http.StatusConflict, statusAlreadyCheckedIn, "Already checked in today")
 		return
@@ -375,7 +418,8 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 		s.internal(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusCreated, map[string]any{"id": id, "checked_in_at": at, "in_region": inRegion, "name": in.Name})
+	writeJSON(w, http.StatusCreated, map[string]any{"id": id, "checked_in_at": at, "in_region": inRegion, "name": in.Name,
+		"home": in.home})
 }
 
 type personRecord struct {
@@ -388,6 +432,8 @@ type personRecord struct {
 	Constituency string    `json:"constituency"`
 	Ward         string    `json:"ward"`
 	InRegion     *bool     `json:"in_region,omitempty"`
+	HomeCounty   *string   `json:"home_county,omitempty"`
+	HomeLocation *string   `json:"home_location,omitempty"`
 	At           time.Time `json:"at"`
 	By           string    `json:"by"`
 	GroupID      string    `json:"group_id"`
@@ -403,7 +449,7 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 	args := []any{p.OrgID, p.SeesAll(), p.UserID, nilIfEmpty(q.Get("event_id")), likePattern(q.Get("q"))}
 	rows, err := s.db.Query(r.Context(), `
 		SELECT c.id, c.national_id, c.name, c.sex, c.phone, c.county, c.constituency, c.ward, c.in_region,
-		       c.checked_in_at, u.name, e.id, e.name
+		       c.home_county, c.home_location, c.checked_in_at, u.name, e.id, e.name
 		FROM checkins c JOIN users u ON u.id = c.checked_in_by JOIN events e ON e.id = c.event_id
 		WHERE c.org_id = $1 AND ($2 OR c.checked_in_by = $3)
 		  AND ($4::uuid IS NULL OR c.event_id = $4::uuid)
@@ -421,7 +467,7 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		var pr personRecord
 		var inRegion bool
 		err := row.Scan(&pr.ID, &pr.NationalID, &pr.Name, &pr.Sex, &pr.Phone, &pr.County, &pr.Constituency, &pr.Ward,
-			&inRegion, &pr.At, &pr.By, &pr.GroupID, &pr.GroupName)
+			&inRegion, &pr.HomeCounty, &pr.HomeLocation, &pr.At, &pr.By, &pr.GroupID, &pr.GroupName)
 		pr.InRegion = &inRegion
 		return pr, err
 	})

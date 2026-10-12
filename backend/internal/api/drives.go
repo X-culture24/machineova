@@ -238,6 +238,18 @@ func (s *Server) mobilizeLookup(w http.ResponseWriter, r *http.Request, p *Princ
 		s.internal(w, r, err)
 		return
 	}
+	// With a drive, say whether the person belongs to the drive's area.
+	inRegion := true
+	if driveID := r.URL.Query().Get("drive_id"); driveID != "" && v != nil {
+		d, err := s.loadDrive(r.Context(), p, driveID)
+		if err != nil && !errors.Is(err, errNotFound) {
+			s.internal(w, r, err)
+			return
+		}
+		if err == nil {
+			inRegion = regionMatch(v.Source, v.County, v.Constituency, v.Ward, d.County, d.Constituency, d.Ward)
+		}
+	}
 	prior, err := s.priorMobilization(r.Context(), p.OrgID, nid)
 	if err != nil {
 		s.internal(w, r, err)
@@ -248,7 +260,7 @@ func (s *Server) mobilizeLookup(w http.ResponseWriter, r *http.Request, p *Princ
 		status = statusAlreadyMobilized
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"status": status, "voter": v, "in_register": v != nil,
-		"registered_voter": v != nil && v.Source == sourceVoterRegister, "previous": prior})
+		"registered_voter": v != nil && v.Source == sourceVoterRegister, "in_region": inRegion, "previous": prior})
 }
 
 func (s *Server) createMobilization(w http.ResponseWriter, r *http.Request, p *Principal) {
@@ -290,13 +302,15 @@ func (s *Server) createMobilization(w http.ResponseWriter, r *http.Request, p *P
 		writeErr(w, http.StatusBadRequest, msg)
 		return
 	}
+	inRegion := regionMatch(in.source, in.County, in.Constituency, in.Ward, d.County, d.Constituency, d.Ward)
 	var id string
 	var at time.Time
 	err = s.db.QueryRow(r.Context(), `
-		INSERT INTO mobilizations (org_id, drive_id, national_id, name, sex, dob, phone, county, constituency, ward, mobilized_by, created_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id, created_at`,
-		p.OrgID, d.ID, in.NationalID, in.Name, in.Sex, in.DOB, emptyNil(in.Phone), in.County, in.Constituency, in.Ward,
-		p.UserID, recordedAt(r)).Scan(&id, &at)
+		INSERT INTO mobilizations (org_id, drive_id, national_id, name, sex, dob, phone, county, constituency, ward, mobilized_by, created_at,
+		                           in_region, home_county, home_sub_county, home_location, home_sub_location, home_village)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id, created_at`,
+		append([]any{p.OrgID, d.ID, in.NationalID, in.Name, in.Sex, in.DOB, emptyNil(in.Phone), in.County, in.Constituency, in.Ward,
+			p.UserID, recordedAt(r), inRegion}, in.homeArgs()...)...).Scan(&id, &at)
 	if isUniqueViolation(err) {
 		prior, perr := s.priorMobilization(r.Context(), p.OrgID, in.NationalID)
 		if perr != nil {
@@ -310,7 +324,8 @@ func (s *Server) createMobilization(w http.ResponseWriter, r *http.Request, p *P
 		s.internal(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusCreated, map[string]any{"id": id, "created_at": at, "name": in.Name})
+	writeJSON(w, http.StatusCreated, map[string]any{"id": id, "created_at": at, "name": in.Name, "in_region": inRegion,
+		"home": in.home})
 }
 
 func (s *Server) listMobilizations(w http.ResponseWriter, r *http.Request, p *Principal) {
@@ -320,7 +335,7 @@ func (s *Server) listMobilizations(w http.ResponseWriter, r *http.Request, p *Pr
 	q := r.URL.Query()
 	rows, err := s.db.Query(r.Context(), `
 		SELECT m.id, m.national_id, m.name, m.sex, m.phone, m.county, m.constituency, m.ward,
-		       m.created_at, u.name, d.id, d.name
+		       m.in_region, m.home_county, m.home_location, m.created_at, u.name, d.id, d.name
 		FROM mobilizations m JOIN users u ON u.id = m.mobilized_by JOIN drives d ON d.id = m.drive_id
 		WHERE m.org_id = $1 AND ($2 OR m.mobilized_by = $3)
 		  AND ($4::uuid IS NULL OR m.drive_id = $4::uuid)
@@ -338,7 +353,7 @@ func (s *Server) listMobilizations(w http.ResponseWriter, r *http.Request, p *Pr
 	out, err := collect(rows, func(row pgx.Row) (personRecord, error) {
 		var pr personRecord
 		err := row.Scan(&pr.ID, &pr.NationalID, &pr.Name, &pr.Sex, &pr.Phone, &pr.County, &pr.Constituency, &pr.Ward,
-			&pr.At, &pr.By, &pr.GroupID, &pr.GroupName)
+			&pr.InRegion, &pr.HomeCounty, &pr.HomeLocation, &pr.At, &pr.By, &pr.GroupID, &pr.GroupName)
 		return pr, err
 	})
 	if err != nil {

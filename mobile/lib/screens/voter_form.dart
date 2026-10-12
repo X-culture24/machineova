@@ -138,6 +138,8 @@ class VoterCard extends StatelessWidget {
               Text('Registered ${v.registeredOn}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
             if (v.idOnly)
               const Text('Identity from national ID records', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+            if (!v.idOnly && v.home != null && v.home!.line.isNotEmpty)
+              Text('From: ${v.home!.line}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
             const SizedBox(height: 6),
             Wrap(spacing: 6, children: [
               if (v.idOnly) ...[
@@ -148,6 +150,61 @@ class VoterCard extends StatelessWidget {
             ]),
           ]),
         ),
+      ]),
+    );
+  }
+}
+
+/// Shown when a known person is outside the event/drive area: where they are registered to
+/// vote and where they come from, straight from the records — not from what they tell the agent.
+class OriginPanel extends StatelessWidget {
+  final Voter voter;
+  const OriginPanel(this.voter, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final v = voter;
+    Widget row(IconData icon, String label, String value) => Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon, size: 18, color: AppColors.amber),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(label,
+                    style: const TextStyle(fontSize: 11, color: AppColors.muted, fontWeight: FontWeight.w600, letterSpacing: .4)),
+                Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              ]),
+            ),
+          ]),
+        );
+    final registered = [v.ward, v.constituency, v.county].where((p) => p.isNotEmpty).join(', ');
+    return Container(
+      key: const Key('origin-panel'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.amberSoft,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.amber.withValues(alpha: .4)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Row(children: [
+          Icon(Icons.travel_explore, color: AppColors.amber),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text('Outside this area', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+          ),
+        ]),
+        if (!v.idOnly && registered.isNotEmpty)
+          row(Icons.how_to_vote_outlined, 'REGISTERED TO VOTE IN',
+              [registered, if (v.pollingCenter != null && v.pollingCenter!.isNotEmpty) v.pollingCenter!].join(' · ')),
+        if (v.home != null && v.home!.line.isNotEmpty)
+          row(Icons.home_outlined, 'COMES FROM (NATIONAL ID)', v.home!.line)
+        else if (v.idOnly)
+          row(Icons.home_outlined, 'COMES FROM (NATIONAL ID)', v.area),
+        const SizedBox(height: 8),
+        const Text('From official records — no need to ask the voter.',
+            style: TextStyle(fontSize: 12, color: AppColors.muted)),
       ]),
     );
   }

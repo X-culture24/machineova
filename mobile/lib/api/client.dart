@@ -246,8 +246,8 @@ class ApiClient {
 
   Future<Drive> drive(String id) async => Drive.fromJson((await get('/api/drives/$id'))['drive']);
 
-  Future<Lookup> mobilizeLookup(String nationalId) async =>
-      Lookup.fromJson(await _req('GET', '/api/mobilizations/lookup', query: {'national_id': nationalId}));
+  Future<Lookup> mobilizeLookup(String nationalId, {String? driveId}) async => Lookup.fromJson(await _req(
+      'GET', '/api/mobilizations/lookup', query: {'national_id': nationalId, if (driveId != null) 'drive_id': driveId}));
 
   Future<SendResult> mobilize(String driveId, Map<String, String?> person, {required String label}) =>
       send('POST', '/api/mobilizations', {'drive_id': driveId, ..._clean(person)},

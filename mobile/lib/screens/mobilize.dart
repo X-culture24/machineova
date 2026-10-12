@@ -77,7 +77,7 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
       _error = null;
     });
     try {
-      final l = await api.mobilizeLookup(_id.text);
+      final l = await api.mobilizeLookup(_id.text, driveId: _drive!.id);
       final v = l.voter;
       if (v != null) {
         // Pre-fill editable details from the register.
@@ -114,7 +114,11 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
     final name = _f.name.text.trim().isEmpty ? 'ID $nid' : _f.name.text.trim();
     setState(() => _busy = true);
     try {
-      final r = await api.mobilize(_drive!.id, {'national_id': nid, ..._f.toJson(identity: true, location: true)},
+      // Known people: identity and location come from the records (server-side), only phone is sent.
+      final v = _lookup?.voter;
+      final known = v != null && !(_lookup?.isOffline ?? false);
+      final r = await api.mobilize(
+          _drive!.id, {'national_id': nid, ..._f.toJson(identity: !known || v.missingIdentity, location: !known)},
           label: 'Mobilized: $name · ${_drive!.name}');
       await ledger.add(kind: 'mobilization', group: _drive!.id, nationalId: nid, name: name);
       // Offline (or cached), show progress optimistically until the next refresh.
@@ -227,15 +231,27 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
                 fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
             const SizedBox(height: 10),
           ],
-          IdentityInputs(_f, required: !offline),
-          const SizedBox(height: 10),
+          if (!offline && l.voter != null) ...[
+            VoterCard(voter: l.voter!, color: AppColors.amber, soft: AppColors.amberSoft, inRegion: l.inRegion),
+            if (!l.inRegion) ...[const SizedBox(height: 12), OriginPanel(l.voter!)],
+            if (l.voter!.missingIdentity) ...[
+              const SizedBox(height: 10),
+              const Notice('Their name or sex isn\'t on record. Fill them in.',
+                  fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.edit_note),
+            ],
+            const SizedBox(height: 12),
+          ],
+          if (offline || l.voter == null || l.voter!.missingIdentity) ...[
+            IdentityInputs(_f, required: !offline),
+            const SizedBox(height: 10),
+          ],
           TextFormField(
             controller: _f.phone,
             keyboardType: TextInputType.phone,
             decoration: const InputDecoration(labelText: 'Phone', hintText: '+254…'),
           ),
           const SizedBox(height: 10),
-          LocationInputs(_f, required: !offline),
+          if (offline || l.voter == null) LocationInputs(_f, required: !offline),
           const SizedBox(height: 16),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.amber),

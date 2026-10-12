@@ -109,7 +109,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
     try {
       final r = await api.checkin(
         _event!.id,
-        {'national_id': nid, ..._f.toJson(identity: needsIdentity, location: _outside || !inRegister)},
+        {'national_id': nid, ..._f.toJson(identity: needsIdentity, location: !inRegister)},
         label: 'Check-in: $name · ${_event!.name}',
       );
       await ledger.add(kind: 'checkin', group: _event!.id, nationalId: nid, name: name);
@@ -225,14 +225,9 @@ class _CheckinFlowState extends State<CheckinFlow> {
             keyboardType: TextInputType.phone,
             decoration: const InputDecoration(labelText: 'Phone', hintText: '+254…'),
           ),
-          if (v != null)
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Registered outside this region'),
-              value: _outside,
-              onChanged: (x) => setState(() => _outside = x),
-            ),
-          if (_outside || v == null) ...[const SizedBox(height: 8), LocationInputs(_f)],
+          // Known person outside the event area: show where they're from, from the records.
+          if (v != null && !l.inRegion) ...[const SizedBox(height: 12), OriginPanel(v)],
+          if (v == null) ...[const SizedBox(height: 8), LocationInputs(_f)],
           const SizedBox(height: 16),
           FilledButton(onPressed: _busy ? null : _doCheckin, child: Text(_busy ? 'Checking in…' : 'Check in')),
         ]),
