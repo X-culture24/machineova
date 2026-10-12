@@ -81,20 +81,37 @@ class _ShellState extends State<Shell> {
         const SafeArea(bottom: false, child: OfflineBanner()),
         Expanded(child: IndexedStack(index: _tab, children: pages)),
       ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _startAction,
-        backgroundColor: AppColors.teal,
-        foregroundColor: Colors.white,
-        shape: const CircleBorder(),
-        tooltip: 'Check in or mobilize',
-        child: const Icon(Icons.add, size: 30),
+      floatingActionButton: Container(
+        width: 62,
+        height: 62,
+        decoration: BoxDecoration(
+          gradient: brandGradient,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(color: AppColors.purple.withValues(alpha: .4), blurRadius: 16, offset: const Offset(0, 6))
+          ],
+        ),
+        child: FloatingActionButton(
+          key: const Key('start-action'),
+          onPressed: _startAction,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          highlightElevation: 0,
+          shape: const CircleBorder(),
+          tooltip: 'Check in or mobilize',
+          child: const Icon(Icons.add, size: 30),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 12,
+        shadowColor: AppColors.purple.withValues(alpha: .2),
         shape: const CircularNotchedRectangle(),
-        notchMargin: 6,
-        height: 64,
+        notchMargin: 8,
+        height: 68,
         padding: EdgeInsets.zero,
         child: Row(children: [
           _navItem(0, Icons.home_outlined, Icons.home, 'Home'),
@@ -109,12 +126,20 @@ class _ShellState extends State<Shell> {
 
   Widget _navItem(int index, IconData icon, IconData activeIcon, String label) {
     final on = _tab == index;
-    final color = on ? AppColors.teal : AppColors.muted;
+    final color = on ? AppColors.purple : AppColors.muted;
     return Expanded(
       child: InkWell(
+        key: Key('tab-$label'),
         onTap: () => setState(() => _tab = index),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(on ? activeIcon : icon, color: color),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+            decoration: BoxDecoration(
+                color: on ? AppColors.purpleSoft : Colors.transparent, borderRadius: BorderRadius.circular(99)),
+            child: Icon(on ? activeIcon : icon, color: color),
+          ),
+          const SizedBox(height: 2),
           Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: on ? FontWeight.w700 : FontWeight.w500)),
         ]),
       ),

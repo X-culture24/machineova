@@ -37,11 +37,33 @@ main=$(find android/app/src/main -name 'MainActivity.kt' | head -1)
 package=$(sed -n 's/^package \(.*\)$/\1/p' "$main")
 sed "s/__PACKAGE__/$package/" android_template/MainActivity.kt > "$main"
 
+# Release minification rules (ML Kit optional scripts).
+cp android_template/proguard-rules.pro android/app/proguard-rules.pro
+grep -q 'proguard-rules.pro' "$gradle" ||
+  edit "$gradle" 's#(release \{\n)#$1            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")\n#'
+
 # ---------------- iOS ----------------
 plist=ios/Runner/Info.plist
 grep -q NSCameraUsageDescription "$plist" ||
-  edit "$plist" 's#<dict>#<dict>\n\t<key>NSCameraUsageDescription</key>\n\t<string>Scan the barcode on voter ID cards.</string>#'
+  edit "$plist" 's#<dict>#<dict>\n\t<key>NSCameraUsageDescription</key>\n\t<string>Scan voter ID cards to read the ID number.</string>#'
+grep -q NSPhotoLibraryUsageDescription "$plist" ||
+  edit "$plist" 's#<dict>#<dict>\n\t<key>NSPhotoLibraryUsageDescription</key>\n\t<string>Read the ID number from a photo of an ID card.</string>#'
+# ML Kit (on-device ID reading) needs iOS 15.5+.
+podfile=ios/Podfile
+[ -f "$podfile" ] && edit "$podfile" "s/^#?\s*platform :ios, '[0-9.]+'/platform :ios, '15.5'/m"
 grep -q NSFaceIDUsageDescription "$plist" ||
   edit "$plist" 's#<dict>#<dict>\n\t<key>NSFaceIDUsageDescription</key>\n\t<string>Unlock Checkin with Face ID.</string>#'
+
+# ---------------- Icons ----------------
+if [ -f ios/Runner.xcodeproj/project.pbxproj ]; then
+  # Newer iOS templates ship without the legacy asset-catalog folder the icon tool writes into.
+  mkdir -p ios/Runner/Assets.xcassets/AppIcon.appiconset
+  dart run flutter_launcher_icons
+else
+  # No Xcode project on this machine (e.g. Intel Mac without Xcode): Android icons only.
+  sed 's/^  ios: true/  ios: false/' pubspec.yaml | awk '/^flutter_launcher_icons:/{p=1} p&&/^[a-z]/&&!/^flutter_launcher_icons:/{p=0} p' > .icons-android.yaml
+  dart run flutter_launcher_icons -f .icons-android.yaml
+  rm -f .icons-android.yaml
+fi
 
 echo "Done. Run: flutter run --dart-define=API_URL=http://10.0.2.2:8080"
