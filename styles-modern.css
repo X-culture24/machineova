@@ -93,7 +93,7 @@ button i {
 .tech-item {
   border-radius: 16px !important;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 102, 255, 0.1);
+  border: 1px solid rgba(139,44,245, 0.1);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -105,7 +105,7 @@ button i {
 .why-item:hover,
 .tech-item:hover {
   border-color: var(--blue);
-  box-shadow: 0 20px 60px rgba(0, 102, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(139,44,245, 0.2);
   transform: translateY(-8px);
 }
 
@@ -146,12 +146,12 @@ button:hover::before {
 /* Modern Header */
 .header {
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 102, 255, 0.1);
+  border-bottom: 1px solid rgba(139,44,245, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header:hover {
-  border-bottom-color: rgba(0, 102, 255, 0.3);
+  border-bottom-color: rgba(139,44,245, 0.3);
 }
 
 /* Modern Navigation Links */
@@ -208,8 +208,8 @@ section {
 .badge-blue,
 .security-badge,
 .hero-badge {
-  background: rgba(0, 102, 255, 0.1);
-  border: 1px solid rgba(0, 102, 255, 0.3);
+  background: rgba(139,44,245, 0.1);
+  border: 1px solid rgba(139,44,245, 0.3);
   color: var(--blue);
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
@@ -224,7 +224,7 @@ section {
 .badge-blue:hover,
 .security-badge:hover,
 .hero-badge:hover {
-  background: rgba(0, 102, 255, 0.2);
+  background: rgba(139,44,245, 0.2);
   border-color: var(--blue);
   transform: scale(1.05);
 }
@@ -234,7 +234,7 @@ input,
 textarea,
 select {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 102, 255, 0.2);
+  border: 1px solid rgba(139,44,245, 0.2);
   border-radius: 12px;
   color: #fff;
   padding: 0.8rem 1rem;
@@ -247,7 +247,7 @@ textarea:focus,
 select:focus {
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(139,44,245, 0.1);
   outline: none;
 }
 
@@ -258,7 +258,7 @@ textarea::placeholder {
 
 /* Modern Accordion */
 .faq-item {
-  border: 1px solid rgba(0, 102, 255, 0.1);
+  border: 1px solid rgba(139,44,245, 0.1);
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -266,7 +266,7 @@ textarea::placeholder {
 
 .faq-item:hover {
   border-color: var(--blue);
-  box-shadow: 0 10px 30px rgba(0, 102, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(139,44,245, 0.1);
 }
 
 .faq-question {
@@ -280,7 +280,7 @@ textarea::placeholder {
 }
 
 .faq-question:hover {
-  background: rgba(0, 102, 255, 0.05);
+  background: rgba(139,44,245, 0.05);
 }
 
 .faq-toggle {
@@ -327,7 +327,7 @@ textarea::placeholder {
 
 /* Modern Footer */
 .footer {
-  border-top: 1px solid rgba(0, 102, 255, 0.1);
+  border-top: 1px solid rgba(139,44,245, 0.1);
   backdrop-filter: blur(10px);
 }
 
@@ -361,13 +361,13 @@ textarea::placeholder {
   color: #fff;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(139,44,245, 0.3);
 }
 
 .social-icons a:hover {
   background: var(--blue-hover);
   transform: translateY(-5px) scale(1.15);
-  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4);
+  box-shadow: 0 8px 25px rgba(139,44,245, 0.4);
 }
 
 /* ========================================
@@ -559,7 +559,7 @@ textarea:focus-visible {
   bottom: 0;
   border-radius: 16px;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(0, 102, 255, 0.5), rgba(0, 102, 255, 0.1));
+  background: linear-gradient(135deg, rgba(139,44,245, 0.5), rgba(139,44,245, 0.1));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -587,13 +587,13 @@ textarea:focus-visible {
 .problem-card:hover,
 .why-item:hover,
 .tech-item:hover {
-  box-shadow: 0 0 30px rgba(0, 102, 255, 0.3), 0 20px 60px rgba(0, 102, 255, 0.2);
+  box-shadow: 0 0 30px rgba(139,44,245, 0.3), 0 20px 60px rgba(139,44,245, 0.2);
 }
 
 /* Animated Background Gradients for Buttons */
 .btn-primary,
 .cta-btn {
-  background: linear-gradient(135deg, #0066FF 0%, #0052cc 100%);
+  background: linear-gradient(135deg, #8B2CF5 0%, #7419D9 100%);
   background-size: 200% 200%;
   animation: gradientShift 3s ease infinite;
 }
@@ -615,7 +615,7 @@ h1,
 h2,
 h3,
 .lazy-heading {
-  text-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+  text-shadow: 0 0 20px rgba(139,44,245, 0.3);
   transition: text-shadow 0.3s ease;
 }
 
@@ -623,7 +623,7 @@ h1:hover,
 h2:hover,
 h3:hover,
 .lazy-heading:hover {
-  text-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+  text-shadow: 0 0 30px rgba(139,44,245, 0.5);
 }
 
 /* Floating Animations for Cards */
@@ -702,15 +702,15 @@ button:hover::after {
 .badge-blue,
 .security-badge,
 .hero-badge {
-  text-shadow: 0 0 10px rgba(0, 102, 255, 0.5);
-  box-shadow: 0 0 15px rgba(0, 102, 255, 0.3), inset 0 0 15px rgba(0, 102, 255, 0.1);
+  text-shadow: 0 0 10px rgba(139,44,245, 0.5);
+  box-shadow: 0 0 15px rgba(139,44,245, 0.3), inset 0 0 15px rgba(139,44,245, 0.1);
 }
 
 .badge-blue:hover,
 .security-badge:hover,
 .hero-badge:hover {
-  text-shadow: 0 0 20px rgba(0, 102, 255, 0.8);
-  box-shadow: 0 0 25px rgba(0, 102, 255, 0.5), inset 0 0 20px rgba(0, 102, 255, 0.2);
+  text-shadow: 0 0 20px rgba(139,44,245, 0.8);
+  box-shadow: 0 0 25px rgba(139,44,245, 0.5), inset 0 0 20px rgba(139,44,245, 0.2);
 }
 
 /* Pulse Animation for CTAs */
@@ -721,10 +721,10 @@ button:hover::after {
 
 @keyframes ctaPulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.7);
+    box-shadow: 0 0 0 0 rgba(139,44,245, 0.7);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(0, 102, 255, 0);
+    box-shadow: 0 0 0 10px rgba(139,44,245, 0);
   }
 }
 
@@ -734,7 +734,7 @@ button:hover::after {
   top: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, #0066FF, #0052cc);
+  background: linear-gradient(90deg, #8B2CF5, #7419D9);
   width: 0%;
   z-index: 9999;
   transition: width 0.1s ease;
@@ -742,8 +742,8 @@ button:hover::after {
 
 /* Enhanced FAQ Styling */
 .faq-item {
-  background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 0, 0, 0.3));
-  border: 1px solid rgba(0, 102, 255, 0.15);
+  background: linear-gradient(135deg, rgba(139,44,245, 0.05), rgba(0, 0, 0, 0.3));
+  border: 1px solid rgba(139,44,245, 0.15);
   margin-bottom: 1rem;
   border-radius: 12px;
   overflow: hidden;
@@ -751,9 +751,9 @@ button:hover::after {
 }
 
 .faq-item:hover {
-  background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 0, 0, 0.4));
+  background: linear-gradient(135deg, rgba(139,44,245, 0.1), rgba(0, 0, 0, 0.4));
   border-color: var(--blue);
-  box-shadow: 0 10px 40px rgba(0, 102, 255, 0.15);
+  box-shadow: 0 10px 40px rgba(139,44,245, 0.15);
   transform: translateX(5px);
 }
 
@@ -770,7 +770,7 @@ button:hover::after {
 }
 
 .faq-question:hover {
-  background: rgba(0, 102, 255, 0.08);
+  background: rgba(139,44,245, 0.08);
   color: var(--blue);
 }
 
@@ -797,13 +797,13 @@ button:hover::after {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   flex-shrink: 0;
   margin-left: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(139,44,245, 0.3);
 }
 
 .faq-toggle:hover {
   background: var(--blue-hover);
   transform: scale(1.15) rotate(90deg);
-  box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(139,44,245, 0.4);
 }
 
 .faq-toggle i {
@@ -821,8 +821,8 @@ button:hover::after {
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   padding: 0 1.5rem;
-  background: rgba(0, 102, 255, 0.05);
-  border-top: 1px solid rgba(0, 102, 255, 0.1);
+  background: rgba(139,44,245, 0.05);
+  border-top: 1px solid rgba(139,44,245, 0.1);
 }
 
 .faq-answer p {
@@ -846,7 +846,7 @@ button:hover::after {
 .why-item,
 .tech-item {
   position: relative;
-  border: 1px solid rgba(0, 102, 255, 0.1);
+  border: 1px solid rgba(139,44,245, 0.1);
   border-radius: 16px;
 }
 
@@ -911,7 +911,7 @@ textarea:focus,
 select:focus {
   background: rgba(255, 255, 255, 0.1);
   border-color: var(--blue);
-  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.15);
+  box-shadow: 0 0 0 4px rgba(139,44,245, 0.15);
   transform: translateY(-2px);
 }
 
@@ -1014,7 +1014,7 @@ section {
   h1,
   h2,
   h3 {
-    text-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
+    text-shadow: 0 0 15px rgba(139,44,245, 0.2);
   }
 }
 
@@ -1028,7 +1028,7 @@ section {
   .why-item,
   .tech-item {
     background: rgba(0, 0, 0, 0.4);
-    border-color: rgba(0, 102, 255, 0.15);
+    border-color: rgba(139,44,245, 0.15);
   }
   
   .faq-item {

@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     <meta name="theme-color" content="#0a0a0a">
+    <script>try{var t=localStorage.getItem('mn-theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
     <meta name="description" content="Four integrated electoral technology platforms: Event Intelligence, Mobilizer, Election Operations Command Center, and Analytics & Intelligence.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +21,7 @@
     <link rel="stylesheet" href="site.css">
 </head>
 <body>
+    <script>if(document.documentElement.getAttribute('data-theme')==='light')document.body.classList.add('light-mode')</script>
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -48,7 +50,10 @@
                         <li><a href="book-demo.html">Contact</a></li>
                     </ul>
                 </nav>
-                <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                <div class="mn-header-actions">
+                    <button class="mn-theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode"><i class="fa-solid fa-sun" aria-hidden="true"></i><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+                    <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
             </div>
         </div>
     </header>
@@ -166,7 +171,7 @@
             </div>
 
             <div class="mn-head" style="margin-top:5rem;margin-bottom:1.5rem">
-                <h3 style="color:#fff;font-size:1.4rem;margin-bottom:.4rem">Every screen in the chain of command</h3>
+                <h3 style="color:var(--white);font-size:1.4rem;margin-bottom:.4rem">Every screen in the chain of command</h3>
                 <p>Swipe through the workspace. Tap any screen to enlarge it.</p>
             </div>
             <div class="mn-strip" tabindex="0" aria-label="Command Center screens">
@@ -219,8 +224,8 @@
             <div class="mn-head">
                 <span class="cx-plat-num">05</span>
                 <span class="cx-label">Checkin Field App</span>
-                <h2 style="color:#fff;font-size:2.2rem;margin-bottom:1rem">One App for the Whole Ground Game</h2>
-                <p>The Android field app for door-to-door work and on-site check-ins: big tap targets, ID scanning and offline support. Four tabs (Home, People, Insights, Account) and one colour rule: <strong style="color:#2dd4bf">teal means check-in</strong>, <strong style="color:#fbbf24">amber means mobilize</strong>.</p>
+                <h2 style="color:var(--white);font-size:2.2rem;margin-bottom:1rem">One App for the Whole Ground Game</h2>
+                <p>The Android field app for door-to-door work and on-site check-ins: big tap targets, ID scanning and offline support. Four tabs (Home, People, Insights, Account) and one colour rule: <strong class="mn-teal">teal means check-in</strong>, <strong class="mn-amber">amber means mobilize</strong>.</p>
             </div>
             <div class="phone-row" style="margin-bottom:3rem">
                 <figure><a class="phone-shot" href="assets/screens/app-signin.webp" data-caption="Sign in"><img loading="lazy" decoding="async" src="assets/screens/app-signin-360.webp" srcset="assets/screens/app-signin-360.webp 360w, assets/screens/app-signin.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Checkin sign-in screen"></a><figcaption><strong>Sign in</strong>User ID or email and password. Lands on the right home for your role.</figcaption></figure>

@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     <meta name="theme-color" content="#0a0a0a">
+    <script>try{var t=localStorage.getItem('mn-theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,6 +19,7 @@
     <link rel="stylesheet" href="site.css">
 </head>
 <body>
+    <script>if(document.documentElement.getAttribute('data-theme')==='light')document.body.classList.add('light-mode')</script>
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -46,7 +48,10 @@
                         <li><a href="book-demo.html">Contact</a></li>
                     </ul>
                 </nav>
-                <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                <div class="mn-header-actions">
+                    <button class="mn-theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode"><i class="fa-solid fa-sun" aria-hidden="true"></i><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+                    <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
             </div>
         </div>
     </header>

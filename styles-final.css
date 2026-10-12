@@ -6,7 +6,7 @@
 
 /* Root Variables */
 :root {
-  --blue: #0066FF;
+  --blue: #8B2CF5;
   --black: #000;
   --dark-gray: #0d0d0d;
   --border: #1a1a1a;
@@ -116,7 +116,7 @@ body {
 .cta-btn,
 button.btn-primary,
 button.cta-btn {
-  background: #0066FF !important;
+  background: #8B2CF5 !important;
   background-image: none !important;
   color: #fff;
   border: none;
@@ -129,7 +129,7 @@ button.cta-btn {
 
 .btn-primary:hover,
 .cta-btn:hover {
-  background: #0066FF !important;
+  background: #8B2CF5 !important;
   opacity: 0.95;
   transform: translateY(-2px);
 }
@@ -142,12 +142,12 @@ button.cta-btn {
 }
 
 .nav-menu a:hover {
-  color: #0066FF;
+  color: #8B2CF5;
 }
 
 /* Social Icons */
 .social-icons a {
-  background: #0066FF !important;
+  background: #8B2CF5 !important;
   color: #fff;
   width: 40px;
   height: 40px;
@@ -159,7 +159,7 @@ button.cta-btn {
 }
 
 .social-icons a:hover {
-  background: #0066FF !important;
+  background: #8B2CF5 !important;
   opacity: 0.95;
 }
 

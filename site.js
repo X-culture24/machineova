@@ -328,7 +328,41 @@
     else window.addEventListener('load', settle, { once: true });
   }
 
+  /* ── Light / dark theme ──────────────────────────────────────── */
+  function initTheme() {
+    var btn = document.getElementById('themeToggle');
+    var meta = document.querySelector('meta[name="theme-color"]');
+    function apply(theme, save) {
+      root.setAttribute('data-theme', theme);
+      document.body.classList.toggle('light-mode', theme === 'light');
+      if (meta) meta.setAttribute('content', theme === 'light' ? '#ffffff' : '#0a0a0a');
+      if (btn) {
+        var next = theme === 'light' ? 'dark' : 'light';
+        btn.setAttribute('aria-label', 'Switch to ' + next + ' mode');
+        btn.setAttribute('aria-pressed', String(theme === 'light'));
+      }
+      if (save) { try { localStorage.setItem('mn-theme', theme); } catch (e) {} }
+    }
+    apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark', false);
+    if (btn) btn.addEventListener('click', function () {
+      root.classList.add('theme-switching');
+      apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light', true);
+      setTimeout(function () { root.classList.remove('theme-switching'); }, 350);
+    });
+    // follow OS changes until the visitor picks a theme themselves
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(prefers-color-scheme: light)');
+      var onChange = function (e) {
+        var saved = null;
+        try { saved = localStorage.getItem('mn-theme'); } catch (err) {}
+        if (!saved) apply(e.matches ? 'light' : 'dark', false);
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onChange);
+    }
+  }
+
   function init() {
+    initTheme();
     initNav();
     initScroll();
     initReveal();
