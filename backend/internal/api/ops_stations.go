@@ -167,17 +167,18 @@ func (s *Server) getStation(w http.ResponseWriter, r *http.Request, p *Principal
 	type posResult struct {
 		Position    position   `json:"position"`
 		SubmittedAt *time.Time `json:"submitted_at"`
+		VerifiedAt  *time.Time `json:"verified_at"`
 	}
 	results := []posResult{}
 	for _, pos := range positions {
-		var at *time.Time
-		err := s.db.QueryRow(ctx, `SELECT submitted_at FROM result_submissions WHERE election_id=$1 AND station_code=$2 AND position_id=$3`,
-			e.ID, st.Code, pos.ID).Scan(&at)
+		var at, vat *time.Time
+		err := s.db.QueryRow(ctx, `SELECT submitted_at, verified_at FROM result_submissions WHERE election_id=$1 AND station_code=$2 AND position_id=$3`,
+			e.ID, st.Code, pos.ID).Scan(&at, &vat)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			s.internal(w, r, err)
 			return
 		}
-		results = append(results, posResult{Position: pos, SubmittedAt: at})
+		results = append(results, posResult{Position: pos, SubmittedAt: at, VerifiedAt: vat})
 	}
 	canAct, err := s.canActOn(ctx, p, e, st.Code)
 	if err != nil {
@@ -187,6 +188,7 @@ func (s *Server) getStation(w http.ResponseWriter, r *http.Request, p *Principal
 	writeJSON(w, http.StatusOK, map[string]any{
 		"station": st, "agents": agents, "events": events, "incidents": incidents, "turnout": turnout,
 		"results": results, "can_act": canAct, "can_assign": canAct && p.Role != "agent",
+		"can_verify":    canAct && opsRank[p.Role] >= opsRank["manager"],
 		"turnout_slots": turnoutSlots,
 	})
 }
@@ -665,15 +667,16 @@ func (s *Server) getStationResults(w http.ResponseWriter, r *http.Request, p *Pr
 		votes[id] = v
 	}
 	var rejected *int
-	var submittedAt *time.Time
-	err = s.db.QueryRow(r.Context(), `SELECT rejected, submitted_at FROM result_submissions WHERE election_id=$1 AND station_code=$2 AND position_id=$3`,
-		e.ID, st.Code, pos.ID).Scan(&rejected, &submittedAt)
+	var submittedAt, verifiedAt *time.Time
+	err = s.db.QueryRow(r.Context(), `SELECT rejected, submitted_at, verified_at FROM result_submissions WHERE election_id=$1 AND station_code=$2 AND position_id=$3`,
+		e.ID, st.Code, pos.ID).Scan(&rejected, &submittedAt, &verifiedAt)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		s.internal(w, r, err)
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"position": pos, "candidates": cands, "votes": votes, "rejected": rejected, "submitted_at": submittedAt,
+		"verified_at": verifiedAt, "can_verify": opsRank[p.Role] >= opsRank["manager"],
 		"turnout": st.Cast, "registered": st.Registered,
 	})
 }
@@ -731,9 +734,17 @@ func (s *Server) submitStationResults(w http.ResponseWriter, r *http.Request, p 
 			e.ID, st.Code, pos.ID); err != nil {
 			return err
 		}
+		// Agents' figures wait for a manager; managers and above verify as they enter.
+		var verifiedBy *string
+		var verifiedAt *time.Time
+		if opsRank[p.Role] >= opsRank["manager"] {
+			at := recordedAt(r)
+			verifiedBy, verifiedAt = &p.UserID, &at
+		}
 		if _, err := tx.Exec(r.Context(), `
-			INSERT INTO result_submissions (election_id, station_code, position_id, rejected, submitted_by, submitted_at) VALUES ($1,$2,$3,$4,$5,$6)`,
-			e.ID, st.Code, pos.ID, in.Rejected, p.UserID, recordedAt(r)); err != nil {
+			INSERT INTO result_submissions (election_id, station_code, position_id, rejected, submitted_by, submitted_at, verified_by, verified_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+			e.ID, st.Code, pos.ID, in.Rejected, p.UserID, recordedAt(r), verifiedBy, verifiedAt); err != nil {
 			return err
 		}
 		for _, c := range cands {
@@ -743,9 +754,51 @@ func (s *Server) submitStationResults(w http.ResponseWriter, r *http.Request, p 
 				return err
 			}
 		}
-		return logStationEvent(r.Context(), tx, e, st.Code, "results",
-			fmt.Sprintf("Form 37A verified — %s · %d ballots", pos.Name, total), p.UserID, recordedAt(r))
+		msg := fmt.Sprintf("Form 37A verified — %s · %d ballots", pos.Name, total)
+		if opsRank[p.Role] < opsRank["manager"] {
+			msg = fmt.Sprintf("Form 37A submitted, awaiting manager verification — %s · %d ballots", pos.Name, total)
+		}
+		return logStationEvent(r.Context(), tx, e, st.Code, "results", msg, p.UserID, recordedAt(r))
 	}); err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// verifyStationResults: a manager (or above) confirms an agent's Form 37A so it counts.
+func (s *Server) verifyStationResults(w http.ResponseWriter, r *http.Request, p *Principal) {
+	e, st, ok := s.stationAction(w, r, p)
+	if !ok {
+		return
+	}
+	if opsRank[p.Role] < opsRank["manager"] {
+		writeErr(w, http.StatusForbidden, "only managers and above can verify results")
+		return
+	}
+	var in struct {
+		PositionID string `json:"position_id"`
+	}
+	if !readJSON(w, r, &in) {
+		return
+	}
+	var posName string
+	if err := s.inTx(r.Context(), func(tx pgx.Tx) error {
+		err := tx.QueryRow(r.Context(), `
+			UPDATE result_submissions rs SET verified_by = $4, verified_at = $5
+			FROM positions p
+			WHERE rs.election_id = $1 AND rs.station_code = $2 AND rs.position_id::text = $3 AND rs.verified_at IS NULL
+			  AND p.id = rs.position_id
+			RETURNING p.name`, e.ID, st.Code, in.PositionID, p.UserID, recordedAt(r)).Scan(&posName)
+		if err != nil {
+			return err
+		}
+		return logStationEvent(r.Context(), tx, e, st.Code, "results",
+			"Form 37A verified by manager — "+posName, p.UserID, recordedAt(r))
+	}); errors.Is(err, pgx.ErrNoRows) {
+		writeErr(w, http.StatusNotFound, "no results awaiting verification for this race")
+		return
+	} else if err != nil {
 		s.internal(w, r, err)
 		return
 	}

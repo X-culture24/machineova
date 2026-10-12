@@ -12,6 +12,14 @@ String hourLabel(int h) => '${h % 12 == 0 ? 12 : h % 12}${h < 12 ? 'am' : 'pm'}'
 String initials(String name) =>
     name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).take(2).map((p) => p[0].toUpperCase()).join();
 
+/// National ID numbers are never shown in full — last 3 digits only (•••••390).
+String maskId(String? id) {
+  final d = (id ?? '').replaceAll(RegExp(r'\s'), '');
+  if (d.isEmpty) return '—';
+  final hidden = d.length - 3 < 3 ? 3 : d.length - 3;
+  return '${'•' * hidden}${d.length > 3 ? d.substring(d.length - 3) : d}';
+}
+
 String errorText(Object e) => e.toString().replaceFirst('Exception: ', '');
 
 class Avatar extends StatelessWidget {

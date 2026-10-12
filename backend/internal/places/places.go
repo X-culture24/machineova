@@ -24,21 +24,27 @@ func Key(s string) string {
 
 var placeAliases = map[string]string{"nairobicity": "nairobi"}
 
-// counties maps placeKey -> official name for Kenya's 47 counties.
+// countyList is Kenya's 47 counties in IEBC code order (001 Mombasa … 047 Nairobi).
+var countyList = []string{
+	"Mombasa", "Kwale", "Kilifi", "Tana River", "Lamu", "Taita-Taveta", "Garissa", "Wajir", "Mandera",
+	"Marsabit", "Isiolo", "Meru", "Tharaka-Nithi", "Embu", "Kitui", "Machakos", "Makueni", "Nyandarua",
+	"Nyeri", "Kirinyaga", "Murang'a", "Kiambu", "Turkana", "West Pokot", "Samburu", "Trans Nzoia",
+	"Uasin Gishu", "Elgeyo-Marakwet", "Nandi", "Baringo", "Laikipia", "Nakuru", "Narok", "Kajiado",
+	"Kericho", "Bomet", "Kakamega", "Vihiga", "Bungoma", "Busia", "Siaya", "Kisumu", "Homa Bay",
+	"Migori", "Kisii", "Nyamira", "Nairobi",
+}
+
+// counties maps Key -> official name.
 var counties = func() map[string]string {
 	m := map[string]string{}
-	for _, n := range []string{
-		"Mombasa", "Kwale", "Kilifi", "Tana River", "Lamu", "Taita-Taveta", "Garissa", "Wajir", "Mandera",
-		"Marsabit", "Isiolo", "Meru", "Tharaka-Nithi", "Embu", "Kitui", "Machakos", "Makueni", "Nyandarua",
-		"Nyeri", "Kirinyaga", "Murang'a", "Kiambu", "Turkana", "West Pokot", "Samburu", "Trans Nzoia",
-		"Uasin Gishu", "Elgeyo-Marakwet", "Nandi", "Baringo", "Laikipia", "Nakuru", "Narok", "Kajiado",
-		"Kericho", "Bomet", "Kakamega", "Vihiga", "Bungoma", "Busia", "Siaya", "Kisumu", "Homa Bay",
-		"Migori", "Kisii", "Nyamira", "Nairobi",
-	} {
+	for _, n := range countyList {
 		m[Key(n)] = n
 	}
 	return m
 }()
+
+// Counties returns the 47 county names in IEBC code order.
+func Counties() []string { return append([]string(nil), countyList...) }
 
 // CountyName returns the official county name for a register spelling ("HOMABAY" -> "Homa Bay"),
 // or the input in title case when it is not one of the 47 (e.g. old province labels).

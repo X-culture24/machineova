@@ -12,6 +12,8 @@ import (
 )
 
 type member struct {
+	// Invited is set on creation when an invitation link was emailed instead of a password.
+	Invited         bool    `json:"invited,omitempty"`
 	ID              string  `json:"id"`
 	Name            string  `json:"name"`
 	Email           string  `json:"email"`
@@ -84,15 +86,19 @@ func (s *Server) createMember(w http.ResponseWriter, r *http.Request, p *Princip
 		writeErr(w, http.StatusForbidden, "only the owner can add admins")
 		return
 	}
-	// TODO: replace with an emailed single-use invitation link once email delivery is wired up.
-	if len(in.Password) < 8 {
-		writeErr(w, http.StatusBadRequest, "initial password must be at least 8 characters")
-		return
-	}
-	hash, err := auth.HashPassword(in.Password)
-	if err != nil {
-		s.internal(w, r, err)
-		return
+	// No password: the person gets an emailed single-use invitation link to set their own.
+	var hash *string
+	if in.Password != "" {
+		if len(in.Password) < 8 {
+			writeErr(w, http.StatusBadRequest, "initial password must be at least 8 characters (or leave it blank to email an invite)")
+			return
+		}
+		h, err := auth.HashPassword(in.Password)
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		hash = &h
 	}
 	m, err := scanMember(s.db.QueryRow(r.Context(), `
 		INSERT INTO users (org_id, name, email, phone, role, password_hash, module_events, module_mobilization)
@@ -105,6 +111,13 @@ func (s *Server) createMember(w http.ResponseWriter, r *http.Request, p *Princip
 	if err != nil {
 		s.internal(w, r, err)
 		return
+	}
+	if hash == nil {
+		if err := s.issueLink(r.Context(), m.ID, "invite"); err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		m.Invited = true
 	}
 	writeJSON(w, http.StatusCreated, m)
 }

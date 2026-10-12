@@ -104,6 +104,18 @@ votes = {cands["Dr. Susan Ayieko"]: 150, cands["James Ochieng"]: 120, cands["Hel
 st, r = call("POST", "/ops/stations/MGR-001/results", {"position_id":gov["id"],"votes":votes,"rejected":5,"confirm":False}, ag_t); ok("results need confirm", st == 400, r)
 st, r = call("POST", "/ops/stations/MGR-001/results", {"position_id":gov["id"],"votes":{**votes, cands["James Ochieng"]: 999},"rejected":5,"confirm":True}, ag_t); ok("results > registered rejected", st == 400, r)
 st, r = call("POST", "/ops/stations/MGR-001/results", {"position_id":gov["id"],"votes":votes,"rejected":5,"confirm":True}, ag_t); ok("submit Form 37A", st == 204, r)
+# manager verification layer: an agent's Form 37A is pending until a manager verifies it
+st, sd = call("GET", "/ops/stations/MGR-001", tok=own)
+g = next(x for x in sd["results"] if x["position"]["id"] == gov["id"])
+ok("agent's Form 37A is awaiting verification", g["submitted_at"] and not g["verified_at"], g)
+st, res0 = call("GET", f"/ops/results?position_id={gov['id']}", tok=own)
+ok("pending results don't count in the tally", res0["stations_reporting"] == 0, res0.get("stations_reporting"))
+st, r = call("POST", "/ops/stations/MGR-001/results/verify", {"position_id": gov["id"]}, ag_t)
+ok("agents can't verify results", st == 403, r)
+st, r = call("POST", "/ops/stations/MGR-001/results/verify", {"position_id": gov["id"]}, mgr_t)
+ok("manager verifies the agent's Form 37A", st == 204, r)
+st, r = call("POST", "/ops/stations/MGR-001/results/verify", {"position_id": gov["id"]}, mgr_t)
+ok("nothing left to verify the second time", st == 404, r)
 # second station results so leader differs by area
 call("POST", "/ops/stations/MGR-011/status", {"status":"open"}, own)
 call("POST", "/ops/stations/MGR-011/turnout", {"slot_hour":9,"cumulative":100}, own)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../api/client.dart';
 import '../security/app_lock.dart';
 import '../session.dart';
 import '../theme.dart';
@@ -29,6 +30,62 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _error = errorText(e));
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Asks for the account email and has the server email a reset link (opens on the web).
+  Future<void> _forgot() async {
+    final ctl = TextEditingController(text: _login.text.trim());
+    final message = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        var sending = false;
+        String? err;
+        return StatefulBuilder(
+          builder: (ctx, setSheet) => Padding(
+            padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + MediaQuery.viewInsetsOf(ctx).bottom),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              const Text('Reset your password', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              const Text("We'll email a link to set a new password. It works once and expires in 1 hour.",
+                  style: TextStyle(color: AppColors.muted)),
+              const SizedBox(height: 16),
+              if (err != null) ...[
+                Notice(err!, fg: AppColors.red, bg: AppColors.redSoft, icon: Icons.error_outline),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: ctl,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(labelText: 'Email or user ID', prefixIcon: Icon(Icons.mail_outline)),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: sending
+                    ? null
+                    : () async {
+                        setSheet(() => sending = true);
+                        try {
+                          final msg = await api.forgotPassword(ctl.text.trim());
+                          if (ctx.mounted) Navigator.pop(ctx, msg);
+                        } catch (e) {
+                          setSheet(() {
+                            sending = false;
+                            err = errorText(e);
+                          });
+                        }
+                      },
+                child: Text(sending ? 'Sending…' : 'Email me a reset link'),
+              ),
+            ]),
+          ),
+        );
+      },
+    );
+    ctl.dispose();
+    if (message != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 6)));
     }
   }
 
@@ -126,14 +183,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         : const Text('Sign in'),
                   ),
                   const SizedBox(height: 20),
-                  const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Icon(Icons.shield_outlined, size: 16, color: AppColors.muted),
-                    SizedBox(width: 6),
-                    Flexible(
-                      child: Text('Forgot your password? Ask your organization admin to reset it.',
-                          textAlign: TextAlign.center, style: TextStyle(color: AppColors.muted, fontSize: 12)),
-                    ),
-                  ]),
+                  TextButton(
+                    key: const Key('forgot-password'),
+                    onPressed: _busy ? null : _forgot,
+                    child: const Text('Forgot password?'),
+                  ),
                 ]),
               ),
             ),

@@ -37,6 +37,12 @@ export default function TeamPage() {
                       <div className="person">
                         <span className="avatar">{initials(m.name)}</span>
                         <div><div style={{ fontWeight: 600 }}>{m.name}</div><small className="muted">{m.email}{m.phone && ` · ${m.phone}`}</small></div>
+                        {canEdit(m) && m.active && (
+                          <button className="btn small secondary" style={{ marginLeft: "auto" }} onClick={() =>
+                            api.sendInvite(m.id).then((r) => window.alert(`Invitation emailed to ${r.sent_to}.`), (e: Error) => setErr(e.message))}>
+                            Send invite
+                          </button>
+                        )}
                       </div>
                     </td>
                     <td>
@@ -76,7 +82,10 @@ function AddMemberModal({ ownerView, onClose, onAdded }: { ownerView: boolean; o
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    api.createMember({ ...f, phone: f.phone || null }).then(onAdded, (err: Error) => setError(err.message));
+    api.createMember({ ...f, phone: f.phone || null, password: f.password || undefined }).then((m) => {
+      if (m.invited) window.alert(`Invitation emailed to ${m.email}. The link works once and expires in 3 days.`);
+      onAdded();
+    }, (err: Error) => setError(err.message));
   }
 
   return (
@@ -94,8 +103,8 @@ function AddMemberModal({ ownerView, onClose, onAdded }: { ownerView: boolean; o
               <option value="viewer">Viewer — read-only</option>
             </select>
           </Field>
-          <Field label="Initial password" hint="Share securely; they can change it under Account.">
-            <input type="text" required minLength={8} value={f.password} onChange={set("password")} />
+          <Field label="Initial password (optional)" hint="Leave blank to email them a single-use invitation link (expires in 3 days).">
+            <input type="text" minLength={8} value={f.password} onChange={set("password")} placeholder="Blank = send invitation" />
           </Field>
         </div>
         <div className="modal-actions">

@@ -6,6 +6,8 @@ import { AssignModal } from "../components/AssignModal";
 import { Badge, BarChart, Card, Empty, ErrorNote, Field, Kpi, Loading, PageHeader, RankList } from "../components/ui";
 import { area, dateTime, num, pct } from "../format";
 import { useAsync } from "../useAsync";
+import { maskId } from "../mask";
+import CoveragePanel from "../components/Coverage";
 
 const paceLabel: Record<Pace["status"], [string, "green" | "teal" | "red" | "blue"]> = {
   ahead: ["Ahead of target", "green"],
@@ -90,6 +92,7 @@ export default function DriveDetail() {
           )}
         </Card>
       </div>
+      <CoveragePanel group={{ drive_id: d.id }} />
       <Card title="Registered voters">
         {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>No voters registered yet.</Empty> : (
           <div className="table-wrap">
@@ -97,7 +100,7 @@ export default function DriveDetail() {
               <thead><tr><th>Name</th><th>ID number</th><th>Phone</th><th>Location</th><th>Mobilized by</th><th>When</th></tr></thead>
               <tbody>
                 {list.data.map((p) => (
-                  <tr key={p.id}><td>{p.name}</td><td>{p.national_id}</td><td>{p.phone ?? "—"}</td><td>{area(p.constituency, p.ward)}</td><td>{p.by}</td><td>{dateTime(p.at)}</td></tr>
+                  <tr key={p.id}><td>{p.name}</td><td className="id-masked">{maskId(p.national_id)}</td><td>{p.phone ?? "—"}</td><td>{area(p.constituency, p.ward)}</td><td>{p.by}</td><td>{dateTime(p.at)}</td></tr>
                 ))}
               </tbody>
             </table>

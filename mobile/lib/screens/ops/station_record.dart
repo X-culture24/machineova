@@ -204,7 +204,7 @@ class _StationRecordScreenState extends State<StationRecordScreen> {
           child: ListTile(
             leading: Avatar(a.name),
             title: Text(a.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: Text('${a.phone ?? '—'} · ID ${a.nationalId ?? '—'}'),
+            subtitle: Text('${a.phone ?? '—'} · ID ${maskId(a.nationalId)}'),
             trailing: ContactButtons(a.phone),
           ),
         ),
@@ -214,9 +214,20 @@ class _StationRecordScreenState extends State<StationRecordScreen> {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(children: [
             Expanded(child: Text(p.name)),
-            p.submitted
-                ? const Pill('VERIFIED', fg: AppColors.green, bg: AppColors.greenSoft)
-                : const Pill('PENDING', fg: AppColors.muted, bg: Color(0xFFEFF2F1)),
+            if (p.verified)
+              const Pill('VERIFIED', fg: AppColors.green, bg: AppColors.greenSoft)
+            else if (p.submitted) ...[
+              const Pill('AWAITING VERIFICATION', fg: AppColors.amber, bg: AppColors.amberSoft),
+              if (d.canVerify)
+                TextButton(
+                  onPressed: () async {
+                    await opsApi.verifyResults(d.station.code, p.id, p.name);
+                    _load();
+                  },
+                  child: const Text('Verify'),
+                ),
+            ] else
+              const Pill('NOT SUBMITTED', fg: AppColors.muted, bg: Color(0xFFEFF2F1)),
           ]),
         ),
       label('ACTIVITY'),

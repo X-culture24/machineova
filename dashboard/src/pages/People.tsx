@@ -3,6 +3,7 @@ import { api, type PersonRecord } from "../api";
 import { Card, Empty, ErrorNote, Loading, PageHeader, RegionBadge } from "../components/ui";
 import { area, dateTime, initials } from "../format";
 import { useAsync } from "../useAsync";
+import { maskId } from "../mask";
 
 type Tab = "checkins" | "mobilized";
 
@@ -18,7 +19,7 @@ function useDebounced<T>(value: T, ms = 300) {
 function downloadCsv(rows: PersonRecord[], tab: Tab) {
   const header = ["name", "national_id", "sex", "phone", "county", "constituency", "ward", tab === "checkins" ? "event" : "drive", "by", "at"];
   const esc = (s: unknown) => `"${String(s ?? "").replace(/"/g, '""')}"`;
-  const lines = rows.map((r) => [r.name, r.national_id, r.sex, r.phone, r.county, r.constituency, r.ward, r.group_name, r.by, r.at].map(esc).join(","));
+  const lines = rows.map((r) => [r.name, maskId(r.national_id), r.sex, r.phone, r.county, r.constituency, r.ward, r.group_name, r.by, r.at].map(esc).join(","));
   const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -72,7 +73,7 @@ export default function PeoplePage() {
                     <td>
                       <div className="person">
                         <span className={`avatar ${tab === "mobilized" ? "amber" : ""}`}>{initials(p.name)}</span>
-                        <div><div style={{ fontWeight: 600 }}>{p.name}</div><small className="muted">ID {p.national_id}</small></div>
+                        <div><div style={{ fontWeight: 600 }}>{p.name}</div><small className="muted">ID {maskId(p.national_id)}</small></div>
                       </div>
                     </td>
                     <td>{area(p.constituency, p.ward)}</td>

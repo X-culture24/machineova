@@ -14,6 +14,7 @@ import (
 	"github.com/machinenova/checkin/backend/internal/auth"
 	"github.com/machinenova/checkin/backend/internal/config"
 	"github.com/machinenova/checkin/backend/internal/db"
+	"github.com/machinenova/checkin/backend/internal/mail"
 )
 
 func main() {
@@ -32,9 +33,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	server := api.New(pool, auth.Tokens{Secret: cfg.JWTSecret, TTL: cfg.TokenTTL}, cfg.CORSOrigins).
+		WithOptions(api.Options{Mail: mail.FromEnv(), AppURL: cfg.AppURL, ApkPath: cfg.ApkPath})
+	go server.RunScheduler(ctx) // daily turnout digest
 	srv := &http.Server{
 		Addr:              cfg.Addr,
-		Handler:           api.New(pool, auth.Tokens{Secret: cfg.JWTSecret, TTL: cfg.TokenTTL}, cfg.CORSOrigins).Handler(),
+		Handler:           server.Handler(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	go func() {

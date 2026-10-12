@@ -104,7 +104,10 @@ class OpenIncident {
 class PositionRef {
   final String id, name, level;
   final bool submitted;
-  PositionRef(this.id, this.name, this.level, this.submitted);
+
+  /// Agents' Form 37A waits for a manager; only verified results count.
+  final bool verified;
+  PositionRef(this.id, this.name, this.level, this.submitted, {this.verified = false});
 }
 
 class StationDetail {
@@ -115,7 +118,7 @@ class StationDetail {
   final Map<int, int> turnout; // slot hour → cumulative
   final List<PositionRef> positions;
   final List<int> slots;
-  final bool canAct, canAssign;
+  final bool canAct, canAssign, canVerify;
 
   StationDetail.fromJson(Map<String, dynamic> j)
       : station = OpsStation.fromJson(j['station']),
@@ -128,11 +131,13 @@ class StationDetail {
         turnout = {for (final t in j['turnout'] as List) _i(t['hour']): _i(t['count'])},
         positions = [
           for (final r in j['results'] as List)
-            PositionRef(r['position']['id'], r['position']['name'], r['position']['level'], r['submitted_at'] != null)
+            PositionRef(r['position']['id'], r['position']['name'], r['position']['level'], r['submitted_at'] != null,
+                verified: r['verified_at'] != null)
         ],
         slots = [for (final s in j['turnout_slots'] as List) _i(s)],
         canAct = j['can_act'] ?? false,
-        canAssign = j['can_assign'] ?? false;
+        canAssign = j['can_assign'] ?? false,
+        canVerify = j['can_verify'] ?? false;
 }
 
 class RaceCandidate {
@@ -252,6 +257,10 @@ class OpsApi {
       c.send('POST', '/api/ops/stations/${_p(code)}/results',
           {'position_id': positionId, 'votes': votes, 'rejected': rejected, 'confirm': true},
           label: 'Form 37A: $positionName · $code', scope: 'station:$code');
+
+  Future<SendResult> verifyResults(String code, String positionId, String positionName) =>
+      c.send('POST', '/api/ops/stations/${_p(code)}/results/verify', {'position_id': positionId},
+          label: 'Verify Form 37A: $positionName · $code', scope: 'station:$code');
 
   Future<SendResult> assignAgent(String code, String userId, String name) =>
       c.send('PUT', '/api/ops/stations/${_p(code)}/agents/$userId', null,

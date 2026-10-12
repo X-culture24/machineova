@@ -61,7 +61,8 @@ func (s *Server) loadTally(ctx context.Context, electionID, positionID string, u
 		SELECT rs.station_code, rv.candidate_id, rv.votes
 		FROM result_submissions rs JOIN result_votes rv
 		  ON rv.election_id = rs.election_id AND rv.station_code = rs.station_code AND rv.position_id = rs.position_id
-		WHERE rs.election_id=$1 AND rs.position_id=$2 AND ($3::timestamptz IS NULL OR rs.submitted_at <= $3)`,
+		WHERE rs.election_id=$1 AND rs.position_id=$2 AND rs.verified_at IS NOT NULL
+		  AND ($3::timestamptz IS NULL OR rs.verified_at <= $3)`,
 		electionID, positionID, until)
 	if err != nil {
 		return t, err
@@ -287,7 +288,7 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 		case "closed":
 			out.Reported++
 			out.Closed++
-			if st.Results < len(positions) {
+			if st.Results < len(positions) || st.Pending > 0 {
 				out.ToVerify++
 				verify = append(verify, attentionItem{st.Code, st.Name, area, "Results to verify", "verify", "Verify results"})
 			}
@@ -535,7 +536,7 @@ func (s *Server) opsResults(w http.ResponseWriter, r *http.Request, p *Principal
 		areas = append(areas, a)
 	}
 	var lastAt *time.Time
-	if err := s.db.QueryRow(ctx, `SELECT max(submitted_at) FROM result_submissions WHERE election_id=$1 AND position_id=$2`, e.ID, pos.ID).
+	if err := s.db.QueryRow(ctx, `SELECT max(verified_at) FROM result_submissions WHERE election_id=$1 AND position_id=$2`, e.ID, pos.ID).
 		Scan(&lastAt); err != nil {
 		s.internal(w, r, err)
 		return
