@@ -6,6 +6,8 @@ cd "$(dirname "$0")"
 
 flutter create . --project-name checkin_mobile --org com.machinenova --platforms=android,ios
 flutter pub get
+# flutter create adds a template counter-app test that doesn't apply to this app.
+rm -f test/widget_test.dart
 
 # edit FILE PERL-EXPR — in-place, whole-file regex edit.
 edit() { perl -0pi -e "$2" "$1"; }
