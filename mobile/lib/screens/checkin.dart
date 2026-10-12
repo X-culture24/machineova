@@ -102,13 +102,14 @@ class _CheckinFlowState extends State<CheckinFlow> {
   Future<void> _doCheckin() async {
     if (!(_form.currentState?.validate() ?? true)) return;
     final inRegister = _lookup?.voter != null;
+    final needsIdentity = !inRegister || _lookup!.voter!.missingIdentity;
     final nid = _id.text.replaceAll(' ', '');
     final name = _lookup?.voter?.name ?? (_f.name.text.trim().isEmpty ? 'ID $nid' : _f.name.text.trim());
     setState(() => _busy = true);
     try {
       final r = await api.checkin(
         _event!.id,
-        {'national_id': nid, ..._f.toJson(identity: !inRegister, location: _outside || !inRegister)},
+        {'national_id': nid, ..._f.toJson(identity: needsIdentity, location: _outside || !inRegister)},
         label: 'Check-in: $name · ${_event!.name}',
       );
       await ledger.add(kind: 'checkin', group: _event!.id, nationalId: nid, name: name);
@@ -202,9 +203,17 @@ class _CheckinFlowState extends State<CheckinFlow> {
       child: Form(
         key: _form,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (v != null)
-            VoterCard(voter: v, color: AppColors.teal, soft: AppColors.tealSoft, inRegion: l.inRegion)
-          else ...[
+          if (v != null) ...[
+            VoterCard(voter: v, color: AppColors.teal, soft: AppColors.tealSoft, inRegion: l.inRegion),
+            // Registered, but the register has no name/sex for them: ask the operator.
+            if (v.missingIdentity) ...[
+              const SizedBox(height: 10),
+              const Notice('Registered voter, but their name or sex isn\'t on record. Fill them in.',
+                  fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.edit_note),
+              const SizedBox(height: 10),
+              IdentityInputs(_f),
+            ],
+          ] else ...[
             const Notice('Not found in the register. Fill in their details.',
                 fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
             const SizedBox(height: 10),

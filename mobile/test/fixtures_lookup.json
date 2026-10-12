@@ -1,0 +1,51 @@
+{
+ "nrb": {
+  "in_region": true,
+  "in_register": true,
+  "registered_voter": false,
+  "status": "ready",
+  "voter": {
+   "national_id": "11112222",
+   "name": "TEST PERSON",
+   "sex": "M",
+   "dob": "1970-01-01",
+   "age": 56,
+   "county": "Nairobi",
+   "constituency": "Place",
+   "ward": "Place",
+   "source": "id_registry",
+   "admin_area": {
+    "sub_county": "PLACE",
+    "division": "PLACE",
+    "location": "PLACE",
+    "sub_location": "PLACE",
+    "village": "PLACE"
+   }
+  }
+ },
+ "register": {
+  "in_region": true,
+  "in_register": true,
+  "registered_voter": true,
+  "status": "ready",
+  "voter": {
+   "national_id": "98765431",
+   "name": "Brian Okoth",
+   "sex": "M",
+   "dob": "1990-06-15",
+   "age": 36,
+   "county": "Nairobi",
+   "constituency": "Kibra",
+   "ward": "Lindi",
+   "polling_center": "Lindi Primary School",
+   "source": "voter_register"
+  }
+ },
+ "unknown": {
+  "in_region": true,
+  "in_register": false,
+  "registered_voter": false,
+  "status": "ready",
+  "voter": null
+ }
+}

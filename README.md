@@ -49,18 +49,30 @@ Then sign in to the dashboard as the platform admin, go to **Organizations → N
 | `JWT_SECRET` | dev-only fallback | **Required** when `APP_ENV` ≠ `dev` |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated |
 
-### Voter register CSV
+### Voter register CSV — registration status and polling area
 
-```
-national_id,name,sex,dob,county,constituency,ward,polling_center
-28651234,Joseph Kamau,M,1991-03-02,Nairobi,Kibra,Lindi,Lindi Primary School
+The voter register decides **Registered voter** vs **Not registered to vote**, and gives each
+registered voter's county, constituency, ward, polling centre and registration date.
+
+```sh
+make import-register FILE="~/Documents/sdics.tech/registred voters2026-10-06.csv"   # SDICS export
+make import-register FILE=register.csv                                              # original format
 ```
 
-Columns can come in any order. `sex` is F/M (or Female/Male), `dob` is `YYYY-MM-DD`, and spaces inside ID numbers are removed. Re-importing updates rows by `national_id`.
+Accepted columns (any order, extra columns ignored and never stored):
+`national_id|ID|IDNO, name|FULLNAME, sex|SEX, dob|DATE_BIRTH, county|County, constituency,
+ward|Ward, polling_center|Polling Center, registered_on|date_of_registration`.
+Dates may be `YYYY-MM-DD`, `YYYYMMDD` or a timestamp. Name, sex and DOB are optional — some
+registered voters in the SDICS export carry only ID and area; lookup fills their identity from
+the national ID records when it can, otherwise the app asks the operator. The file is streamed
+(25M rows in ~10 min), de-duplicated by ID (latest registration wins) and swapped in atomically;
+a reload replaces the whole register. Windows-1252 characters in names are converted to UTF-8.
+Parents' names, tribe, clan, family and phone numbers in the export are not loaded.
 
 ### National ID records (NRB extracts) — ID lookup fallback
 
-When an ID is not on the voter register, lookup falls back to `id_registry`, loaded from the
+When an ID is not on the voter register, lookup falls back to `id_registry` (person shown as
+**Not registered to vote**, identity from national ID records), loaded from the
 NRB extracts in `datasets/` (git-ignored — personal data, never commit):
 
 ```sh

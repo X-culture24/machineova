@@ -136,13 +136,12 @@ export default function CheckinDesk() {
                           .join(" · ")}
                       </small>
                       <div><small>{area(v.county, v.constituency, v.ward, v.polling_center)}</small></div>
+                      {v.registered_on && <div><small className="muted">Registered {v.registered_on}</small></div>}
+                      {v.source === "id_registry" && <div><small className="muted">Identity from national ID records</small></div>}
                     </div>
                     <div className="stack" style={{ gap: 4, alignItems: "flex-end" }}>
                       {v.source === "id_registry" ? (
-                        <>
-                          <Badge tone="teal">ID VERIFIED</Badge>
-                          <Badge tone="amber">NOT ON VOTER REGISTER</Badge>
-                        </>
+                        <Badge tone="amber">NOT REGISTERED TO VOTE</Badge>
                       ) : (
                         <Badge tone="teal">REGISTERED VOTER</Badge>
                       )}

@@ -126,15 +126,22 @@ class VoterCard extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(v.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            Text(v.name.isEmpty ? 'Name not on record' : v.name,
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
             Text(['ID ${v.nationalId}', v.sexLabel, if (v.dob.isNotEmpty) '${v.age} yrs'].join(' · '),
                 style: const TextStyle(color: AppColors.muted, fontSize: 12)),
             if (v.area.isNotEmpty) Text(v.area, style: const TextStyle(fontSize: 12)),
+            if (!v.idOnly && v.pollingCenter != null && v.pollingCenter!.isNotEmpty)
+              Text('Polling centre: ${v.pollingCenter}',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            if (v.registeredOn != null)
+              Text('Registered ${v.registeredOn}', style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+            if (v.idOnly)
+              const Text('Identity from national ID records', style: TextStyle(color: AppColors.muted, fontSize: 12)),
             const SizedBox(height: 6),
             Wrap(spacing: 6, children: [
               if (v.idOnly) ...[
-                Pill('ID VERIFIED', fg: color, bg: Colors.white),
-                const Pill('NOT ON VOTER REGISTER', fg: Color(0xFFB45309), bg: Color(0xFFFFF7E6)),
+                const Pill('NOT REGISTERED TO VOTE', fg: Color(0xFFB45309), bg: Color(0xFFFFF7E6)),
               ] else
                 Pill('REGISTERED VOTER', fg: color, bg: Colors.white),
               if (inRegion != null) RegionPill(inRegion!),

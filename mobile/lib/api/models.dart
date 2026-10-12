@@ -100,9 +100,12 @@ class Voter {
   /// Which reference resolved the ID: 'voter_register' or 'id_registry' (national ID records).
   final String source;
 
+  /// Voter registration date (YYYY-MM-DD), registered voters only.
+  final String? registeredOn;
+
   Voter.fromJson(Map<String, dynamic> j)
       : nationalId = j['national_id'],
-        name = j['name'],
+        name = j['name'] ?? '',
         sex = j['sex'] ?? '',
         dob = j['dob'] ?? '',
         age = _i(j['age']),
@@ -110,7 +113,11 @@ class Voter {
         constituency = j['constituency'] ?? '',
         ward = j['ward'] ?? '',
         pollingCenter = _s(j['polling_center']),
-        source = j['source'] ?? 'voter_register';
+        source = j['source'] ?? 'voter_register',
+        registeredOn = _s(j['registered_on']);
+
+  /// Found, but the register lacks a name or sex (operator must fill them in).
+  bool get missingIdentity => name.trim().isEmpty || (sex != 'F' && sex != 'M');
 
   /// Identity confirmed from national ID records, but not on the voter register.
   bool get idOnly => source == 'id_registry';

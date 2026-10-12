@@ -10,6 +10,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/machinenova/checkin/backend/internal/places"
 )
 
 type voter struct {
@@ -22,6 +24,8 @@ type voter struct {
 	Constituency  string  `json:"constituency"`
 	Ward          string  `json:"ward"`
 	PollingCenter *string `json:"polling_center,omitempty"`
+	// RegisteredOn is the voter registration date (voter-register matches only).
+	RegisteredOn *string `json:"registered_on,omitempty"`
 	// Source is which reference resolved the ID: sourceVoterRegister or sourceIDRegistry.
 	Source string `json:"source"`
 	// AdminArea is the NRB administrative location, set for ID-registry matches.
@@ -45,17 +49,49 @@ const (
 // ID registry (NRB). It returns nil when neither knows the ID.
 func (s *Server) registerLookup(ctx context.Context, nationalID string) (*voter, error) {
 	var v voter
-	var dob time.Time
+	var name, sex *string
+	var dob, regOn *time.Time
 	var pc string
 	err := s.db.QueryRow(ctx, `
-		SELECT national_id, name, sex, dob, county, constituency, ward, polling_center
-		FROM register_voters WHERE national_id = $1`, nationalID).
-		Scan(&v.NationalID, &v.Name, &v.Sex, &dob, &v.County, &v.Constituency, &v.Ward, &pc)
+		SELECT national_id, name, sex, dob, county, constituency, ward, polling_center, registered_on
+		FROM register_voters WHERE national_id IN ($1, $2)
+		ORDER BY national_id = $1 DESC LIMIT 1`, nationalID, registryKey(nationalID)).
+		Scan(&v.NationalID, &name, &sex, &dob, &v.County, &v.Constituency, &v.Ward, &pc, &regOn)
 	if err == nil {
-		v.DOB = dob.Format(time.DateOnly)
-		v.Age = ageOn(dob, time.Now())
 		v.PollingCenter = &pc
 		v.Source = sourceVoterRegister
+		if regOn != nil {
+			d := regOn.Format(time.DateOnly)
+			v.RegisteredOn = &d
+		}
+		// Some register rows carry only the ID and area: take identity from the ID registry.
+		if name == nil || sex == nil || dob == nil {
+			if id, err := s.idRegistryLookup(ctx, nationalID); err != nil {
+				return nil, err
+			} else if id != nil {
+				if name == nil {
+					name = &id.Name
+				}
+				if sex == nil && id.Sex != "" {
+					sex = &id.Sex
+				}
+				if dob == nil && id.DOB != "" {
+					if t, err := time.Parse(time.DateOnly, id.DOB); err == nil {
+						dob = &t
+					}
+				}
+			}
+		}
+		if name != nil {
+			v.Name = *name
+		}
+		if sex != nil {
+			v.Sex = *sex
+		}
+		if dob != nil {
+			v.DOB = dob.Format(time.DateOnly)
+			v.Age = ageOn(*dob, time.Now())
+		}
 		return &v, nil
 	}
 	if !errors.Is(err, pgx.ErrNoRows) {
@@ -94,16 +130,16 @@ func (s *Server) idRegistryLookup(ctx context.Context, nationalID string) (*vote
 		v.Age = ageOn(*dob, time.Now())
 	}
 	if county != nil {
-		v.County = countyName(*county)
+		v.County = places.CountyName(*county)
 	}
 	// NRB has no electoral geography. Its sub-county and location stand in for
 	// constituency and ward so check-ins still carry a location; region checks for
 	// these records compare county only (see regionMatch).
 	if a.SubCounty != nil {
-		v.Constituency = titleCase(*a.SubCounty)
+		v.Constituency = places.TitleCase(*a.SubCounty)
 	}
 	if a.Location != nil {
-		v.Ward = titleCase(*a.Location)
+		v.Ward = places.TitleCase(*a.Location)
 	}
 	return &v, nil
 }
@@ -118,18 +154,6 @@ func registryKey(s string) string {
 		}
 	}
 	return strings.TrimLeft(b.String(), "0")
-}
-
-// titleCase turns NRB's upper-case place names ("KWALE / MATUGA") into display case.
-func titleCase(s string) string {
-	words := strings.Fields(strings.ToLower(s))
-	for i, w := range words {
-		if w == "" {
-			continue
-		}
-		words[i] = strings.ToUpper(w[:1]) + w[1:]
-	}
-	return strings.Join(words, " ")
 }
 
 // regionMatch decides in/out of region. ID-registry records only know the county reliably.
@@ -150,7 +174,7 @@ func ageOn(dob, now time.Time) int {
 
 // inArea reports whether a location falls within an area; nil area levels match anything.
 func inArea(county, constituency, ward string, aCounty, aConst, aWard *string) bool {
-	eq := func(a *string, v string) bool { return a == nil || placeKey(*a) == placeKey(v) }
+	eq := func(a *string, v string) bool { return a == nil || places.Key(*a) == places.Key(v) }
 	return eq(aCounty, county) && eq(aConst, constituency) && eq(aWard, ward)
 }
 

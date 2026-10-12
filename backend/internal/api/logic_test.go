@@ -3,6 +3,8 @@ package api
 import (
 	"testing"
 	"time"
+
+	"github.com/machinenova/checkin/backend/internal/places"
 )
 
 func sp(s string) *string { return &s }
@@ -89,10 +91,10 @@ func TestRegistryKey(t *testing.T) {
 }
 
 func TestTitleCase(t *testing.T) {
-	if got := titleCase("KWALE / MATUGA"); got != "Kwale / Matuga" {
+	if got := places.TitleCase("KWALE / MATUGA"); got != "Kwale / Matuga" {
 		t.Errorf("got %q", got)
 	}
-	if got := titleCase("  TAITA/TAVETA "); got != "Taita/taveta" {
+	if got := places.TitleCase("  TAITA/TAVETA "); got != "Taita/taveta" {
 		t.Errorf("got %q", got)
 	}
 }
@@ -115,8 +117,8 @@ func TestCountyName(t *testing.T) {
 		"ELGEYO MARAKWET": "Elgeyo-Marakwet", "THARAKA NITHI": "Tharaka-Nithi", "nairobi city": "Nairobi",
 		"RIFT VALLEY PROVINCE": "Rift Valley Province"}
 	for in, want := range cases {
-		if got := countyName(in); got != want {
-			t.Errorf("countyName(%q) = %q, want %q", in, got, want)
+		if got := places.CountyName(in); got != want {
+			t.Errorf("places.CountyName(%q) = %q, want %q", in, got, want)
 		}
 	}
 }
