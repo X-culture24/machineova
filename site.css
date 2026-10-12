@@ -658,3 +658,18 @@ html body .header { border-radius: 0 0 var(--panel-r) var(--panel-r); border-bot
   :root { --panel-gap: 8px; --panel-r: 22px; }
   html body .header { border-radius: 0 0 22px 22px; }
 }
+
+/* Header: floating rounded bar, curved on all four corners */
+html body .header {
+  top: var(--panel-gap) !important;
+  margin: var(--panel-gap) var(--panel-gap) 0 !important;
+  border-radius: var(--panel-r) !important;
+  border: 1px solid var(--border-d) !important;
+}
+body > nav.cx-plat-nav { top: calc(var(--header-h) + var(--panel-gap) * 2) !important; }
+html { scroll-padding-top: calc(var(--header-h) + var(--subnav-h) + var(--panel-gap) * 3 + 8px) !important; }
+@media (max-width: 768px) {
+  html body .header { border-radius: 22px !important; }
+  .nav-menu { border-radius: 0 0 22px 22px; }
+}
+@media (max-width: 768px) { .nav-menu:not(.active) { border: 0 !important; } }
