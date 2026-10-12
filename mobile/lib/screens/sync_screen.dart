@@ -151,7 +151,7 @@ class SyncScreen extends StatelessWidget {
         child: StatefulBuilder(
           builder: (ctx, setSheet) => SingleChildScrollView(
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-              Text('Complete: ID ${b['national_id']}',
+              Text('Complete: ID ${maskId(b['national_id'] as String?)}',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
               Text(item.error ?? '', style: const TextStyle(color: AppColors.red)),
               const SizedBox(height: 12),

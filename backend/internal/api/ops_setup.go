@@ -233,6 +233,9 @@ func (s *Server) setElectionStatus(w http.ResponseWriter, r *http.Request, p *Pr
 		s.internal(w, r, err)
 		return
 	}
+	if in.Status == "completed" {
+		go s.announceResults(p.OrgID, r.PathValue("id"))
+	}
 	e, err := scanElectionSummary(s.db.QueryRow(r.Context(), electionSummarySQL+` AND e.id::text = $2 GROUP BY e.id`, p.OrgID, r.PathValue("id")))
 	if err != nil {
 		s.internal(w, r, err)

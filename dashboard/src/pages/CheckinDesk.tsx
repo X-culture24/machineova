@@ -4,6 +4,7 @@ import { ApiError, api, homeLine, type Lookup } from "../api";
 import { Badge, Card, Empty, ErrorNote, Field, Loading, PageHeader, RegionBadge } from "../components/ui";
 import { area, initials, time } from "../format";
 import { useAsync } from "../useAsync";
+import { maskId } from "../mask";
 
 type Flash = { tone: "green" | "amber" | "red"; text: string } | null;
 
@@ -129,7 +130,7 @@ export default function CheckinDesk() {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 700, fontSize: 16 }}>{v.name}</div>
                       <small className="muted">
-                        {[`ID ${v.national_id}`, v.sex === "F" ? "Female" : v.sex === "M" ? "Male" : "Sex unknown", v.dob && `${v.age} yrs`]
+                        {[`ID ${maskId(v.national_id)}`, v.sex === "F" ? "Female" : v.sex === "M" ? "Male" : "Sex unknown", v.dob && `${v.age} yrs`]
                           .filter(Boolean)
                           .join(" · ")}
                       </small>

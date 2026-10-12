@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Field } from "../components/ui";
 
@@ -37,6 +38,7 @@ export default function Login() {
           <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </Field>
         <button className="btn" disabled={busy}>{busy ? "Signing in…" : "Sign In"}</button>
+        <Link to="/forgot" className="muted" style={{ textAlign: "center" }}>Forgot password?</Link>
       </form>
     </div>
   );

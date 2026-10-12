@@ -2,6 +2,12 @@
 // upserting by code.
 //
 //	go run ./cmd/import-registry -stations stations.csv -parties parties.csv
+//	go run ./cmd/import-registry -from-register -parties data/kenya_parties.csv
+//
+// -from-register builds the polling-station register from the loaded voter register: one
+// station per polling centre, with its ward, constituency, county and registered-voter count.
+// Codes are stable across reloads: the IEBC county number plus a fingerprint of the centre
+// (e.g. 047-3F9A21C0), so elections created earlier keep pointing at the same stations.
 //
 // stations.csv header (any order): code,name,county,constituency,ward,registered_voters
 // parties.csv header (any order):  code,name[,colour]
@@ -19,17 +25,20 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/machinenova/checkin/backend/internal/config"
 	"github.com/machinenova/checkin/backend/internal/db"
+	"github.com/machinenova/checkin/backend/internal/places"
 )
 
 func main() {
 	stations := flag.String("stations", "", "polling stations CSV")
 	parties := flag.String("parties", "", "parties CSV")
+	fromRegister := flag.Bool("from-register", false, "build polling stations from the loaded voter register")
 	flag.Parse()
-	if *stations == "" && *parties == "" {
-		log.Fatal("pass -stations and/or -parties")
+	if *stations == "" && *parties == "" && !*fromRegister {
+		log.Fatal("pass -stations, -from-register and/or -parties")
 	}
 	ctx := context.Background()
 	pool, err := db.Connect(ctx, config.Load().DatabaseURL)
@@ -54,6 +63,13 @@ func main() {
 			log.Fatal("parties: ", err)
 		}
 		log.Printf("imported %d parties", n)
+	}
+	if *fromRegister {
+		n, err := stationsFromRegister(ctx, pool)
+		if err != nil {
+			log.Fatal("stations from register: ", err)
+		}
+		log.Printf("built %d polling stations from the voter register", n)
 	}
 	if *stations != "" {
 		n, err := load(ctx, pool, *stations, []string{"code", "name", "county", "constituency", "ward", "registered_voters"}, nil, `
@@ -144,4 +160,37 @@ func load(ctx context.Context, pool interface {
 		return 0, err
 	}
 	return n, tx.Commit(ctx)
+}
+
+// stationsFromRegister upserts one polling station per (county, constituency, ward, centre)
+// in register_voters, with its registered-voter count.
+func stationsFromRegister(ctx context.Context, pool *pgxpool.Pool) (int64, error) {
+	// IEBC county numbers (001 Mombasa … 047 Nairobi); other areas (diaspora, prisons) get 9xx.
+	var codes strings.Builder
+	codes.WriteString("VALUES ")
+	for i, name := range places.Counties() {
+		if i > 0 {
+			codes.WriteString(",")
+		}
+		fmt.Fprintf(&codes, "('%s', %d)", strings.ReplaceAll(name, "'", "''"), i+1)
+	}
+	tag, err := pool.Exec(ctx, `
+		WITH county_codes(county, n) AS (`+codes.String()+`),
+		centres AS (
+			SELECT r.county, r.constituency, r.ward, r.polling_center, count(*) AS voters,
+			       coalesce(c.n, 900 + dense_rank() OVER (ORDER BY r.county) % 100) AS n
+			FROM register_voters r LEFT JOIN county_codes c ON c.county = r.county
+			GROUP BY r.county, r.constituency, r.ward, r.polling_center, c.n
+		)
+		INSERT INTO polling_stations (code, name, county, constituency, ward, registered_voters)
+		SELECT lpad(n::text, 3, '0') || '-' ||
+		       upper(left(md5(constituency || '|' || ward || '|' || polling_center), 8)),
+		       polling_center, county, constituency, ward, voters
+		FROM centres
+		ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, county = EXCLUDED.county,
+			constituency = EXCLUDED.constituency, ward = EXCLUDED.ward, registered_voters = EXCLUDED.registered_voters`)
+	if err != nil {
+		return 0, err
+	}
+	return tag.RowsAffected(), nil
 }

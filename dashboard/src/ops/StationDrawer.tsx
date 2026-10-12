@@ -4,6 +4,7 @@ import { dateTime, initials, num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, slotLabel, statusLabel, type StationDetail, type StationStatus } from "./api";
 import { ContactLinks, StatusBadge } from "./components";
+import { maskId } from "../mask";
 
 export type DrawerAction = "status" | "assign" | "turnout" | "incident" | "results";
 
@@ -106,7 +107,7 @@ export function StationDrawer({ code, initialAction, onClose, onChanged }: {
                   <span className="avatar">{initials(a.name)}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 600 }}>{a.name}</div>
-                    <small className="muted">{a.phone ?? "—"} · ID {a.national_id ?? "—"}</small>
+                    <small className="muted">{a.phone ?? "—"} · ID {maskId(a.national_id)}</small>
                   </div>
                   <ContactLinks phone={a.phone} />
                 </div>
@@ -118,7 +119,20 @@ export function StationDrawer({ code, initialAction, onClose, onChanged }: {
               {d.results.map((r) => (
                 <div key={r.position.id} className="row spread">
                   <span>{r.position.name}</span>
-                  {r.submitted_at ? <span className="badge green">Verified {time(r.submitted_at)}</span> : <span className="badge grey">Pending</span>}
+                  {r.verified_at ? (
+                    <span className="badge green">Verified {time(r.verified_at)}</span>
+                  ) : r.submitted_at ? (
+                    <span className="row" style={{ gap: 6 }}>
+                      <span className="badge amber">Awaiting verification</span>
+                      {d.can_verify && (
+                        <button className="btn small" onClick={() => ops.verifyResults(d.station.code, r.position.id).then(() => { detail.reload(); onChanged?.(); })}>
+                          Verify
+                        </button>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="badge grey">Not submitted</span>
+                  )}
                 </div>
               ))}
             </div>
@@ -244,7 +258,7 @@ function AssignDialog({ d, onClose, onDone }: { d: StationDetail; onClose: () =>
               <span className="avatar">{initials(a.name)}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600 }}>{a.name}</div>
-                <small className="muted">{a.phone ?? "—"} · ID {a.national_id ?? "—"}</small>
+                <small className="muted">{a.phone ?? "—"} · ID {maskId(a.national_id)}</small>
                 <div>
                   {a.assigned_to ? <span className={`badge ${here ? "green" : "grey"}`}>At {a.assigned_to}</span> : <span className="badge teal">Available</span>}
                 </div>

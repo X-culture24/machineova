@@ -3,6 +3,7 @@ import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } fr
 import type { Me } from "./api";
 import { isManager, useAuth } from "./auth";
 import { Loading } from "./components/ui";
+import Protect from "./components/Protect";
 import { initials } from "./format";
 import Login from "./pages/Login";
 import DashboardPage from "./pages/Dashboard";
@@ -14,6 +15,10 @@ import DriveDetail from "./pages/DriveDetail";
 import PeoplePage from "./pages/People";
 import TeamPage from "./pages/Team";
 import AccountPage from "./pages/Account";
+import ActivityPage from "./pages/Activity";
+import RegistrationPage from "./pages/Registration";
+import FieldAppPage from "./pages/FieldApp";
+import { ForgotPage, SetPasswordPage } from "./pages/AuthLinks";
 import PlatformOrgs, { EmailTemplates, NewOrgWizard, PlatformOrgDetail } from "./pages/PlatformOrgs";
 import { opsRoles, roleLabel } from "./ops/api";
 import OpsOverview from "./ops/Overview";
@@ -43,6 +48,9 @@ export default function App() {
   if (!me) {
     return (
       <Routes>
+        <Route path="forgot" element={<ForgotPage />} />
+        <Route path="reset" element={<SetPasswordPage mode="reset" />} />
+        <Route path="accept" element={<SetPasswordPage mode="accept" />} />
         <Route path="*" element={<Login />} />
       </Routes>
     );
@@ -60,6 +68,7 @@ export default function App() {
             <Route path="mobilization" element={<MobilizationPage />} />
             <Route path="mobilization/:id" element={<DriveDetail />} />
             <Route path="people" element={<PeoplePage />} />
+            <Route path="registration" element={<RegistrationPage />} />
             <Route path="team" element={<TeamPage />} />
           </>
         )}
@@ -92,6 +101,8 @@ export default function App() {
           </>
         )}
         <Route path="account" element={<AccountPage />} />
+        {me.organization && <Route path="app" element={<FieldAppPage />} />}
+        {(isManager(me) || me.platform_admin) && <Route path="activity" element={<ActivityPage />} />}
         <Route path="*" element={<Navigate to={home} replace />} />
       </Route>
     </Routes>
@@ -135,6 +146,7 @@ function Shell() {
 
   return (
     <div className="shell">
+      <Protect who={me.email} />
       <nav className="sidebar" aria-label="Main">
         <div className="brand">
           <span className="brand-mark">{me.organization ? initials(me.organization.name) : "M"}</span>
@@ -158,7 +170,11 @@ function Shell() {
             {me.module_mobilization && link("/mobilization", "Mobilization", "➚")}
             {section("People")}
             {link("/people", "People reached", "☰")}
+            {link("/registration", "Registration analysis", "◔")}
             {isManager(me) && link("/team", "Team", "☺")}
+            {section("Workspace")}
+            {link("/app", "Field app", "▯")}
+            {isManager(me) && link("/activity", "Activity log", "≣")}
           </>
         )}
         {me.organization && inOps && hasOps(me) && (
@@ -182,6 +198,8 @@ function Shell() {
               <>
                 {section("Workspace")}
                 {link("/ops/reports", "Reports", "⎙")}
+                {link("/app", "Field app", "▯")}
+                {isManager(me) && link("/activity", "Activity log", "≣")}
                 {me.role === "owner" && link("/ops/settings", "Settings", "⚙")}
               </>
             )}
@@ -193,6 +211,7 @@ function Shell() {
             {link("/platform", "Platform overview", "⌂", true)}
             {link("/platform/new", "New organization", "+")}
             {link("/platform/templates", "Email templates", "✉")}
+            {link("/activity", "Activity log", "≣")}
           </>
         )}
         <div className="sidebar-foot">

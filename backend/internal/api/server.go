@@ -14,12 +14,32 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/machinenova/checkin/backend/internal/auth"
+	"github.com/machinenova/checkin/backend/internal/mail"
 )
 
 type Server struct {
 	db          *pgxpool.Pool
 	tokens      auth.Tokens
 	corsOrigins map[string]bool
+	mail        *mail.Mailer
+	appURL      string
+	apkPath     string
+}
+
+// Options are the optional extras; zero values disable each feature gracefully.
+type Options struct {
+	Mail    *mail.Mailer
+	AppURL  string
+	ApkPath string
+}
+
+// WithOptions sets the optional extras.
+func (s *Server) WithOptions(o Options) *Server {
+	s.mail, s.appURL, s.apkPath = o.Mail, strings.TrimRight(o.AppURL, "/"), o.ApkPath
+	if s.mail == nil {
+		s.mail = mail.FromEnv()
+	}
+	return s
 }
 
 func New(db *pgxpool.Pool, tokens auth.Tokens, corsOrigins string) *Server {
@@ -29,7 +49,7 @@ func New(db *pgxpool.Pool, tokens auth.Tokens, corsOrigins string) *Server {
 			origins[o] = true
 		}
 	}
-	return &Server{db: db, tokens: tokens, corsOrigins: origins}
+	return &Server{db: db, tokens: tokens, corsOrigins: origins, mail: mail.FromEnv(), appURL: "http://localhost:5173"}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -39,12 +59,18 @@ func (s *Server) Handler() http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 	mux.HandleFunc("POST /api/auth/login", s.login)
+	mux.HandleFunc("POST /api/auth/forgot", s.forgotPassword)
+	mux.HandleFunc("POST /api/auth/redeem", s.redeemLink)
 
 	// Authenticated org routes.
 	a := func(pattern string, h func(http.ResponseWriter, *http.Request, *Principal)) {
 		mux.Handle(pattern, s.authed(h))
 	}
 	a("GET /api/me", s.me)
+	a("GET /api/audit", s.listAudit)
+	a("GET /api/app", s.appInfo)
+	a("GET /api/app/download", s.appDownload)
+	a("POST /api/team/{id}/invite", s.sendInvite)
 	a("POST /api/auth/change-password", s.changePassword)
 
 	a("GET /api/dashboard", s.dashboard)
@@ -73,6 +99,8 @@ func (s *Server) Handler() http.Handler {
 
 	a("GET /api/insights/checkins", s.checkinInsights)
 	a("GET /api/insights/mobilization", s.mobilizationInsights)
+	a("GET /api/insights/coverage", s.coverage)
+	a("GET /api/insights/registration", s.registrationStats)
 
 	a("GET /api/team", s.listTeam)
 	a("POST /api/team", s.createMember)
@@ -108,6 +136,7 @@ func (s *Server) Handler() http.Handler {
 	a("DELETE /api/ops/stations/{code}/agents/{user}", s.unassignStationAgent)
 	a("GET /api/ops/stations/{code}/results", s.getStationResults)
 	a("POST /api/ops/stations/{code}/results", s.submitStationResults)
+	a("POST /api/ops/stations/{code}/results/verify", s.verifyStationResults)
 	a("GET /api/ops/turnout", s.opsTurnout)
 	a("GET /api/ops/results", s.opsResults)
 	a("GET /api/ops/replay", s.opsReplay)
@@ -176,7 +205,8 @@ func (s *Server) authed(h func(http.ResponseWriter, *http.Request, *Principal)) 
 			s.internal(w, r, err)
 			return
 		}
-		s.withIdempotency(w, r.WithContext(context.WithValue(r.Context(), ctxKey{}, p)), p, h)
+		r = r.WithContext(context.WithValue(r.Context(), ctxKey{}, p))
+		s.auditChanges(w, r, p, func(w http.ResponseWriter) { s.withIdempotency(w, r, p, h) })
 	})
 }
 

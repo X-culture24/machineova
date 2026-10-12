@@ -6,6 +6,7 @@ import { initials } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, roleLabel, type OpsRole } from "./api";
 import { ContactLinks, OpsHeader, Pager } from "./components";
+import { maskId } from "../mask";
 
 const rank: Record<string, number> = { agent: 1, manager: 2, chief_agent: 3, admin: 4, executive: 5, owner: 6 };
 const tabs: { role: string; label: string }[] = [
@@ -71,7 +72,7 @@ export default function PeoplePage() {
                       <td data-label="Area">{p.area}</td>
                       <td data-label="Contact"><div className="stack" style={{ gap: 4 }}><span>{p.phone ?? "—"}</span><ContactLinks phone={p.phone} /></div></td>
                       <td data-label="National ID">
-                        {p.national_id ?? "—"}
+                        {maskId(p.national_id)}
                         {myRank > (rank[p.role] ?? 9) && me?.role !== "executive" && (
                           <button className="btn small ghost" onClick={() => ops.updatePerson(p.id, { active: !p.active }).then(list.reload)}>
                             {p.active ? "Deactivate" : "Reactivate"}
@@ -175,7 +176,7 @@ function AddPersonModal({ onClose, onAdded }: { onClose: () => void; onAdded: ()
             </div>
           )}
           <Field label="Email (for sign-in, optional)"><input type="email" value={f.email} onChange={set("email")} /></Field>
-          <Field label="Initial password (optional)" hint="Leave blank for a directory-only contact.">
+          <Field label="Initial password (optional)" hint="Leave blank: with an email they get a single-use invitation link; without one they are a directory-only contact.">
             <input type="text" minLength={8} value={f.password} onChange={set("password")} />
           </Field>
         </div>

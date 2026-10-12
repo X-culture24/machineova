@@ -48,6 +48,41 @@ Then sign in to the dashboard as the platform admin, go to **Organizations → N
 | `ADDR` | `:8080` | |
 | `JWT_SECRET` | dev-only fallback | **Required** when `APP_ENV` ≠ `dev` |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated |
+| `APP_URL` | `http://localhost:5173` | Dashboard address used in emailed links (invites, password resets, digests) |
+| `APP_APK_PATH` | — | Field app APK served to signed-in users at **Field app** (`/api/app/download`); not public |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `MAIL_FROM` | — / 587 | Email delivery. Without `SMTP_HOST`, emails are written to the server log (links still work in dev) |
+
+### Accounts & security
+
+- **Invitations:** add a team member or ops person with an email and no password → they get a
+  single-use link (72 h) to set their own. Re-send from Team → *Send invite*.
+- **Forgot password:** on the web and in the app; single-use link valid 1 hour; the answer never
+  reveals whether an account exists.
+- **Lockout:** 5 wrong passwords lock sign-in for 15 minutes (a password reset unlocks).
+- **Activity log** (owners/admins; platform admins see all): every sign-in, lookup and change, with
+  who, when and from where. Append-only — the database rejects updates, deletes and truncation.
+- **Results verification:** an agent's Form 37A waits for a manager (or above) to verify it; only
+  verified results count in tallies, replay and reports.
+- **Emails sent:** invitations, password resets, the daily turnout digest (19:00 Nairobi, owners and
+  admins, while an election is active) and the results announcement when an election is completed.
+- **Dashboard privacy:** ID numbers are shown masked (last 3 digits) on screen and in exports; data
+  blurs when the window loses focus; printing is blocked; a watermark names the signed-in user.
+  (No website can block OS screenshots — the field app does, in release builds.)
+
+### Polling stations, parties and analytics
+
+```sh
+cd backend
+go run ./cmd/import-registry -from-register -parties data/kenya_parties.csv   # after import-register
+go run ./cmd/build-analytics                                                    # after either register
+```
+
+`-from-register` builds one polling station per polling centre in the voter register (stable codes
+like `047-3F9A21C0`: IEBC county number + fingerprint), so elections can be created for any county.
+`build-analytics` precomputes the registration analysis (adults in the ID records vs registered).
+
+End-to-end checks (each creates a throwaway org on the target API):
+`scripts/e2e_elections.py`, `e2e_idlookup.py`, `e2e_analytics.py`, `e2e_security.py`, `e2e_ops.py`.
 
 ### Voter register CSV — registration status and polling area
 

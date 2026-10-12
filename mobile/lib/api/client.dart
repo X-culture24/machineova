@@ -189,6 +189,12 @@ class ApiClient {
   }
 
   // ---- auth ----
+  /// Emails a single-use reset link (same answer whether or not the account exists).
+  Future<String> forgotPassword(String login) async {
+    final r = await _req('POST', '/api/auth/forgot', body: {'login': login});
+    return (r['message'] as String?) ?? "If that account exists, we've emailed a reset link.";
+  }
+
   Future<Me> login(String login, String password) async {
     // Field phones may go days without signal, so ask for a longer-lived session.
     final r = await _req('POST', '/api/auth/login', body: {'login': login, 'password': password, 'remember': true});

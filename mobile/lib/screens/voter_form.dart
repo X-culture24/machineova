@@ -128,7 +128,7 @@ class VoterCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(v.name.isEmpty ? 'Name not on record' : v.name,
                 style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-            Text(['ID ${v.nationalId}', v.sexLabel, if (v.dob.isNotEmpty) '${v.age} yrs'].join(' · '),
+            Text(['ID ${maskId(v.nationalId)}', v.sexLabel, if (v.dob.isNotEmpty) '${v.age} yrs'].join(' · '),
                 style: const TextStyle(color: AppColors.muted, fontSize: 12)),
             if (v.area.isNotEmpty) Text(v.area, style: const TextStyle(fontSize: 12)),
             if (!v.idOnly && v.pollingCenter != null && v.pollingCenter!.isNotEmpty)

@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-
 	"github.com/machinenova/checkin/backend/internal/auth"
 )
 
@@ -45,18 +43,18 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	login := strings.TrimSpace(strings.ToLower(in.Login))
-	var id, hash string
-	err := s.db.QueryRow(r.Context(),
-		`SELECT id, password_hash FROM users
-		WHERE active AND password_hash IS NOT NULL AND (lower(email) = $1 OR id::text = $1)`, login).
-		Scan(&id, &hash)
-	if errors.Is(err, pgx.ErrNoRows) || (err == nil && !auth.CheckPassword(hash, in.Password)) {
-		// Same message for unknown user and wrong password.
-		writeErr(w, http.StatusUnauthorized, "Login failed")
+	id, status, code, msg := s.checkLogin(r.Context(), login, in.Password, clientIP(r))
+	if status == http.StatusInternalServerError {
+		s.internal(w, r, errors.New(msg))
 		return
 	}
-	if err != nil {
-		s.internal(w, r, err)
+	if status != http.StatusOK {
+		// Same message for unknown user and wrong password; lockout says so explicitly.
+		if code != "" {
+			writeErrCode(w, status, code, msg)
+		} else {
+			writeErr(w, status, msg)
+		}
 		return
 	}
 	tokens := s.tokens

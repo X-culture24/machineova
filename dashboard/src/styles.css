@@ -359,3 +359,26 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   background: #fdf1df;
   border: 1px solid rgba(224, 137, 26, 0.4);
 }
+
+/* ---- Voter-data protection (see components/Protect.tsx) ---- */
+.id-masked { font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+html.privacy-blur .shell > :not(.privacy-shield):not(.watermark) {
+  filter: blur(14px);
+  transition: filter .12s ease;
+}
+.privacy-shield {
+  position: fixed; inset: 0; z-index: 9999;
+  display: grid; place-content: center; gap: 6px; text-align: center;
+  background: rgba(23, 18, 31, .55); color: #fff; font-size: 15px;
+}
+.privacy-shield strong { font-size: 20px; }
+.watermark {
+  position: fixed; inset: -20%; z-index: 9998; pointer-events: none; user-select: none;
+  display: flex; flex-wrap: wrap; gap: 90px 140px; align-content: center; justify-content: center;
+  transform: rotate(-24deg); opacity: .06; font-size: 13px; font-weight: 600; color: #17121f;
+}
+.print-notice { display: none; }
+@media print {
+  .shell > :not(.print-notice) { display: none !important; }
+  .print-notice { display: block !important; padding: 40px; font-size: 18px; }
+}

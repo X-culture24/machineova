@@ -6,6 +6,8 @@ import { AssignModal } from "../components/AssignModal";
 import { Badge, BarChart, Card, Empty, ErrorNote, Kpi, Loading, Modal, PageHeader, RegionBadge, Toggle } from "../components/ui";
 import { area, dateTime, hourLabel, num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
+import { maskId } from "../mask";
+import CoveragePanel from "../components/Coverage";
 
 export default function EventDetail() {
   const { id = "" } = useParams();
@@ -129,6 +131,7 @@ export default function EventDetail() {
         </Card>
       </div>
 
+      <CoveragePanel group={{ event_id: e.id }} />
       <Card title="Who checked in" extra={<small className="muted">latest first</small>}>
         {!list.data ? (
           <Loading />
@@ -144,7 +147,7 @@ export default function EventDetail() {
                 {list.data.map((c) => (
                   <tr key={c.id}>
                     <td>{c.name}</td>
-                    <td>{c.national_id}</td>
+                    <td className="id-masked">{maskId(c.national_id)}</td>
                     <td>{area(c.constituency, c.ward)}</td>
                     <td>{c.by}</td>
                     <td>{time(c.at)}</td>

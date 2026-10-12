@@ -224,6 +224,13 @@ func (s *Server) addPerson(w http.ResponseWriter, r *http.Request, p *Principal)
 		return
 	}
 	pr.AreaLabel = pr.Scope.orElse(b).label()
+	// An email without a password: send a single-use invitation to set one.
+	if email != nil && hash == nil {
+		if err := s.issueLink(r.Context(), id, "invite"); err != nil {
+			s.internal(w, r, err)
+			return
+		}
+	}
 	writeJSON(w, http.StatusCreated, pr)
 }
 

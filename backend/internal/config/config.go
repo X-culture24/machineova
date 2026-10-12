@@ -12,6 +12,10 @@ type Config struct {
 	JWTSecret   []byte
 	TokenTTL    time.Duration
 	CORSOrigins string
+	// AppURL is the dashboard's public address, used for links in emails (invites, resets).
+	AppURL string
+	// ApkPath is the field app APK served to signed-in users at /api/app/download.
+	ApkPath string
 }
 
 func Load() Config {
@@ -21,6 +25,8 @@ func Load() Config {
 		JWTSecret:   []byte(env("JWT_SECRET", "")),
 		TokenTTL:    12 * time.Hour,
 		CORSOrigins: env("CORS_ORIGINS", "http://localhost:5173"),
+		AppURL:      env("APP_URL", "http://localhost:5173"),
+		ApkPath:     env("APP_APK_PATH", ""),
 	}
 	if len(c.JWTSecret) == 0 {
 		if env("APP_ENV", "dev") != "dev" {

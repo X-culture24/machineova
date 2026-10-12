@@ -157,7 +157,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
                             return ListTile(
                               leading: Avatar(p.name, color: color),
                               title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                              subtitle: Text('ID ${p.nationalId} · ${p.ward}\n${p.groupName}', maxLines: 2),
+                              subtitle: Text('ID ${maskId(p.nationalId)} · ${p.ward}\n${p.groupName}', maxLines: 2),
                               isThreeLine: true,
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

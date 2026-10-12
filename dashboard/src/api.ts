@@ -64,6 +64,50 @@ export interface Member {
   module_events: boolean;
   module_mobilization: boolean;
   active: boolean;
+  /** Set on creation when an invitation link was emailed instead of a password. */
+  invited?: boolean;
+}
+
+export interface CoverageRow {
+  area: string;
+  registered: number;
+  reached: number;
+  coverage: number;
+  remaining: number;
+  status: "strong" | "moderate" | "low" | "critical" | "not_started";
+}
+
+export interface Coverage {
+  level: "county" | "constituency" | "ward" | "polling_center";
+  label: string;
+  reached: number;
+  registered: number;
+  coverage: number;
+  remaining: number;
+  not_registered: number;
+  female: number;
+  male: number;
+  top_age_group: string | null;
+  rows: CoverageRow[] | null;
+  push_here_next: CoverageRow[] | null;
+}
+
+export interface RegistrationStats {
+  level: "county" | "sub_county";
+  label: string;
+  built_at: string | null;
+  adults: number;
+  registered: number;
+  rows: { area: string; adults: number; registered: number; unregistered: number; rate: number }[];
+}
+
+export interface AuditEntry {
+  at: string;
+  actor: string | null;
+  action: string;
+  path: string;
+  status: number;
+  ip: string | null;
 }
 
 /** Where a person comes from per their national ID record. */
@@ -327,7 +371,29 @@ export const api = {
     request<MobilizationInsights>("GET", `/api/insights/mobilization${qs({ drive_id })}`),
 
   team: () => request<Member[]>("GET", "/api/team"),
-  createMember: (body: Partial<Member> & { password: string }) => request<Member>("POST", "/api/team", body),
+  createMember: (body: Partial<Member> & { password?: string }) => request<Member>("POST", "/api/team", body),
+  sendInvite: (id: string) =>
+    request<{ ok: boolean; sent_to: string; email_configured: boolean }>("POST", `/api/team/${id}/invite`, {}),
+  forgotPassword: (login: string) => request<{ ok: boolean; message: string }>("POST", "/api/auth/forgot", { login }),
+  redeemLink: (token: string, password: string) =>
+    request<{ ok: boolean; email: string }>("POST", "/api/auth/redeem", { token, password }),
+  audit: (params: { q?: string; before?: string }) =>
+    request<AuditEntry[]>("GET", `/api/audit${qs({ q: params.q, before: params.before, limit: "100" })}`),
+  coverage: (group: { event_id?: string; drive_id?: string }, drill: { constituency?: string; ward?: string } = {}) =>
+    request<Coverage>("GET", `/api/insights/coverage${qs({ ...group, ...drill })}`),
+  registration: () => request<RegistrationStats>("GET", "/api/insights/registration"),
+  appInfo: () => request<{ available: boolean; size?: number; updated_at?: string }>("GET", "/api/app"),
+  /** Downloads the field app with the signed-in user's token (the APK is not public). */
+  downloadApp: async () => {
+    const res = await fetch(BASE + "/api/app/download", { headers: { Authorization: `Bearer ${token.get()}` } });
+    if (!res.ok) throw new ApiError(res.status, "Download failed");
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Checkin.apk";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  },
   updateMember: (id: string, body: Partial<Member>) => request<Member>("PATCH", `/api/team/${id}`, body),
 
   orgs: () => request<OrgSummary[]>("GET", "/api/platform/organizations"),

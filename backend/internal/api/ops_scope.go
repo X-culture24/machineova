@@ -216,7 +216,8 @@ type stationRow struct {
 	Turnout       *float64   `json:"turnout"` // cast / registered
 	OpenIncidents int        `json:"open_incidents"`
 	LastIncident  *string    `json:"last_incident"`
-	Results       int        `json:"results_submitted"` // positions with a Form 37A
+	Results       int        `json:"results_submitted"` // positions with a verified Form 37A
+	Pending       int        `json:"results_pending"`   // positions submitted by an agent, awaiting verification
 }
 
 func (st *stationRow) Uncovered() bool { return st.Agents == 0 }
@@ -231,7 +232,10 @@ func (s *Server) loadStations(ctx context.Context, electionID string, sc scope) 
 		       (SELECT count(*) FROM incidents i WHERE i.election_id = es.election_id AND i.station_code = s.code AND i.resolved_at IS NULL),
 		       (SELECT i.type FROM incidents i WHERE i.election_id = es.election_id AND i.station_code = s.code AND i.resolved_at IS NULL
 		        ORDER BY i.created_at DESC LIMIT 1),
-		       (SELECT count(*) FROM result_submissions r WHERE r.election_id = es.election_id AND r.station_code = s.code)
+		       (SELECT count(*) FROM result_submissions r WHERE r.election_id = es.election_id AND r.station_code = s.code
+		          AND r.verified_at IS NOT NULL),
+		       (SELECT count(*) FROM result_submissions r WHERE r.election_id = es.election_id AND r.station_code = s.code
+		          AND r.verified_at IS NULL)
 		FROM election_stations es JOIN polling_stations s ON s.code = es.station_code
 		WHERE es.election_id = $1
 		  AND ($2::text IS NULL OR s.county = $2) AND ($3::text IS NULL OR s.constituency = $3) AND ($4::text IS NULL OR s.ward = $4)
@@ -242,7 +246,7 @@ func (s *Server) loadStations(ctx context.Context, electionID string, sc scope) 
 	return collect(rows, func(row pgx.Row) (stationRow, error) {
 		var st stationRow
 		err := row.Scan(&st.Code, &st.Name, &st.County, &st.Constituency, &st.Ward, &st.Registered, &st.Status, &st.UpdatedAt,
-			&st.Agents, &st.Cast, &st.OpenIncidents, &st.LastIncident, &st.Results)
+			&st.Agents, &st.Cast, &st.OpenIncidents, &st.LastIncident, &st.Results, &st.Pending)
 		if st.Cast != nil && st.Registered > 0 {
 			t := round2(float64(*st.Cast) / float64(st.Registered))
 			st.Turnout = &t

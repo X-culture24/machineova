@@ -125,7 +125,8 @@ export interface StationDetail {
   events: StationEvent[];
   incidents: Incident[];
   turnout: { hour: number; count: number }[];
-  results: { position: Position; submitted_at: string | null }[];
+  results: { position: Position; submitted_at: string | null; verified_at: string | null }[];
+  can_verify?: boolean;
   can_act: boolean;
   can_assign: boolean;
   turnout_slots: number[];
@@ -339,9 +340,13 @@ export const ops = {
       votes: Record<string, number>;
       rejected: number | null;
       submitted_at: string | null;
+      verified_at: string | null;
+      can_verify: boolean;
       turnout: number | null;
       registered: number;
     }>("GET", `/api/ops/stations/${encodeURIComponent(code)}/results${qs({ position_id: positionId })}`),
+  verifyResults: (code: string, positionId: string) =>
+    req<void>("POST", `/api/ops/stations/${encodeURIComponent(code)}/results/verify`, { position_id: positionId }),
   submitResults: (code: string, body: { position_id: string; votes: Record<string, number>; rejected: number; confirm: boolean }) =>
     req<void>("POST", `/api/ops/stations/${encodeURIComponent(code)}/results`, body),
 
