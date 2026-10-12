@@ -1,0 +1,5 @@
+.DS_Store
+.env
+*.local
+# Duplicate source PDFs
+*\ (1).pdf
