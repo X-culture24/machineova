@@ -624,3 +624,37 @@ html body .mn-theme-toggle i.fa-moon { display: none !important; }
 html body .mn-theme-toggle i.fa-sun { display: inline-block !important; color: #f5b301 !important; opacity: 1 !important; transform: none !important; }
 html[data-theme="light"] body .mn-theme-toggle i.fa-sun { display: none !important; }
 html[data-theme="light"] body .mn-theme-toggle i.fa-moon { display: inline-block !important; color: var(--purple) !important; opacity: 1 !important; transform: none !important; }
+
+/* ================================================================
+   ROUNDED PANELS — every page block is a curved card, no square seams
+   ================================================================ */
+:root { --page-bg: #050505; --panel-gap: 14px; --panel-r: 32px; }
+html[data-theme="light"] { --page-bg: #efebf6; }
+html body { background: var(--page-bg) !important; }
+
+body > section:not(.hero),
+body > .cx-trust-strip,
+body > .cx-marquee,
+body > nav.cx-plat-nav,
+body > footer.cx-footer {
+  margin: var(--panel-gap) var(--panel-gap) 0 !important;
+  border-radius: var(--panel-r) !important;
+  border: 1px solid var(--border-d) !important;
+}
+body > footer.cx-footer { margin-bottom: var(--panel-gap) !important; }
+body > .cx-marquee, body > .cx-trust-strip { overflow: hidden; }
+
+/* Hero sits on the page background; its inner box is already rounded */
+body > section.hero { background: transparent !important; border: 0 !important; }
+
+/* Sticky sub-nav keeps its curve while pinned under the header */
+body > nav.cx-plat-nav { top: calc(var(--header-h) + 8px) !important; }
+body > nav.cx-plat-nav .container { padding-left: .75rem; padding-right: .75rem; }
+
+/* Header: rounded bottom edge instead of a straight rule */
+html body .header { border-radius: 0 0 var(--panel-r) var(--panel-r); border-bottom: 1px solid var(--border-d) !important; }
+
+@media (max-width: 768px) {
+  :root { --panel-gap: 8px; --panel-r: 22px; }
+  html body .header { border-radius: 0 0 22px 22px; }
+}
