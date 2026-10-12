@@ -4,41 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Case Studies – MachineNova Deployments</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a0a0a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles-final.css">
     <link rel="stylesheet" href="styles-modern.css">
     <link rel="stylesheet" href="machinenova.css">
     <link rel="stylesheet" href="effects.css">
+    <link rel="stylesheet" href="site.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo"><img src="assets/logo.png" alt="MachineNova" class="logo-icon"></div>
-                <nav class="nav">
-                    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+                <a class="logo" href="index.html" aria-label="MachineNova home">
+                    <img src="assets/logo.png" alt="MachineNova" class="logo-icon" width="857" height="291" fetchpriority="high">
+                </a>
+                <nav class="nav" aria-label="Main">
+                    <button class="hamburger" id="hamburger" type="button"><span></span><span></span><span></span></button>
                     <ul class="nav-menu" id="navMenu">
                         <li><a href="index.html">Home</a></li>
                         <li class="nav-dropdown">
-                            <a href="platforms.html" class="dropdown-trigger">Platforms <span class="dd-arrow">&#8964;</span></a>
+                            <a href="platforms.html" class="dropdown-trigger">Platforms <i class="fa-solid fa-chevron-down dd-arrow" aria-hidden="true"></i></a>
                             <ul class="dropdown-menu">
-                                <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
-                                <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
-                                <li><a href="platforms.html#command-center">Election Operations Command Center</a></li>
-                                <li><a href="platforms.html#analytics">Results &amp; Tallying</a></li>
+                                <li><a href="platforms.html#event-intelligence"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Event Intelligence</a></li>
+                                <li><a href="platforms.html#mobilizer"><i class="fa-solid fa-person-walking" aria-hidden="true"></i> Mobilizer Platform</a></li>
+                                <li><a href="platforms.html#command-center"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Election Operations Command Center</a></li>
+                                <li><a href="platforms.html#analytics"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics &amp; Intelligence</a></li>
+                                <li><a href="platforms.html#field-app"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Checkin Field App</a></li>
+                                <li><a href="platforms.html#console"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Platform Console &amp; White-label</a></li>
                             </ul>
                         </li>
+                        <li><a href="how-it-works.html">How It Works</a></li>
                         <li><a href="security.html">Security</a></li>
                         <li><a href="case-studies.html" class="active">Case Studies</a></li>
                         <li><a href="about.html">About</a></li>
                         <li><a href="book-demo.html">Contact</a></li>
                     </ul>
                 </nav>
-                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Request Demo</button>
+                <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             </div>
         </div>
     </header>
@@ -58,7 +67,7 @@
                 <div class="cx-cs-item">
                     <div class="cx-cs-meta">
                         <span class="cx-cs-tag">Regional Deployment</span>
-                        <span class="cx-cs-platform">Mobilizer Platform</span>
+                        <span class="cx-cs-platform"><i class="fa-solid fa-person-walking" aria-hidden="true"></i> Mobilizer Platform</span>
                     </div>
                     <div class="cx-cs-body">
                         <h3>Regional Party Mobilization Deployment</h3>
@@ -79,12 +88,13 @@
                             <div class="cx-cs-outcome"><span class="cx-cs-num">Real-Time</span><span>Coverage gap visibility for campaign leadership</span></div>
                         </div>
                     </div>
+                    <div class="cx-cs-visual"><a class="shot" href="assets/screens/web-dashboard.webp" data-caption="Mobilization dashboard: top regions by voters mobilized"><img loading="lazy" decoding="async" src="assets/screens/web-dashboard-800.webp" srcset="assets/screens/web-dashboard-800.webp 800w, assets/screens/web-dashboard.webp 1600w" sizes="(max-width: 1024px) 94vw, 460px" width="800" height="529" alt="Organization dashboard with voters mobilized and top regions by mobilization"></a></div>
                 </div>
 
                 <div class="cx-cs-item">
                     <div class="cx-cs-meta">
                         <span class="cx-cs-tag">National Deployment</span>
-                        <span class="cx-cs-platform">Election Operations Command Center</span>
+                        <span class="cx-cs-platform"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Election Operations Command Center</span>
                     </div>
                     <div class="cx-cs-body">
                         <h3>National Agent Coordination Rollout</h3>
@@ -105,12 +115,13 @@
                             <div class="cx-cs-outcome"><span class="cx-cs-num">Live</span><span>Result aggregation as counting progressed</span></div>
                         </div>
                     </div>
+                    <div class="cx-cs-visual"><a class="shot" href="assets/screens/ops-stations.webp" data-caption="Station operations: status and coverage for every station"><img loading="lazy" decoding="async" src="assets/screens/ops-stations-800.webp" srcset="assets/screens/ops-stations-800.webp 800w, assets/screens/ops-stations.webp 1600w" sizes="(max-width: 1024px) 94vw, 460px" width="800" height="476" alt="Station operations with status counts and agent coverage for every polling station"></a></div>
                 </div>
 
                 <div class="cx-cs-item">
                     <div class="cx-cs-meta">
                         <span class="cx-cs-tag">Event Intelligence</span>
-                        <span class="cx-cs-platform">Event Intelligence Platform</span>
+                        <span class="cx-cs-platform"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Event Intelligence Platform</span>
                     </div>
                     <div class="cx-cs-body">
                         <h3>Political Rally Intelligence Pilot</h3>
@@ -141,7 +152,7 @@
         <div class="container">
             <h2>Ready to Deploy?</h2>
             <p>Talk to our team about the right platform configuration for your campaign or organization.</p>
-            <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+            <a href="book-demo.html" class="cx-btn">Request a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
         </div>
     </section>
 
@@ -149,19 +160,47 @@
         <div class="container">
             <div class="cx-footer-top">
                 <div class="cx-footer-brand">
-                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo">
+                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo" width="857" height="291" loading="lazy" decoding="async">
                     <p>Election Operations Infrastructure for Modern Political Campaigns.</p>
-                    <div class="cx-social">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://x.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-x-twitter"></i></a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    </div>
                 </div>
                 <div class="cx-footer-cols">
-                    <div class="cx-footer-col"><h5>Platforms</h5><ul><li><a href="platforms.html#event-intelligence">Event Intelligence</a></li><li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li><li><a href="platforms.html#command-center">Command Center</a></li><li><a href="platforms.html#analytics">Analytics</a></li></ul></div>
-                    <div class="cx-footer-col"><h5>Company</h5><ul><li><a href="about.html">About</a></li><li><a href="security.html">Security</a></li><li><a href="case-studies.html">Case Studies</a></li><li><a href="book-demo.html">Contact</a></li></ul></div>
-                    <div class="cx-footer-col"><h5>Legal</h5><ul><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="terms-of-service.html">Terms of Service</a></li></ul></div>
+                    <div class="cx-footer-col">
+                        <h5>Platforms</h5>
+                        <ul>
+                            <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                            <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                            <li><a href="platforms.html#command-center">Command Center</a></li>
+                            <li><a href="platforms.html#analytics">Analytics &amp; Intelligence</a></li>
+                            <li><a href="platforms.html#field-app">Checkin Field App</a></li>
+                            <li><a href="platforms.html#console">Platform Console</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Company</h5>
+                        <ul>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="how-it-works.html">How It Works</a></li>
+                            <li><a href="security.html">Security</a></li>
+                            <li><a href="case-studies.html">Case Studies</a></li>
+                            <li><a href="book-demo.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Contact</h5>
+                        <ul>
+                            <li><i class="fa-solid fa-envelope" aria-hidden="true"></i> <a href="mailto:sawe@machinenova.com">sawe@machinenova.com</a></li>
+                            <li><i class="fa-solid fa-phone" aria-hidden="true"></i> <a href="tel:+254713657732">+254 713 657 732</a></li>
+                            <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Nairobi, Kenya</li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Legal</h5>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-cs-visual"><a class="shot" href="assets/screens/web-coverage.webp" data-caption="Event analytics: who attended and where they are registered"><img loading="lazy" decoding="async" src="assets/screens/web-coverage-800.webp" srcset="assets/screens/web-coverage-800.webp 800w, assets/screens/web-coverage.webp 1600w" sizes="(max-width: 1024px) 94vw, 460px" width="800" height="504" alt="Event analytics with check-ins, coverage and ward rankings"></a></div>
                 </div>
             </div>
             <div class="cx-footer-bottom">
@@ -170,8 +209,6 @@
             </div>
         </div>
     </footer>
-    <script src="script.js"></script>
-    <script src="machinenova.js"></script>
-    <script src="effects.js"></script>
+    <script src="site.js" defer></script>
 </body>
 </html>

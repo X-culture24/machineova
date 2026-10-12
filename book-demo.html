@@ -4,46 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book a Demo - Machineova</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a0a0a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles-modern.css">
     <link rel="stylesheet" href="machinenova.css">
     <link rel="stylesheet" href="effects.css">
+    <link rel="stylesheet" href="site.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo">
-                    <img src="assets/logo.png" alt="Machineova" class="logo-icon">
-                </div>
-                <nav class="nav">
-                    <button class="hamburger" id="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
+                <a class="logo" href="index.html" aria-label="MachineNova home">
+                    <img src="assets/logo.png" alt="MachineNova" class="logo-icon" width="857" height="291" fetchpriority="high">
+                </a>
+                <nav class="nav" aria-label="Main">
+                    <button class="hamburger" id="hamburger" type="button"><span></span><span></span><span></span></button>
                     <ul class="nav-menu" id="navMenu">
                         <li><a href="index.html">Home</a></li>
                         <li class="nav-dropdown">
-                            <a href="platforms.html" class="dropdown-trigger">Platforms <span class="dd-arrow">&#8964;</span></a>
+                            <a href="platforms.html" class="dropdown-trigger">Platforms <i class="fa-solid fa-chevron-down dd-arrow" aria-hidden="true"></i></a>
                             <ul class="dropdown-menu">
-                                <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
-                                <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
-                                <li><a href="platforms.html#command-center">Election Operations Command Center</a></li>
-                                <li><a href="platforms.html#analytics">Results &amp; Tallying</a></li>
+                                <li><a href="platforms.html#event-intelligence"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Event Intelligence</a></li>
+                                <li><a href="platforms.html#mobilizer"><i class="fa-solid fa-person-walking" aria-hidden="true"></i> Mobilizer Platform</a></li>
+                                <li><a href="platforms.html#command-center"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Election Operations Command Center</a></li>
+                                <li><a href="platforms.html#analytics"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics &amp; Intelligence</a></li>
+                                <li><a href="platforms.html#field-app"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Checkin Field App</a></li>
+                                <li><a href="platforms.html#console"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Platform Console &amp; White-label</a></li>
                             </ul>
                         </li>
+                        <li><a href="how-it-works.html">How It Works</a></li>
                         <li><a href="security.html">Security</a></li>
                         <li><a href="case-studies.html">Case Studies</a></li>
                         <li><a href="about.html">About</a></li>
                         <li><a href="book-demo.html" class="active">Contact</a></li>
                     </ul>
                 </nav>
-                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Book a Demo</button>
+                <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             </div>
         </div>
     </header>
@@ -185,42 +188,42 @@
                     <div class="features-checklist">
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="voter-registration">
-                            <span><i class="fas fa-user-plus"></i> Voter Registration System</span>
+                            <span><i class="fa-solid fa-user-plus"></i> Voter Registration System</span>
                             <p>Automated voter registration with verification</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="agent-management">
-                            <span><i class="fas fa-users-cog"></i> Election Agent Management</span>
+                            <span><i class="fa-solid fa-users-gear"></i> Election Agent Management</span>
                             <p>Manage polling agents, observers, and officials</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="voter-mobilization">
-                            <span><i class="fas fa-bullhorn"></i> Voter Mobilization Tools</span>
+                            <span><i class="fa-solid fa-bullhorn"></i> Voter Mobilization Tools</span>
                             <p>SMS/Email campaigns and reminders</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="biometric">
-                            <span><i class="fas fa-fingerprint"></i> Biometric Verification</span>
+                            <span><i class="fa-solid fa-fingerprint"></i> Biometric Verification</span>
                             <p>Fingerprint and facial recognition</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="live-results">
-                            <span><i class="fas fa-chart-bar"></i> Live Results Dashboard</span>
+                            <span><i class="fa-solid fa-chart-bar"></i> Live Results Dashboard</span>
                             <p>Real-time vote counting and analytics</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="audit-trail">
-                            <span><i class="fas fa-clipboard-list"></i> Comprehensive Audit Trail</span>
+                            <span><i class="fa-solid fa-clipboard-list"></i> Comprehensive Audit Trail</span>
                             <p>Complete election activity logging</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="mobile-voting">
-                            <span><i class="fas fa-mobile-alt"></i> Mobile Voting</span>
+                            <span><i class="fa-solid fa-mobile-screen-button"></i> Mobile Voting</span>
                             <p>iOS and Android app support</p>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" name="features" value="multilingual">
-                            <span><i class="fas fa-language"></i> Multilingual Support</span>
+                            <span><i class="fa-solid fa-language"></i> Multilingual Support</span>
                             <p>Multiple language options</p>
                         </label>
                     </div>
@@ -292,41 +295,59 @@
         </div>
     </section>
 
-    <footer class="footer">
+    <footer class="cx-footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-col">
-                    <img src="assets/logo.png" alt="Machineova" class="footer-logo">
-                    <p>Building trust in democratic processes</p>
+            <div class="cx-footer-top">
+                <div class="cx-footer-brand">
+                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo" width="857" height="291" loading="lazy" decoding="async">
+                    <p>Election Operations Infrastructure for Modern Political Campaigns.</p>
                 </div>
-                <div class="footer-col">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="index.html#features">Features</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="index.html#faqs">FAQs</a></li>
-                        <li><a href="book-demo.html">Book Demo</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li><a href="mailto:sawe@machinenova.com">sawe@machinenova.com</a></li>
-                        <li><a href="tel:+254713657732">+254 713 657 732</a></li>
-                        <li>Nairobi, Kenya</li>
-                    </ul>
+                <div class="cx-footer-cols">
+                    <div class="cx-footer-col">
+                        <h5>Platforms</h5>
+                        <ul>
+                            <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                            <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                            <li><a href="platforms.html#command-center">Command Center</a></li>
+                            <li><a href="platforms.html#analytics">Analytics &amp; Intelligence</a></li>
+                            <li><a href="platforms.html#field-app">Checkin Field App</a></li>
+                            <li><a href="platforms.html#console">Platform Console</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Company</h5>
+                        <ul>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="how-it-works.html">How It Works</a></li>
+                            <li><a href="security.html">Security</a></li>
+                            <li><a href="case-studies.html">Case Studies</a></li>
+                            <li><a href="book-demo.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Contact</h5>
+                        <ul>
+                            <li><i class="fa-solid fa-envelope" aria-hidden="true"></i> <a href="mailto:sawe@machinenova.com">sawe@machinenova.com</a></li>
+                            <li><i class="fa-solid fa-phone" aria-hidden="true"></i> <a href="tel:+254713657732">+254 713 657 732</a></li>
+                            <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Nairobi, Kenya</li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Legal</h5>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Machineova. All rights reserved.</p>
+            <div class="cx-footer-bottom">
+                <p>&copy; 2026 MachineNova. All rights reserved.</p>
+                <p>Election Operations Infrastructure</p>
             </div>
         </div>
     </footer>
-
-    <script src="script-modern.js"></script>
-    <script src="script.js"></script>
     <script src="booking.js"></script>
-    <script src="effects.js"></script>
+    <script src="site.js" defer></script>
 </body>
 </html>

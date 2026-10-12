@@ -13,14 +13,17 @@ Machineova is a modern, responsive website for innovative voting solutions with 
 
 ### 2. File Structure
 ```
-machinova/
-├── index.html           # Main HTML file
-├── styles.css           # Main stylesheet
-├── script.js            # JavaScript functionality
-├── logo.svg             # SVG logo backup
+machineova/
+├── index.html, platforms.html, how-it-works.html, security.html,
+│   case-studies.html, about.html, book-demo.html, privacy-policy.html, terms-of-service.html
+├── styles.css, styles-final.css, styles-modern.css, machinenova.css, effects.css  # legacy layers
+├── site.css             # Loaded last: Inter font, icons, rounded corners, screenshots, scrolling
+├── site.js              # All interactions (nav, reveal, tabs, lightbox, FAQ, scroll) — one file
+├── booking.js           # Book-a-demo wizard
 ├── assets/
-│   └── logo.png         # PNG logo (place your image here)
-├── OPTIMIZATION_GUIDE.md # Performance optimization details
+│   ├── logo.png, favicon.png, apple-touch-icon.png
+│   ├── screens/         # Product screenshots (WebP; *-800 / *-360 are srcset variants)
+│   └── images/          # Photos
 └── README.md            # This file
 ```
 
@@ -63,7 +66,7 @@ machinova/
 ### 5. Customization
 
 #### Colors
-Edit the CSS variables in `styles.css`:
+Edit the CSS variables in `styles.css` (font and corner radii live in `site.css`):
 ```css
 :root {
   --blue: #0066FF;

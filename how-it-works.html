@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works – MachineNova Field Operations</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="How MachineNova works in the field: the election-day workflow, signing in, running event check-ins, reading the statistics and troubleshooting.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-modern.css">
+    <link rel="stylesheet" href="machinenova.css">
+    <link rel="stylesheet" href="effects.css">
+    <link rel="stylesheet" href="site.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a class="logo" href="index.html" aria-label="MachineNova home">
+                    <img src="assets/logo.png" alt="MachineNova" class="logo-icon" width="857" height="291" fetchpriority="high">
+                </a>
+                <nav class="nav" aria-label="Main">
+                    <button class="hamburger" id="hamburger" type="button"><span></span><span></span><span></span></button>
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="index.html">Home</a></li>
+                        <li class="nav-dropdown">
+                            <a href="platforms.html" class="dropdown-trigger">Platforms <i class="fa-solid fa-chevron-down dd-arrow" aria-hidden="true"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="platforms.html#event-intelligence"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Event Intelligence</a></li>
+                                <li><a href="platforms.html#mobilizer"><i class="fa-solid fa-person-walking" aria-hidden="true"></i> Mobilizer Platform</a></li>
+                                <li><a href="platforms.html#command-center"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Election Operations Command Center</a></li>
+                                <li><a href="platforms.html#analytics"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics &amp; Intelligence</a></li>
+                                <li><a href="platforms.html#field-app"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Checkin Field App</a></li>
+                                <li><a href="platforms.html#console"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Platform Console &amp; White-label</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="how-it-works.html" class="active">How It Works</a></li>
+                        <li><a href="security.html">Security</a></li>
+                        <li><a href="case-studies.html">Case Studies</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="book-demo.html">Contact</a></li>
+                    </ul>
+                </nav>
+                <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="cx-page-hero">
+        <div class="container">
+            <span class="cx-label">How It Works</span>
+            <h1>From First Sign-in<br>to Final Result</h1>
+            <p>How campaign teams, field agents and check-in operators use MachineNova day to day, drawn from our field training manuals. Keep it handy on your phone or print it for your team.</p>
+        </div>
+    </section>
+
+    <nav class="cx-plat-nav" aria-label="On this page">
+        <div class="container">
+            <a href="#election-day">Election day</a>
+            <a href="#sign-in">Signing in</a>
+            <a href="#check-in">Event check-in</a>
+            <a href="#numbers">Reading the numbers</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+        </div>
+    </nav>
+
+    <!-- Election-day workflow -->
+    <section class="mn-section" id="election-day">
+        <div class="container">
+            <div class="cx-plat-grid">
+                <div class="cx-plat-text">
+                    <span class="cx-label">Command Center</span>
+                    <h2>The Election-Day Workflow</h2>
+                    <p>Everything flows through one active election. Its positions define the regions, its people are scoped by role and geography, and every station update lands on the command dashboard the moment it happens.</p>
+                    <ol class="mn-steps"><li><strong>Set up the election</strong>Choose the scope from the official register, pick the positions on the ballot and add candidates. Regions follow the positions automatically.</li><li><strong>Add your people</strong>Admins, chief agents, managers and agents in one directory. Role and area decide exactly what each person sees.</li><li><strong>Cover every station</strong>Uncovered stations are listed up front. Assign agents from the ward pool in two taps.</li><li><strong>Open the polls</strong>Agents set each station to Open, Reporting, Closed or Issue as the day moves on.</li><li><strong>Record turnout</strong>Cumulative voters by time slot (7 AM to 5 PM), checked against registered voters.</li><li><strong>Report incidents</strong>A report flags the station as Issue, puts it at the top of the action list and notifies the admin.</li><li><strong>Submit &amp; verify results</strong>Enter votes per candidate and rejected ballots from the signed Form 37A, then confirm.</li><li><strong>Monitor and export</strong>Turnout drill-downs, provisional tallies by race and CSV/PDF reports, plus a full replay afterwards.</li></ol>
+                </div>
+                <div class="cx-plat-visual">
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/ops-overview-manager.webp" data-caption="Manager home: scoped to one ward"><img loading="lazy" decoding="async" src="assets/screens/ops-overview-manager-800.webp" srcset="assets/screens/ops-overview-manager-800.webp 800w, assets/screens/ops-overview-manager.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="466" alt="Ward manager overview with my stations, needs attention and my agents"></a>
+                        <div class="shot-pair">
+                            <a class="shot shot--bare" href="assets/screens/ops-dialog-status.webp" data-caption="Update station status"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-status-800.webp" srcset="assets/screens/ops-dialog-status-800.webp 800w, assets/screens/ops-dialog-status.webp 1600w" sizes="(max-width: 1024px) 94vw, 300px" width="800" height="432" alt="Update station status dialog"></a>
+                            <a class="shot shot--bare" href="assets/screens/ops-dialog-turnout.webp" data-caption="Record turnout by time slot"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-turnout-800.webp" srcset="assets/screens/ops-dialog-turnout-800.webp 800w, assets/screens/ops-dialog-turnout.webp 1600w" sizes="(max-width: 1024px) 94vw, 300px" width="800" height="432" alt="Record voter turnout dialog"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signing in -->
+    <section class="mn-section mn-section--alt" id="sign-in">
+        <div class="container">
+            <div class="cx-plat-grid cx-plat-grid--rev">
+                <div class="cx-plat-visual">
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/web-signin.webp" data-caption="Sign in with your user ID or email"><img loading="lazy" decoding="async" src="assets/screens/web-signin-800.webp" srcset="assets/screens/web-signin-800.webp 800w, assets/screens/web-signin.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="538" alt="Checkin sign-in page with user ID or email and password"></a>
+                    </div>
+                </div>
+                <div class="cx-plat-text">
+                    <span class="cx-label">Getting Started</span>
+                    <h2>Signing In</h2>
+                    <p>Your organization admin creates your account and emails you a secure, single-use link to set your password. The link expires, so set it soon after you receive it.</p>
+                    <ol class="mn-steps"><li><strong>Open the sign-in page</strong>Go to your organization's web address and tap Sign in, or open the field app.</li><li><strong>Enter your user ID or email</strong>The email or user ID your account was created with.</li><li><strong>Enter your password</strong>Forgot it? Tap <em>Forgot password?</em> and follow the reset link sent to your email.</li><li><strong>Tap Sign In</strong>The app takes you straight to the right home screen for your role.</li></ol>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">You are…</th><th scope="col">You land on…</th></tr></thead><tbody><tr><td>Organization staff</td><td>The organization dashboard: events, voters mobilized, your team and recent check-ins.</td></tr><tr><td>Check-in operators</td><td>The Check-in screen, ready to process voters.</td></tr><tr><td>Platform admins</td><td>The console for managing all organizations.</td></tr></tbody></table></div>
+                    <h4 class="cx-sub-heading">Roles decide what you can do</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">Role</th><th scope="col">What it means</th></tr></thead><tbody><tr><td>Owner</td><td>Full control of the organization, including billing, branding and team roles. One per organization.</td></tr><tr><td>Admin</td><td>Full access to events and mobilization, and can manage most team members.</td></tr><tr><td>Member</td><td>Day-to-day work. Access to Events and/or Mobilization is granted per person.</td></tr><tr><td>Viewer</td><td>Read-only. Can see data and reports but cannot make changes.</td></tr></tbody></table></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event check-in -->
+    <section class="mn-section" id="check-in">
+        <div class="container">
+            <div class="cx-plat-grid">
+                <div class="cx-plat-text">
+                    <span class="cx-label">Event Intelligence</span>
+                    <h2>Running an Event Check-in</h2>
+                    <p>Check-in confirms that a voter belongs at your event and records their attendance. Look the person up by ID number; the app checks them against the register and updates your event numbers instantly.</p>
+                    <div class="mn-callout"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><p><strong>Get assigned first.</strong> You can only check people into events you're assigned to. If your event isn't listed, ask an org admin to assign you.</p></div>
+                    <ol class="mn-steps"><li><strong>Open Check-in</strong>From the menu choose Check-in, or open an event and tap Check in.</li><li><strong>Select your event</strong>Pick it from the Event dropdown. It's pre-selected if you came from the event.</li><li><strong>Enter the ID number</strong>Type or scan it and tap Look up. The keypad opens in number mode.</li><li><strong>Review the voter's details</strong>Name, sex, date of birth and registered county, constituency, ward and polling centre, with a status badge.</li><li><strong>Confirm &amp; check in</strong>Check or fill name, sex, DOB and phone, then tap Check in.</li><li><strong>Next voter</strong>The ID box clears automatically. Keep the scanner ready and work straight down the queue.</li></ol>
+                    <h4 class="cx-sub-heading">Two event rules that change check-in</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">Event setting</th><th scope="col">What it does</th></tr></thead><tbody><tr><td>Region-restricted</td><td>Warns when a voter is registered outside the area. The check-in still goes through, flagged out-of-region.</td></tr><tr><td>List-only</td><td>Only IDs on the uploaded participant list can check in. Admins upload the list from the event menu.</td></tr></tbody></table></div>
+                </div>
+                <div class="cx-plat-visual">
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/web-find-voter.webp" data-caption="Step 2–3: find a voter"><img loading="lazy" decoding="async" src="assets/screens/web-find-voter-800.webp" srcset="assets/screens/web-find-voter-800.webp 800w, assets/screens/web-find-voter.webp 1560w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="636" alt="Find a voter card with event selector and ID number field"></a>
+                        <div class="shot-pair">
+                            <figure><a class="phone-shot" href="assets/screens/app-checkin.webp" data-caption="Mobile check-in with event and ID lookup"><img loading="lazy" decoding="async" src="assets/screens/app-checkin-360.webp" srcset="assets/screens/app-checkin-360.webp 360w, assets/screens/app-checkin.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Mobile check-in with event and ID lookup"></a></figure>
+                            <figure><a class="phone-shot" href="assets/screens/app-confirm.webp" data-caption="Mobile confirm and check in with matched voter"><img loading="lazy" decoding="async" src="assets/screens/app-confirm-360.webp" srcset="assets/screens/app-confirm-360.webp 360w, assets/screens/app-confirm.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Mobile confirm and check in with matched voter"></a></figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Numbers -->
+    <section class="mn-section mn-section--alt" id="numbers">
+        <div class="container">
+            <div class="mn-head">
+                <span class="cx-label">Understanding the Statistics</span>
+                <h2>Every Number, in Plain Language</h2>
+                <p>Two words come up everywhere. <strong style="color:#fff">Mobilized</strong> is a voter your field team registered during outreach, and it measures your reach before any event. <strong style="color:#fff">Check-in</strong> is a voter marked present at an event on the day, and it measures turnout at events.</p>
+            </div>
+            <div class="mn-grid mn-grid--2" style="align-items:start">
+                <div>
+                    <h4 class="cx-sub-heading" style="border:0;padding:0;margin-top:0">Dashboard &amp; events</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">Stat</th><th scope="col">What it means</th></tr></thead><tbody><tr><td>Total Events</td><td>Every event your organization has created; the caption shows how many are active.</td></tr><tr><td>Voters Mobilized</td><td>Voters registered by your field teams, across every mobilization region.</td></tr><tr><td>Check-ins · 7 days</td><td>All check-ins across events in the last seven days.</td></tr><tr><td>Check-ins</td><td>Total times people were checked in at an event.</td></tr><tr><td>Unique</td><td>Different people checked in. Same-day duplicates count once.</td></tr><tr><td>Out of region</td><td>Checked-in voters registered outside the event area, as a share of the total.</td></tr></tbody></table></div>
+                </div>
+                <div>
+                    <h4 class="cx-sub-heading" style="border:0;padding:0;margin-top:0">Mobilization, coverage &amp; pace</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">Stat</th><th scope="col">What it means</th></tr></thead><tbody><tr><td>Target voters</td><td>The registration goal set for a region.</td></tr><tr><td>Progress to target</td><td>Share of a region's target already mobilized.</td></tr><tr><td>Coverage</td><td>Percentage of an area's voters you've reached.</td></tr><tr><td>Push here next</td><td>Where effort will do the most good, based on low coverage.</td></tr><tr><td>Pace needed</td><td>Voters per day required from now on to finish on time.</td></tr><tr><td>Momentum</td><td>Whether daily activity is rising, steady or cooling off.</td></tr></tbody></table></div>
+                </div>
+            </div>
+            <div class="mn-grid" style="margin-top:2.5rem">
+                <figure style="margin:0"><a class="shot" href="assets/screens/web-dashboard.webp" data-caption="Dashboard: KPI cards and top regions"><img loading="lazy" decoding="async" src="assets/screens/web-dashboard-800.webp" srcset="assets/screens/web-dashboard-800.webp 800w, assets/screens/web-dashboard.webp 1600w" sizes="(max-width: 1024px) 94vw, 380px" width="800" height="529" alt="Organization dashboard KPI cards and top regions by mobilization"></a><figcaption class="shot-cap"><strong>Dashboard</strong> KPI cards and top regions by mobilization</figcaption></figure>
+                <figure style="margin:0"><a class="shot" href="assets/screens/web-coverage.webp" data-caption="Coverage analytics"><img loading="lazy" decoding="async" src="assets/screens/web-coverage-800.webp" srcset="assets/screens/web-coverage-800.webp 800w, assets/screens/web-coverage.webp 1600w" sizes="(max-width: 1024px) 94vw, 380px" width="800" height="504" alt="Coverage analytics with KPIs, status by area and push here next"></a><figcaption class="shot-cap"><strong>Coverage</strong> KPIs, status by area, push here next</figcaption></figure>
+                <figure style="margin:0"><a class="shot" href="assets/screens/ops-turnout.webp" data-caption="Turnout monitor"><img loading="lazy" decoding="async" src="assets/screens/ops-turnout-800.webp" srcset="assets/screens/ops-turnout-800.webp 800w, assets/screens/ops-turnout.webp 1600w" sizes="(max-width: 1024px) 94vw, 380px" width="800" height="596" alt="Turnout monitor with hourly rollup by constituency"></a><figcaption class="shot-cap"><strong>Turnout</strong> Attention drill-down and hourly rollup</figcaption></figure>
+            </div>
+        </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mn-section" id="troubleshooting">
+        <div class="container">
+            <div class="cx-plat-grid">
+                <div class="cx-plat-text">
+                    <span class="cx-label">Quick Reference</span>
+                    <h2>Check-in in Five Taps</h2>
+                    <p>The short version. Pin it up at your check-in desk.</p>
+                    <ul class="mn-checks"><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Open <strong>Check-in</strong> and select your event</span></li><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Type or scan the ID, then tap <strong>Look up</strong></span></li><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Confirm the details and tap <strong>Check in</strong></span></li><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Tap <strong>Next voter</strong> and repeat</span></li></ul>
+                    <div class="mn-callout"><i class="fa-solid fa-star" aria-hidden="true"></i><p><strong>Golden rules.</strong> 1) Confirm you picked the right event before you start. 2) An out-of-region warning does not block check-in, so proceed and let the numbers record it. 3) When in doubt, ask your organization admin. They can fix assignments, lists and roles.</p></div>
+                </div>
+                <div class="cx-plat-text">
+                    <h4 class="cx-sub-heading" style="border:0;padding:0;margin-top:0">If something goes wrong</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">You see…</th><th scope="col">Do this</th></tr></thead><tbody><tr><td>“Login failed”</td><td>Re-check email and password (case-sensitive). If it persists, your account may be inactive, so contact your admin. Repeated failures can temporarily lock an account.</td></tr><tr><td>No events in the list</td><td>You're not assigned to an active event. Ask an admin to assign you.</td></tr><tr><td>“Not on the participant list”</td><td>The event is list-only and this ID isn't approved. Confirm the ID; the admin can update the list.</td></tr><tr><td>“Already checked in today”</td><td>This person is done. Move to the next voter.</td></tr><tr><td>“Organization is inactive”</td><td>Check-in is disabled org-wide. Contact the platform administrator.</td></tr><tr><td>Nothing loads</td><td>Check your connection and retry. On the field app, mobilization and check-in keep working offline and sync later.</td></tr></tbody></table></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cx-about-cta">
+        <div class="container">
+            <h2>Want a Walkthrough for Your Team?</h2>
+            <p>We train organizers, operators and field agents during onboarding.</p>
+            <a href="book-demo.html" class="cx-btn">Book a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </section>
+
+    <footer class="cx-footer">
+        <div class="container">
+            <div class="cx-footer-top">
+                <div class="cx-footer-brand">
+                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo" width="857" height="291" loading="lazy" decoding="async">
+                    <p>Election Operations Infrastructure for Modern Political Campaigns.</p>
+                </div>
+                <div class="cx-footer-cols">
+                    <div class="cx-footer-col">
+                        <h5>Platforms</h5>
+                        <ul>
+                            <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                            <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                            <li><a href="platforms.html#command-center">Command Center</a></li>
+                            <li><a href="platforms.html#analytics">Analytics &amp; Intelligence</a></li>
+                            <li><a href="platforms.html#field-app">Checkin Field App</a></li>
+                            <li><a href="platforms.html#console">Platform Console</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Company</h5>
+                        <ul>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="how-it-works.html">How It Works</a></li>
+                            <li><a href="security.html">Security</a></li>
+                            <li><a href="case-studies.html">Case Studies</a></li>
+                            <li><a href="book-demo.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Contact</h5>
+                        <ul>
+                            <li><i class="fa-solid fa-envelope" aria-hidden="true"></i> <a href="mailto:sawe@machinenova.com">sawe@machinenova.com</a></li>
+                            <li><i class="fa-solid fa-phone" aria-hidden="true"></i> <a href="tel:+254713657732">+254 713 657 732</a></li>
+                            <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Nairobi, Kenya</li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Legal</h5>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="cx-footer-bottom">
+                <p>&copy; 2026 MachineNova. All rights reserved.</p>
+                <p>Election Operations Infrastructure</p>
+            </div>
+        </div>
+    </footer>
+    <script src="site.js" defer></script>
+</body>
+</html>

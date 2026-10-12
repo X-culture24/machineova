@@ -4,42 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platforms – MachineNova Election Technology</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a0a0a">
     <meta name="description" content="Four integrated electoral technology platforms: Event Intelligence, Mobilizer, Election Operations Command Center, and Analytics & Intelligence.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles-final.css">
     <link rel="stylesheet" href="styles-modern.css">
     <link rel="stylesheet" href="machinenova.css">
     <link rel="stylesheet" href="effects.css">
+    <link rel="stylesheet" href="site.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo"><img src="assets/logo.png" alt="MachineNova" class="logo-icon"></div>
-                <nav class="nav">
-                    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+                <a class="logo" href="index.html" aria-label="MachineNova home">
+                    <img src="assets/logo.png" alt="MachineNova" class="logo-icon" width="857" height="291" fetchpriority="high">
+                </a>
+                <nav class="nav" aria-label="Main">
+                    <button class="hamburger" id="hamburger" type="button"><span></span><span></span><span></span></button>
                     <ul class="nav-menu" id="navMenu">
                         <li><a href="index.html">Home</a></li>
                         <li class="nav-dropdown">
-                            <a href="platforms.html" class="dropdown-trigger active">Platforms <span class="dd-arrow">&#8964;</span></a>
+                            <a href="platforms.html" class="dropdown-trigger active">Platforms <i class="fa-solid fa-chevron-down dd-arrow" aria-hidden="true"></i></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#event-intelligence">Event Intelligence</a></li>
-                                <li><a href="#mobilizer">Mobilizer Platform</a></li>
-                                <li><a href="#command-center">Election Operations Command Center</a></li>
-                                <li><a href="#analytics">Results &amp; Tallying</a></li>
+                                <li><a href="platforms.html#event-intelligence"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Event Intelligence</a></li>
+                                <li><a href="platforms.html#mobilizer"><i class="fa-solid fa-person-walking" aria-hidden="true"></i> Mobilizer Platform</a></li>
+                                <li><a href="platforms.html#command-center"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Election Operations Command Center</a></li>
+                                <li><a href="platforms.html#analytics"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics &amp; Intelligence</a></li>
+                                <li><a href="platforms.html#field-app"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> Checkin Field App</a></li>
+                                <li><a href="platforms.html#console"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Platform Console &amp; White-label</a></li>
                             </ul>
                         </li>
+                        <li><a href="how-it-works.html">How It Works</a></li>
                         <li><a href="security.html">Security</a></li>
                         <li><a href="case-studies.html">Case Studies</a></li>
                         <li><a href="about.html">About</a></li>
                         <li><a href="book-demo.html">Contact</a></li>
                     </ul>
                 </nav>
-                <button class="cta-btn" onclick="window.location.href='book-demo.html'">Request Demo</button>
+                <a class="cta-btn" href="book-demo.html">Request Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
             </div>
         </div>
     </header>
@@ -49,19 +58,21 @@
         <div class="container">
             <span class="cx-label">Technology Portfolio</span>
             <h1>Election Operations<br>Platforms</h1>
-            <p>Four integrated platforms. One shared data layer. Built for every stage of the electoral cycle — from the first voter scan to the final result.</p>
+            <p>Four integrated platforms, a field app and a multi-tenant console, all on one shared data layer. Built for every stage of the electoral cycle, from the first voter scan to the final result.</p>
         </div>
     </section>
 
     <!-- Platform Nav -->
-    <div class="cx-plat-nav">
+    <nav class="cx-plat-nav" aria-label="Platforms">
         <div class="container">
             <a href="#event-intelligence">01 Event Intelligence</a>
-            <a href="#mobilizer">02 Mobilizer Platform</a>
+            <a href="#mobilizer">02 Mobilizer</a>
             <a href="#command-center">03 Command Center</a>
-            <a href="#analytics">04 Analytics &amp; Intelligence</a>
+            <a href="#analytics">04 Analytics</a>
+            <a href="#field-app">05 Field App</a>
+            <a href="#console">06 Platform Console</a>
         </div>
-    </div>
+    </nav>
 
     <!-- 01 Event Intelligence -->
     <section class="cx-plat-section" id="event-intelligence">
@@ -71,48 +82,17 @@
                     <span class="cx-plat-num">01</span>
                     <span class="cx-label">Political Event Intelligence</span>
                     <h2>Event Intelligence<br>Platform</h2>
-                    <p class="cx-plat-lead">Know exactly who walked through the door — and what that means for your campaign.</p>
-                    <p>Built for rallies, aspirant forums, and internal party gatherings. Upload your guest list, scan national IDs at the entrance, and get a real-time political picture of every attendee. The application is especially valuable for measuring the political reach of an event: organisers can see not only how many people attended, but how many are registered to vote in the relevant electoral area.</p>
-                    <div class="cx-feat-grid">
-                        <div class="cx-feat-item">
-                            <strong>ID Verification</strong>
-                            <p>Scans the national ID at the entrance and confirms the attendee's identity against the loaded guest list.</p>
-                        </div>
-                        <div class="cx-feat-item">
-                            <strong>Voter Lookup</strong>
-                            <p>Indicates whether the attendee is a registered voter and identifies the region in which they are registered.</p>
-                        </div>
-                        <div class="cx-feat-item">
-                            <strong>KYC Verification</strong>
-                            <p>Lightweight Know-Your-Customer verification on the attendee's submitted details against trusted records.</p>
-                        </div>
-                        <div class="cx-feat-item">
-                            <strong>Live Statistics</strong>
-                            <p>Running totals on total check-ins, registered voters, unregistered attendees, and a regional breakdown.</p>
-                        </div>
-                        <div class="cx-feat-item">
-                            <strong>Region Filtering</strong>
-                            <p>Highlights attendees who are registered voters in the region hosting the event versus those visiting from elsewhere.</p>
-                        </div>
-                        <div class="cx-feat-item">
-                            <strong>Mobilization Intelligence</strong>
-                            <p>Attendance data directly informs follow-up mobilization efforts in the relevant electoral area.</p>
-                        </div>
-                    </div>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                    <p class="cx-plat-lead">Know exactly who walked through the door, and what that means for your campaign.</p>
+                    <p>Built for rallies, aspirant forums and internal party gatherings. Upload your guest list, scan national IDs at the entrance, and get a real-time political picture of every attendee. Organisers see not only how many people attended, but how many are registered to vote in the relevant electoral area.</p>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span><strong>ID Verification</strong><p>Scans the national ID at the entrance and confirms the attendee against the register and the loaded guest list.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><strong>Voter Lookup</strong><p>Resolves name, sex, date of birth and registered location: county, constituency, ward and polling centre.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span><strong>KYC Verification</strong><p>Lightweight Know-Your-Customer verification of the attendee's details against trusted records.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></span><strong>Live Statistics</strong><p>Check-ins, unique attendees and out-of-region share, updating instantly with every scan.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-map-pin" aria-hidden="true"></i></span><strong>Region Filtering</strong><p>Region-restricted events flag attendees registered outside the area without blocking them.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span><strong>List-only Events</strong><p>Only IDs on the uploaded participant list can check in. Everyone else is blocked at the gate.</p></div></div>
+                    <h4 class="cx-sub-heading">What operators see at look-up</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">Message</th><th scope="col">What it means</th></tr></thead><tbody><tr><td><span class="mn-pill mn-pill--green">Ready to check in</span></td><td>The voter was found. Confirm their details and tap <strong>Check in</strong>.</td></tr><tr><td><span class="mn-pill mn-pill--blue">Already checked in</span></td><td>Checked in earlier today. The app shows when and by whom, so nothing is double-counted.</td></tr><tr><td><span class="mn-pill mn-pill--amber">Outside this region</span></td><td>Registered outside the event area. Check-in is still allowed and flagged in analytics.</td></tr><tr><td><span class="mn-pill mn-pill--red">Not on the list</span></td><td>For list-only events, the ID isn't on the approved participant list.</td></tr><tr><td><span class="mn-pill mn-pill--grey">Can't look up</span></td><td>A permission or connection problem. Confirm assignment to the event and retry.</td></tr></tbody></table></div>
+                    <p style="margin-top:2rem"><a href="book-demo.html" class="cx-btn">Request a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></p>
                 </div>
                 <div class="cx-plat-visual">
-                    <div class="cx-data-card">
-                        <div class="cx-dc-head">Event Check-In — Live</div>
-                        <div class="cx-dc-stats">
-                            <div class="cx-dc-s"><span class="cx-dc-n">1,247</span><span>Total Check-Ins</span></div>
-                            <div class="cx-dc-s cx-dc-s--blue"><span class="cx-dc-n">984</span><span>Registered Voters</span></div>
-                            <div class="cx-dc-s"><span class="cx-dc-n">263</span><span>Unregistered</span></div>
-                        </div>
-                        <div class="cx-dc-bars">
-                            <div class="cx-dc-bar"><span>Host Region</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:78%"></div></div><span>78%</span></div>
-                            <div class="cx-dc-bar"><span>Visiting</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:22%"></div></div><span>22%</span></div>
-                        </div>
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/web-find-voter.webp" data-caption="Find a voter: select the event, then scan or type the ID number"><img loading="lazy" decoding="async" src="assets/screens/web-find-voter-800.webp" srcset="assets/screens/web-find-voter-800.webp 800w, assets/screens/web-find-voter.webp 1560w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="636" alt="Find a voter: select the event, then scan or type the ID number"></a>
+                        <a class="shot" href="assets/screens/web-coverage.webp" data-caption="Event analytics: check-ins, coverage and ward rankings"><img loading="lazy" decoding="async" src="assets/screens/web-coverage-800.webp" srcset="assets/screens/web-coverage-800.webp 800w, assets/screens/web-coverage.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="504" alt="Event analytics for Mombasa Town Hall with check-ins, coverage and ward rankings"></a>
                     </div>
                 </div>
             </div>
@@ -124,15 +104,12 @@
         <div class="container">
             <div class="cx-plat-grid cx-plat-grid--rev">
                 <div class="cx-plat-visual">
-                    <div class="cx-data-card">
-                        <div class="cx-dc-head">Mobilizer Leaderboard</div>
-                        <div class="cx-mob-list">
-                            <div class="cx-mob-row"><span class="cx-mob-rank">1</span><span class="cx-mob-name">Mobilizer A</span><span class="cx-mob-count">342 voters</span></div>
-                            <div class="cx-mob-row"><span class="cx-mob-rank">2</span><span class="cx-mob-name">Mobilizer B</span><span class="cx-mob-count">289 voters</span></div>
-                            <div class="cx-mob-row"><span class="cx-mob-rank">3</span><span class="cx-mob-name">Mobilizer C</span><span class="cx-mob-count">214 voters</span></div>
-                            <div class="cx-mob-row"><span class="cx-mob-rank">4</span><span class="cx-mob-name">Mobilizer D</span><span class="cx-mob-count">178 voters</span></div>
+                    <div class="shot-stack">
+                        <div class="shot-pair">
+                            <figure><a class="phone-shot" href="assets/screens/app-mobilize.webp" data-caption="Mobilize screen: register a voter and track drive progress to target"><img loading="lazy" decoding="async" src="assets/screens/app-mobilize-360.webp" srcset="assets/screens/app-mobilize-360.webp 360w, assets/screens/app-mobilize.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Mobilize screen: register a voter and track drive progress to target"></a></figure>
+                            <figure><a class="phone-shot" href="assets/screens/app-insights-mobilize.webp" data-caption="Mobilization insights: voters mobilized, percent of target and top mobilizers"><img loading="lazy" decoding="async" src="assets/screens/app-insights-mobilize-360.webp" srcset="assets/screens/app-insights-mobilize-360.webp 360w, assets/screens/app-insights-mobilize.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Mobilization insights: voters mobilized, percent of target and top mobilizers"></a></figure>
                         </div>
-                        <div class="cx-dc-foot">1,023 ID-verified voters captured today</div>
+                        <a class="shot" href="assets/screens/web-dashboard.webp" data-caption="Organization dashboard: top regions by mobilization"><img loading="lazy" decoding="async" src="assets/screens/web-dashboard-800.webp" srcset="assets/screens/web-dashboard-800.webp 800w, assets/screens/web-dashboard.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="529" alt="Organization dashboard: total events, voters mobilized, team members and top regions"></a>
                     </div>
                 </div>
                 <div class="cx-plat-text">
@@ -140,16 +117,16 @@
                     <span class="cx-label">Ground Campaign Infrastructure</span>
                     <h2>Mobilizer<br>Platform</h2>
                     <p class="cx-plat-lead">Replace anecdotal estimates with ID-verified, defensible field data.</p>
-                    <p>A campaign-period tool used to coordinate door-to-door and community mobilization efforts. Each appointed mobilizer is issued credentials and uses the app to scan the national IDs of voters they have engaged. Every scan attributes that voter to the mobilizer who recruited them, producing a transparent record of mobilization performance.</p>
-                    <div class="cx-feat-grid">
-                        <div class="cx-feat-item"><strong>Voter Capture</strong><p>Mobilizers scan voter IDs as they engage citizens, instantly capturing each contact into the central database.</p></div>
-                        <div class="cx-feat-item"><strong>Attribution</strong><p>Every voter captured is linked to the specific mobilizer who recruited them, providing accountability across the field team.</p></div>
-                        <div class="cx-feat-item"><strong>Performance Metrics</strong><p>Per-mobilizer counts so the campaign can identify high performers and areas that need additional support.</p></div>
-                        <div class="cx-feat-item"><strong>Vote Projection</strong><p>Aggregated mobilization data gives a grounded, ID-verified estimate of likely votes in each area.</p></div>
-                        <div class="cx-feat-item"><strong>Regional Coverage</strong><p>Maps mobilization activity geographically so campaign leadership can identify gaps and over-covered areas.</p></div>
-                        <div class="cx-feat-item"><strong>Real-Time Sync</strong><p>All captures sync to the central database in real time, visible to campaign leadership immediately.</p></div>
+                    <p>A campaign-period tool for door-to-door and community mobilization. Each appointed mobilizer gets credentials and uses the app to register the voters they engage. Every registration is attributed to the mobilizer who recruited them, producing a transparent record of performance against target.</p>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-user-plus" aria-hidden="true"></i></span><strong>Voter Capture</strong><p>Mobilizers register voters by ID during outreach. A voter can only be mobilized once per organization.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-link" aria-hidden="true"></i></span><strong>Attribution</strong><p>Every registration is linked to the mobilizer who recruited them, giving accountability across the field team.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i></span><strong>Performance Metrics</strong><p>Per-mobilizer counts and a Top Mobilizers leaderboard show high performers and areas that need support.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></span><strong>Targets by Region</strong><p>Set a registration goal per region and track Mobilized, Remaining and Progress to target.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span><strong>Pace &amp; Momentum</strong><p>Days left, voters still needed and the pace per day required to finish on time.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span><strong>Offline Sync</strong><p>Registrations captured without signal sync automatically when the connection returns.</p></div></div>
+                    <h4 class="cx-sub-heading">Pace status, in one word</h4>
+                    <div class="mn-grid mn-grid--2" style="margin-bottom:2rem">
+                        <div class="mn-card"><span class="mn-pill mn-pill--green">Ahead</span><span class="mn-ico"><i class="fa-solid fa-rocket" aria-hidden="true"></i></span><h4>Ahead of target</h4><p>Moving faster than needed. Hold the line.</p></div>
+                        <div class="mn-card"><span class="mn-pill mn-pill--blue">On track</span><span class="mn-ico"><i class="fa-solid fa-check" aria-hidden="true"></i></span><h4>On track</h4><p>Current pace reaches the goal in time.</p></div>
+                        <div class="mn-card"><span class="mn-pill mn-pill--amber">Behind</span><span class="mn-ico"><i class="fa-solid fa-person-running" aria-hidden="true"></i></span><h4>Behind pace</h4><p>Pick up the pace to finish on time.</p></div>
+                        <div class="mn-card"><span class="mn-pill mn-pill--green">Done</span><span class="mn-ico"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i></span><h4>Target reached</h4><p>The goal is hit for this scope.</p></div>
                     </div>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
         </div>
@@ -163,53 +140,48 @@
                     <span class="cx-plat-num">03</span>
                     <span class="cx-label">Flagship Platform</span>
                     <h2>Election Operations<br>Command Center</h2>
-                    <p class="cx-plat-lead">The operational backbone of election day. Total visibility from national command to individual polling stations.</p>
-                    <p>The most comprehensive platform in the MachineNova suite. It manages the full chain of command — from national administrators down to individual polling-station agents — and captures and aggregates results as they are reported from the field.</p>
+                    <p class="cx-plat-lead">The operational backbone of election day. Total visibility from command to individual polling stations.</p>
+                    <p>The most comprehensive platform in the MachineNova suite. It manages the full chain of command, from the workspace owner down to individual polling-station agents, and captures and aggregates results as they are reported from the field.</p>
 
-                    <h4 class="cx-sub-heading">Structure &amp; Deployment</h4>
-                    <div class="cx-feat-grid">
-                        <div class="cx-feat-item"><strong>Role-Based Access</strong><p>Administrators, regional administrators, managers and agents each have permissions calibrated to their responsibility.</p></div>
-                        <div class="cx-feat-item"><strong>Geographic Scoping</strong><p>Managers can be restricted to a specific region, constituency or ward, ensuring they only oversee their assigned area.</p></div>
-                        <div class="cx-feat-item"><strong>Agent Directory</strong><p>A single interface lists all appointed agents and managers, with contact details readily available for command and coordination.</p></div>
-                        <div class="cx-feat-item"><strong>Add / Remove Users</strong><p>Administrators can onboard or remove managers and agents as the structure evolves before and during the election.</p></div>
-                    </div>
+                    <h4 class="cx-sub-heading">Set up</h4>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span><strong>One Active Election</strong><p>One election is active at a time and scopes every screen. Drafts and past elections sit alongside it.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i></span><strong>Regions From Positions</strong><p>Pick MP and every constituency holds a race; pick MCA and every ward does. Custom positions are supported too.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-users-rectangle" aria-hidden="true"></i></span><strong>Live Candidate Lists</strong><p>Candidates can be added or replaced while the election is live, per position and region.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-book" aria-hidden="true"></i></span><strong>Statutory Registry</strong><p>The official register of polling stations and parties is a read-only reference, picked during setup.</p></div></div>
 
-                    <h4 class="cx-sub-heading">Election-Day Monitoring</h4>
-                    <div class="cx-feat-grid">
-                        <div class="cx-feat-item"><strong>Station Status</strong><p>Confirms which polling stations have opened on time, based on direct reports from agents at each location.</p></div>
-                        <div class="cx-feat-item"><strong>Turnout Tracking</strong><p>Hourly or two-hourly breakdowns of voter turnout by polling centre, region and constituency.</p></div>
-                        <div class="cx-feat-item"><strong>Centralised Visibility</strong><p>All field activity in a single dashboard, allowing senior leadership to intervene where attention is needed.</p></div>
-                    </div>
+                    <h4 class="cx-sub-heading">Operate</h4>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-signal" aria-hidden="true"></i></span><strong>Station Status</strong><p>Open, Reporting, Closed or Issue, set by agents and visible instantly. Uncovered stations are surfaced too.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-user-check" aria-hidden="true"></i></span><strong>Two-tap Assignment</strong><p>Assign agents to a station from the ward pool. Call or WhatsApp them in one tap.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-clock" aria-hidden="true"></i></span><strong>Turnout by Time Slot</strong><p>Cumulative turnout recorded at 7, 9, 11 AM, 1, 3 and 5 PM, checked against registered voters.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span><strong>Incident Reporting</strong><p>KIEMS kit failure, ballot shortage, security concern, absent agent or intimidation. The station is flagged and the admin notified.</p></div></div>
 
-                    <h4 class="cx-sub-heading">Real-Time Results</h4>
-                    <div class="cx-feat-grid">
-                        <div class="cx-feat-item"><strong>Live Tallying</strong><p>Results flow from agents to managers and into the portal, where they are aggregated as they arrive.</p></div>
-                        <div class="cx-feat-item"><strong>Leaderboard View</strong><p>Shows in real time which candidates are leading or trailing across each contested race.</p></div>
-                        <div class="cx-feat-item"><strong>Manager Verification</strong><p>Managers serve as the verification layer, keying in agent submissions to ensure data quality before aggregation.</p></div>
-                        <div class="cx-feat-item"><strong>Visual Dashboards</strong><p>Maps, charts and headline figures that update continuously as the count progresses.</p></div>
-                    </div>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                    <h4 class="cx-sub-heading">Monitor &amp; verify</h4>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-file-signature" aria-hidden="true"></i></span><strong>Form 37A Entry</strong><p>Votes per candidate plus rejected ballots, entered from the signed Form 37A and cross-checked against recorded turnout.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i></span><strong>Provisional Tallies</strong><p>Leader, share and reporting progress per race, drilling down from county to constituency, ward and station.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i></span><strong>Attention Drill-down</strong><p>Turnout versus the scope average, combined with who leads, signals where to push get-out-the-vote.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span><strong>Election Replay</strong><p>Scrub or play back archived election days hour by hour, with lead changes and key events.</p></div></div>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
                 <div class="cx-plat-visual">
-                    <div class="cx-data-card">
-                        <div class="cx-dc-head">Command Center — Live Count</div>
-                        <div class="cx-dc-bars">
-                            <div class="cx-dc-bar"><span>Candidate A</span><div class="cx-bar-track"><div class="cx-bar-fill cx-bar-fill--lead" style="width:54%"></div></div><span>54%</span></div>
-                            <div class="cx-dc-bar"><span>Candidate B</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:31%"></div></div><span>31%</span></div>
-                            <div class="cx-dc-bar"><span>Candidate C</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:15%"></div></div><span>15%</span></div>
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/ops-overview.webp" data-caption="Overview: what needs you now"><img loading="lazy" decoding="async" src="assets/screens/ops-overview-800.webp" srcset="assets/screens/ops-overview-800.webp 800w, assets/screens/ops-overview.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="476" alt="Owner overview with reporting progress, turnout trend and stations needing attention"></a>
+                        <div class="shot-pair">
+                            <a class="shot shot--bare" href="assets/screens/ops-dialog-form37a.webp" data-caption="Submit &amp; verify results (Form 37A)"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-form37a-800.webp" srcset="assets/screens/ops-dialog-form37a-800.webp 800w, assets/screens/ops-dialog-form37a.webp 1600w" sizes="(max-width: 1024px) 94vw, 300px" width="800" height="434" alt="Submit and verify results dialog for Form 37A"></a>
+                            <a class="shot shot--bare" href="assets/screens/ops-dialog-assign.webp" data-caption="Assign agents from the ward pool"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-assign-800.webp" srcset="assets/screens/ops-dialog-assign-800.webp 800w, assets/screens/ops-dialog-assign.webp 1600w" sizes="(max-width: 1024px) 94vw, 300px" width="800" height="432" alt="Assign agents dialog showing the ward pool with call and WhatsApp buttons"></a>
                         </div>
-                        <div class="cx-stations-row">
-                            <span class="cx-dot-g">&#9679;</span> 312 Open &nbsp;
-                            <span class="cx-dot-y">&#9679;</span> 14 Pending &nbsp;
-                            <span class="cx-dot-r">&#9679;</span> 3 Issues
-                        </div>
-                        <div class="cx-dc-bars" style="margin-top:1rem">
-                            <div class="cx-dc-bar"><span>Region A</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:88%"></div></div><span>88%</span></div>
-                            <div class="cx-dc-bar"><span>Region B</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:72%"></div></div><span>72%</span></div>
-                            <div class="cx-dc-bar"><span>Region C</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:61%"></div></div><span>61%</span></div>
-                        </div>
+                        <a class="shot" href="assets/screens/ops-replay.webp" data-caption="Election replay: archived hourly snapshots"><img loading="lazy" decoding="async" src="assets/screens/ops-replay-800.webp" srcset="assets/screens/ops-replay-800.webp 800w, assets/screens/ops-replay.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="478" alt="Election replay of the 2022 election at 3 PM with turnout, margin and timeline"></a>
                     </div>
                 </div>
+            </div>
+
+            <div class="mn-head" style="margin-top:5rem;margin-bottom:1.5rem">
+                <h3 style="color:#fff;font-size:1.4rem;margin-bottom:.4rem">Every screen in the chain of command</h3>
+                <p>Swipe through the workspace. Tap any screen to enlarge it.</p>
+            </div>
+            <div class="mn-strip" tabindex="0" aria-label="Command Center screens">
+                <figure><a class="shot" href="assets/screens/ops-election.webp" data-caption="Election: one active election scopes the workspace"><img loading="lazy" decoding="async" src="assets/screens/ops-election-800.webp" srcset="assets/screens/ops-election-800.webp 800w, assets/screens/ops-election.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="597" alt="Election setup with active election, derived regions and region drill-down"></a><figcaption class="shot-cap"><strong>Election</strong> Regions derived from positions, with drafts and past elections</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-wizard-positions.webp" data-caption="New election wizard: positions on the ballot"><img loading="lazy" decoding="async" src="assets/screens/ops-wizard-positions-800.webp" srcset="assets/screens/ops-wizard-positions-800.webp 800w, assets/screens/ops-wizard-positions.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="482" alt="New election wizard, positions step"></a><figcaption class="shot-cap"><strong>New election</strong> Details, scope, positions, candidates, review</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-candidates.webp" data-caption="Positions &amp; candidates"><img loading="lazy" decoding="async" src="assets/screens/ops-candidates-800.webp" srcset="assets/screens/ops-candidates-800.webp 800w, assets/screens/ops-candidates.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="597" alt="Positions and candidates grouped by race"></a><figcaption class="shot-cap"><strong>Candidates</strong> Editable while the election is live</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-registry.webp" data-caption="Registry: statutory, read-only"><img loading="lazy" decoding="async" src="assets/screens/ops-registry-800.webp" srcset="assets/screens/ops-registry-800.webp 800w, assets/screens/ops-registry.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="476" alt="Read-only statutory register of polling stations"></a><figcaption class="shot-cap"><strong>Registry</strong> Official stations and registered voters</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-people.webp" data-caption="People: one directory, role and geography scoped"><img loading="lazy" decoding="async" src="assets/screens/ops-people-800.webp" srcset="assets/screens/ops-people-800.webp 800w, assets/screens/ops-people.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="476" alt="One people directory with roles, areas, contacts and national IDs"></a><figcaption class="shot-cap"><strong>People</strong> One directory, scoped by role and geography</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-dialog-add-person.webp" data-caption="Add person: role and area decide what they see"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-add-person-800.webp" srcset="assets/screens/ops-dialog-add-person-800.webp 800w, assets/screens/ops-dialog-add-person.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="444" alt="Add person dialog with role and cascading constituency, ward and station scope"></a><figcaption class="shot-cap"><strong>Add person</strong> Role plus cascading area</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-station-drawer.webp" data-caption="Station record"><img loading="lazy" decoding="async" src="assets/screens/ops-station-drawer-800.webp" srcset="assets/screens/ops-station-drawer-800.webp 800w, assets/screens/ops-station-drawer.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="597" alt="Station drawer with quick actions, agents and activity"></a><figcaption class="shot-cap"><strong>Station record</strong> Quick actions and full history</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-dialog-status.webp" data-caption="Update station status"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-status-800.webp" srcset="assets/screens/ops-dialog-status-800.webp 800w, assets/screens/ops-dialog-status.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="432" alt="Update station status dialog"></a><figcaption class="shot-cap"><strong>Status</strong> Open, Reporting, Closed or Issue</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-dialog-turnout.webp" data-caption="Record turnout by time slot"><img loading="lazy" decoding="async" src="assets/screens/ops-dialog-turnout-800.webp" srcset="assets/screens/ops-dialog-turnout-800.webp 800w, assets/screens/ops-dialog-turnout.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="432" alt="Record voter turnout by time slot dialog"></a><figcaption class="shot-cap"><strong>Turnout</strong> Cumulative, by time slot</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-turnout.webp" data-caption="Voter turnout: drill down to where attention is needed"><img loading="lazy" decoding="async" src="assets/screens/ops-turnout-800.webp" srcset="assets/screens/ops-turnout-800.webp 800w, assets/screens/ops-turnout.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="596" alt="Voter turnout monitor with attention drill-down and hourly rollup"></a><figcaption class="shot-cap"><strong>Turnout monitor</strong> Hourly rollup by constituency</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-results.webp" data-caption="Results: provisional tallies"><img loading="lazy" decoding="async" src="assets/screens/ops-results-800.webp" srcset="assets/screens/ops-results-800.webp 800w, assets/screens/ops-results.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="476" alt="Provisional results per race with region drill-down"></a><figcaption class="shot-cap"><strong>Results</strong> Provisional tallies by race</figcaption></figure>
+                <figure><a class="shot" href="assets/screens/ops-overview-manager.webp" data-caption="Ward manager overview"><img loading="lazy" decoding="async" src="assets/screens/ops-overview-manager-800.webp" srcset="assets/screens/ops-overview-manager-800.webp 800w, assets/screens/ops-overview-manager.webp 1600w" sizes="(max-width: 1024px) 80vw, 420px" width="800" height="466" alt="Ward manager overview scoped to Kakrao Ward"></a><figcaption class="shot-cap"><strong>Manager view</strong> Scoped to one ward: my stations, my agents</figcaption></figure>
             </div>
         </div>
     </section>
@@ -219,18 +191,9 @@
         <div class="container">
             <div class="cx-plat-grid cx-plat-grid--rev">
                 <div class="cx-plat-visual">
-                    <div class="cx-data-card">
-                        <div class="cx-dc-head">Regional Intelligence</div>
-                        <div class="cx-dc-stats">
-                            <div class="cx-dc-s"><span class="cx-dc-n">68%</span><span>Registered</span></div>
-                            <div class="cx-dc-s cx-dc-s--blue"><span class="cx-dc-n">32%</span><span>Unregistered</span></div>
-                        </div>
-                        <div class="cx-dc-bars">
-                            <div class="cx-dc-bar"><span>North</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:82%"></div></div><span>82%</span></div>
-                            <div class="cx-dc-bar"><span>South</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:61%"></div></div><span>61%</span></div>
-                            <div class="cx-dc-bar"><span>East</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:74%"></div></div><span>74%</span></div>
-                            <div class="cx-dc-bar"><span>West</span><div class="cx-bar-track"><div class="cx-bar-fill" style="width:55%"></div></div><span>55%</span></div>
-                        </div>
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/ops-turnout.webp" data-caption="Turnout signals: where to push GOTV"><img loading="lazy" decoding="async" src="assets/screens/ops-turnout-800.webp" srcset="assets/screens/ops-turnout-800.webp 800w, assets/screens/ops-turnout.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="596" alt="Turnout versus scope average by constituency, with leading candidate and signal"></a>
+                        <a class="shot" href="assets/screens/ops-reports.webp" data-caption="Reports: CSV and PDF exports"><img loading="lazy" decoding="async" src="assets/screens/ops-reports-800.webp" srcset="assets/screens/ops-reports-800.webp 800w, assets/screens/ops-reports.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="476" alt="Reports page with station coverage, turnout by region, results summary and incident log exports"></a>
                     </div>
                 </div>
                 <div class="cx-plat-text">
@@ -238,39 +201,112 @@
                     <span class="cx-label">Polling Intelligence &amp; Strategy</span>
                     <h2>Analytics &amp;<br>Intelligence</h2>
                     <p class="cx-plat-lead">Strategic intelligence that informs campaign planning and election-day strategy.</p>
-                    <p>Alongside the operational platforms, MachineNova offers a research and analytics capability that supports strategic decision-making. The team conducts surveys and processes voter registration and demographic data to produce regional intelligence.</p>
-                    <div class="cx-feat-grid">
-                        <div class="cx-feat-item"><strong>Registration Analysis</strong><p>Quantifies, by region, how many citizens are registered to vote and how many remain unregistered.</p></div>
-                        <div class="cx-feat-item"><strong>Demographic Profiling</strong><p>Identifies the dominant communities in a particular region and other demographic dynamics relevant to political strategy.</p></div>
-                        <div class="cx-feat-item"><strong>Voter Breakdown</strong><p>Region-by-region analysis of the voter population, useful for targeting both mobilization and campaign messaging.</p></div>
-                        <div class="cx-feat-item"><strong>Strategic Insight</strong><p>Combines field data with survey work to surface the political dynamics at play in each region.</p></div>
-                        <div class="cx-feat-item"><strong>Turnout Trends</strong><p>Historical and real-time turnout analysis to identify high-priority areas for mobilization focus.</p></div>
-                        <div class="cx-feat-item"><strong>Survey Intelligence</strong><p>Structured survey capability to gather voter sentiment and political preference data at scale.</p></div>
-                    </div>
-                    <a href="book-demo.html" class="cx-btn">Request a Demo &rarr;</a>
+                    <p>Alongside the operational platforms, MachineNova offers a research and analytics capability. The team runs surveys and processes voter registration and demographic data to produce regional intelligence, and every operational number feeds the same picture.</p>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-address-card" aria-hidden="true"></i></span><strong>Registration Analysis</strong><p>Quantifies, by region, how many citizens are registered to vote and how many remain unregistered.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-people-group" aria-hidden="true"></i></span><strong>Demographic Profiling</strong><p>Gender mix, top age group and the community dynamics relevant to political strategy.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i></span><strong>Coverage Analytics</strong><p>Check-ins against the people available, drilled down by constituency, ward or polling centre.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i></span><strong>Push Here Next</strong><p>Low-coverage areas surfaced automatically, so effort goes where it does the most good.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-chart-area" aria-hidden="true"></i></span><strong>Turnout Trends</strong><p>Historical replays and real-time turnout to identify high-priority areas for mobilization.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-clipboard-question" aria-hidden="true"></i></span><strong>Survey Intelligence</strong><p>Structured surveys to gather voter sentiment and political preference data at scale.</p></div></div>
+                    <h4 class="cx-sub-heading">Coverage status, at a glance</h4>
+                    <div class="mn-table-wrap"><table class="mn-table"><thead><tr><th scope="col">Status</th><th scope="col">What it means</th></tr></thead><tbody><tr><td><span class="mn-pill mn-pill--green">Strong</span></td><td>Coverage is high. This area is in good shape.</td></tr><tr><td><span class="mn-pill mn-pill--blue">Moderate</span></td><td>Decent coverage, with room to grow.</td></tr><tr><td><span class="mn-pill mn-pill--amber">Low</span></td><td>Coverage is thin and worth more attention.</td></tr><tr><td><span class="mn-pill mn-pill--red">Critical</span></td><td>Very low coverage. A priority to push.</td></tr><tr><td><span class="mn-pill mn-pill--grey">Not started</span></td><td>No activity here yet.</td></tr></tbody></table></div>
+                    <h4 class="cx-sub-heading">Exports, scoped to your area</h4>
+                    <ul class="mn-checks"><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span><strong>Station coverage</strong>: agents per station, the uncovered list and manager contacts.</span></li><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span><strong>Turnout by region</strong>: hourly cumulative turnout at every level of your area.</span></li><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span><strong>Results summary</strong>: provisional tallies per position with verification status per station.</span></li><li><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span><strong>Incident log</strong>: every flag raised, with type, note, resolution and timing.</span></li></ul>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- 05 Field App -->
+    <section class="cx-plat-section" id="field-app">
+        <div class="container">
+            <div class="mn-head">
+                <span class="cx-plat-num">05</span>
+                <span class="cx-label">Checkin Field App</span>
+                <h2 style="color:#fff;font-size:2.2rem;margin-bottom:1rem">One App for the Whole Ground Game</h2>
+                <p>The Android field app for door-to-door work and on-site check-ins: big tap targets, ID scanning and offline support. Four tabs (Home, People, Insights, Account) and one colour rule: <strong style="color:#2dd4bf">teal means check-in</strong>, <strong style="color:#fbbf24">amber means mobilize</strong>.</p>
+            </div>
+            <div class="phone-row" style="margin-bottom:3rem">
+                <figure><a class="phone-shot" href="assets/screens/app-signin.webp" data-caption="Sign in"><img loading="lazy" decoding="async" src="assets/screens/app-signin-360.webp" srcset="assets/screens/app-signin-360.webp 360w, assets/screens/app-signin.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Checkin sign-in screen"></a><figcaption><strong>Sign in</strong>User ID or email and password. Lands on the right home for your role.</figcaption></figure>
+                <figure><a class="phone-shot" href="assets/screens/app-confirm.webp" data-caption="Confirm &amp; check in"><img loading="lazy" decoding="async" src="assets/screens/app-confirm-360.webp" srcset="assets/screens/app-confirm-360.webp 360w, assets/screens/app-confirm.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Confirm and check in screen with a matched, in-region voter"></a><figcaption><strong>Confirm &amp; check in</strong>Register details resolved from the ID, flagged in or out of region.</figcaption></figure>
+                <figure><a class="phone-shot" href="assets/screens/app-insights-checkin.webp" data-caption="Insights"><img loading="lazy" decoding="async" src="assets/screens/app-insights-checkin-360.webp" srcset="assets/screens/app-insights-checkin-360.webp 360w, assets/screens/app-insights-checkin.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="Check-in insights with check-ins by hour and gender mix"></a><figcaption><strong>Insights</strong>Total and unique check-ins, in-region rate, peak hour, gender mix.</figcaption></figure>
+                <figure><a class="phone-shot" href="assets/screens/app-people.webp" data-caption="People"><img loading="lazy" decoding="async" src="assets/screens/app-people-360.webp" srcset="assets/screens/app-people-360.webp 360w, assets/screens/app-people.webp 640w" sizes="(max-width: 1024px) 45vw, 260px" width="360" height="739" alt="People tab listing checked-in voters with region badges"></a><figcaption><strong>People</strong>Everyone you checked in or mobilized, filterable by event.</figcaption></figure>
+            </div>
+            <div class="mn-grid">
+                <div class="mn-card"><span class="mn-ico"><i class="fa-solid fa-wifi" aria-hidden="true"></i></span><h4>Works offline</h4><p>Mobilization and check-in keep working without signal and sync later.</p></div>
+                <div class="mn-card"><span class="mn-ico"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i></span><h4>Built for thumbs</h4><p>Hit targets are never smaller than 44px. Dialogs become bottom sheets within thumb reach.</p></div>
+                <div class="mn-card"><span class="mn-ico"><i class="fa-solid fa-lock" aria-hidden="true"></i></span><h4>Private distribution</h4><p>Downloaded from inside your organization's dashboard after sign-in, with no public app-store listing.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 Platform Console -->
+    <section class="cx-plat-section cx-plat-section--alt" id="console">
+        <div class="container">
+            <div class="cx-plat-grid">
+                <div class="cx-plat-text">
+                    <span class="cx-plat-num">06</span>
+                    <span class="cx-label">Multi-tenant &amp; White-label</span>
+                    <h2>Platform Console<br>&amp; White-label</h2>
+                    <p class="cx-plat-lead">Run many campaigns and observer missions on one platform, each in its own branded, geographically bounded workspace.</p>
+                    <p>Every organization is bounded to a geography from day one, whether a county or a single constituency, and everything inside it is scoped to that boundary. Members simply sign in, with no subdomains to configure.</p>
+                    <div class="cx-feat-grid"><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-building" aria-hidden="true"></i></span><strong>Organizations</strong><p>See every tenant's members, stations, agents and status (Active, Trial or Inactive) from one console.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span><strong>Five-step Onboarding</strong><p>Organization, boundary, branding, first admin, review. A new workspace is ready in minutes.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-palette" aria-hidden="true"></i></span><strong>White-label Branding</strong><p>Organization name, accent color and sign-in screen, applied live to the sidebar, buttons and charts.</p></div><div class="cx-feat-item"><span class="mn-ico mn-ico--sm"><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i></span><strong>Email Templates</strong><p>Agent invites, daily turnout digests, password resets and results announcements, with merge fields.</p></div></div>
+                    <div class="mn-callout"><i class="fa-solid fa-code" aria-hidden="true"></i><p>Templates use merge fields such as <strong>{{{{org_name}}}}</strong>, <strong>{{{{election_name}}}}</strong>, <strong>{{{{recipient_name}}}}</strong>, <strong>{{{{turnout_pct}}}}</strong> and <strong>{{{{sign_in_link}}}}</strong>. Organizations can override the platform library.</p></div>
+                    <a href="book-demo.html" class="cx-btn">Request a Demo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="cx-plat-visual">
+                    <div class="shot-stack">
+                        <a class="shot" href="assets/screens/console-overview.webp" data-caption="Platform console: every tenant at a glance"><img loading="lazy" decoding="async" src="assets/screens/console-overview-800.webp" srcset="assets/screens/console-overview-800.webp 800w, assets/screens/console-overview.webp 1600w" sizes="(max-width: 1024px) 94vw, 620px" width="800" height="470" alt="Platform console overview with organizations, members, polling stations and field agents across all tenants"></a>
+                        <div class="shot-pair">
+                            <a class="shot shot--bare" href="assets/screens/ops-branding.webp" data-caption="Branding: applied live for every member"><img loading="lazy" decoding="async" src="assets/screens/ops-branding-800.webp" srcset="assets/screens/ops-branding-800.webp 800w, assets/screens/ops-branding.webp 1600w" sizes="(max-width: 1024px) 94vw, 300px" width="800" height="476" alt="Branding settings with organization name, accent color and sign-in preview"></a>
+                            <a class="shot shot--bare" href="assets/screens/console-email.webp" data-caption="Email templates &amp; merge fields"><img loading="lazy" decoding="async" src="assets/screens/console-email-800.webp" srcset="assets/screens/console-email-800.webp 800w, assets/screens/console-email.webp 1600w" sizes="(max-width: 1024px) 94vw, 300px" width="800" height="470" alt="Email template editor with merge fields"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="cx-footer">
         <div class="container">
             <div class="cx-footer-top">
                 <div class="cx-footer-brand">
-                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo">
+                    <img src="assets/logo.png" alt="MachineNova" class="cx-footer-logo" width="857" height="291" loading="lazy" decoding="async">
                     <p>Election Operations Infrastructure for Modern Political Campaigns.</p>
-                    <div class="cx-social">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://x.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-x-twitter"></i></a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    </div>
                 </div>
                 <div class="cx-footer-cols">
-                    <div class="cx-footer-col"><h5>Platforms</h5><ul><li><a href="#event-intelligence">Event Intelligence</a></li><li><a href="#mobilizer">Mobilizer Platform</a></li><li><a href="#command-center">Command Center</a></li><li><a href="#analytics">Analytics &amp; Intelligence</a></li></ul></div>
-                    <div class="cx-footer-col"><h5>Company</h5><ul><li><a href="about.html">About</a></li><li><a href="security.html">Security</a></li><li><a href="case-studies.html">Case Studies</a></li><li><a href="book-demo.html">Contact</a></li></ul></div>
-                    <div class="cx-footer-col"><h5>Contact</h5><ul><li><a href="mailto:info@machinenova.com">info@machinenova.com</a></li><li>+254 712 345 678</li><li>Nairobi, Kenya</li></ul></div>
+                    <div class="cx-footer-col">
+                        <h5>Platforms</h5>
+                        <ul>
+                            <li><a href="platforms.html#event-intelligence">Event Intelligence</a></li>
+                            <li><a href="platforms.html#mobilizer">Mobilizer Platform</a></li>
+                            <li><a href="platforms.html#command-center">Command Center</a></li>
+                            <li><a href="platforms.html#analytics">Analytics &amp; Intelligence</a></li>
+                            <li><a href="platforms.html#field-app">Checkin Field App</a></li>
+                            <li><a href="platforms.html#console">Platform Console</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Company</h5>
+                        <ul>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="how-it-works.html">How It Works</a></li>
+                            <li><a href="security.html">Security</a></li>
+                            <li><a href="case-studies.html">Case Studies</a></li>
+                            <li><a href="book-demo.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Contact</h5>
+                        <ul>
+                            <li><i class="fa-solid fa-envelope" aria-hidden="true"></i> <a href="mailto:sawe@machinenova.com">sawe@machinenova.com</a></li>
+                            <li><i class="fa-solid fa-phone" aria-hidden="true"></i> <a href="tel:+254713657732">+254 713 657 732</a></li>
+                            <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Nairobi, Kenya</li>
+                        </ul>
+                    </div>
+                    <div class="cx-footer-col">
+                        <h5>Legal</h5>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="cx-footer-bottom">
@@ -279,8 +315,6 @@
             </div>
         </div>
     </footer>
-    <script src="script.js"></script>
-    <script src="machinenova.js"></script>
-    <script src="effects.js"></script>
+    <script src="site.js" defer></script>
 </body>
 </html>
