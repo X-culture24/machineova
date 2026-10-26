@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"net/http"
 	"sort"
@@ -254,6 +255,26 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 		s.internal(w, r, err)
 		return
 	}
+	// Agents act only on their own station: their list holds just that station's items, and
+	// never "assign an agent" (they can't). Everyone else sees their whole scope.
+	var mine map[string]bool
+	if p.Role == "agent" {
+		rows, err := s.db.Query(ctx, `SELECT station_code FROM station_agents WHERE election_id=$1 AND user_id=$2`, e.ID, p.UserID)
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		codes, err := pgx.CollectRows(rows, pgx.RowTo[string])
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		mine = map[string]bool{}
+		for _, c := range codes {
+			mine[c] = true
+		}
+	}
+	canVerify := opsRank[p.Role] >= opsRank["manager"]
 	var out struct {
 		Election   election        `json:"election"`
 		Scope      scope           `json:"scope"`
@@ -276,7 +297,7 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 	}
 	out.Election, out.Scope, out.ScopeLabel, out.Stations = e, sc, sc.label(), len(stations)
 	out.Attention = []attentionItem{}
-	var issues, uncovered, verify []attentionItem
+	var issues, uncovered, results []attentionItem
 	for i := range stations {
 		st := &stations[i]
 		out.Registered += st.Registered
@@ -287,15 +308,22 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 			out.LastUpdate = st.UpdatedAt
 		}
 		area := st.Ward + " Ward · " + st.Constituency
+		listed := mine == nil || mine[st.Code]
 		switch st.Status {
 		case "reporting":
 			out.Reported++
 		case "closed":
 			out.Reported++
 			out.Closed++
-			if st.Results < len(positions) || st.Pending > 0 {
+			missing := len(positions) - st.Results - st.Pending
+			if missing > 0 || st.Pending > 0 {
 				out.ToVerify++
-				verify = append(verify, attentionItem{st.Code, st.Name, area, "Results to verify", "verify", "Verify results"})
+			}
+			// Waiting on a manager's verification, or never entered: different jobs, different people.
+			if st.Pending > 0 && canVerify && listed {
+				results = append(results, attentionItem{st.Code, st.Name, area, fmt.Sprintf("%d result%s to verify", st.Pending, plural(st.Pending)), "verify", "Verify results"})
+			} else if missing > 0 && listed {
+				results = append(results, attentionItem{st.Code, st.Name, area, fmt.Sprintf("%d result%s not entered", missing, plural(missing)), "verify", "Enter results"})
 			}
 		case "open":
 			out.Open++
@@ -305,14 +333,20 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 			if st.LastIncident != nil {
 				reason = *st.LastIncident
 			}
-			issues = append(issues, attentionItem{st.Code, st.Name, area, reason, "issue", "Review"})
+			if listed {
+				issues = append(issues, attentionItem{st.Code, st.Name, area, reason, "issue", "Review"})
+			}
 		}
 		if st.Uncovered() {
 			out.Uncovered++
-			uncovered = append(uncovered, attentionItem{st.Code, st.Name, area, "No agent assigned", "uncovered", "Assign agent"})
+			if mine == nil {
+				uncovered = append(uncovered, attentionItem{st.Code, st.Name, area, "No agent assigned", "uncovered", "Assign agent"})
+			}
 		}
 	}
-	out.Attention = append(append(append(out.Attention, issues...), uncovered...), verify...)
+	// Most urgent first: incidents, then results (election night), then coverage. Uncovered
+	// stations come last because before polling day nearly every station is uncovered.
+	out.Attention = append(append(append(out.Attention, issues...), results...), uncovered...)
 	out.AttentionN = len(out.Attention)
 	if len(out.Attention) > attentionShown {
 		// A nationwide election starts with ~30,000 uncovered stations: send a page, not megabytes.

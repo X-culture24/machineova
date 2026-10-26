@@ -77,15 +77,20 @@ class _OpsHomeScreenState extends State<OpsHomeScreen> {
               KpiTile(
                   label: 'Reporting',
                   value: fmtPct(d.stations == 0 ? 0 : d.reported / d.stations),
+                  accent: AppColors.purple,
                   caption: '${fmtNum(d.reported)} of ${fmtNum(d.stations)}'),
-              KpiTile(label: 'Open', value: fmtNum(d.open), caption: '${fmtNum(d.closed)} closed'),
               KpiTile(
-                  label: 'Turnout', value: fmtPct(d.turnout), caption: '${fmtNum(d.cast)} of ${fmtNum(d.registered)}'),
+                  label: 'Open', value: fmtNum(d.open), accent: AppColors.green, caption: '${fmtNum(d.closed)} closed'),
+              KpiTile(
+                  label: 'Turnout',
+                  value: fmtPct(d.turnout),
+                  accent: AppColors.teal,
+                  caption: '${fmtNum(d.cast)} of ${fmtNum(d.registered)}'),
               KpiTile(
                   label: 'Needs me',
                   value: fmtNum(d.attentionCount),
                   accent: AppColors.amber,
-                  caption: '${fmtNum(d.issues)} issues · ${fmtNum(d.uncovered)} uncovered'),
+                  caption: '${fmtNum(d.issues)} ${d.issues == 1 ? 'issue' : 'issues'} · ${fmtNum(d.uncovered)} uncovered'),
             ]),
             SectionCard(
               title: 'Needs attention',
@@ -106,7 +111,12 @@ class _OpsHomeScreenState extends State<OpsHomeScreen> {
                               }),
                           title: Text(a.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                           subtitle: Text(a.reason,
-                              style: TextStyle(color: a.kind == 'issue' ? AppColors.red : AppColors.amber)),
+                              style: TextStyle(
+                                  color: switch (a.kind) {
+                                'issue' => AppColors.red,
+                                'uncovered' => AppColors.amber,
+                                _ => const Color(0xFF2563C9),
+                              })),
                           trailing: OutlinedButton(onPressed: () => _open(a), child: Text(a.action.split(' ').first)),
                           onTap: () => _open(a),
                         ),

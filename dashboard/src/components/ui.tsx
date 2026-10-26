@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from "react";
+import { Icon, iconFor, type IconName } from "./icons";
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
@@ -26,13 +27,26 @@ export function Card({ title, extra, children, className = "" }: { title?: strin
   );
 }
 
-export function Kpi({ label, value, caption, tone, progress }: { label: string; value: ReactNode; caption?: ReactNode; tone?: "teal" | "amber"; progress?: number }) {
+export function Kpi({ label, value, caption, tone, progress, icon }: {
+  label: string;
+  value: ReactNode;
+  caption?: ReactNode;
+  tone?: "teal" | "amber" | "red" | "blue";
+  progress?: number;
+  /** Defaults to an icon chosen from the label. */
+  icon?: IconName;
+}) {
+  const name = icon ?? iconFor(label);
   return (
-    <div className={`kpi ${tone ?? ""}`}>
-      <div className="kpi-label">{label}</div>
+    <div className={`kpi kpi-${tone ?? "ink"}`}>
+      <Icon name={name} size={112} className="kpi-watermark" />
+      <div className="kpi-top">
+        <div className="kpi-label">{label}</div>
+        <span className="kpi-orb"><Icon name={name} size={20} /></span>
+      </div>
       <div className="kpi-value">{value}</div>
       {caption && <div className="kpi-caption">{caption}</div>}
-      {progress !== undefined && <ProgressBar value={progress} tone={tone} />}
+      {progress !== undefined && <ProgressBar value={progress} tone={tone === "amber" ? "amber" : "teal"} />}
     </div>
   );
 }

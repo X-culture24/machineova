@@ -28,6 +28,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver, Si
   bool _torch = false;
   bool _busy = false; // a frame is being processed
   bool _confirming = false; // confirm sheet is open
+  int _failures = 0; // consecutive frames recognition threw on
   DateTime _lastFrame = DateTime.fromMillisecondsSinceEpoch(0);
   String _hint = 'Point at the front (ID number) or the back (MRZ) of the card';
 
@@ -129,8 +130,13 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver, Si
         setState(() => _hint = 'Move closer so the ID number fills the frame');
       }
       if (stable != null) await _confirm(stable);
+      _failures = 0;
     } catch (e) {
       debugPrint('scan frame failed: $e');
+      // A failing recogniser would otherwise look like "nothing happens": say so.
+      if (++_failures == 5 && mounted) {
+        setState(() => _hint = 'The scanner can\'t read on this phone right now. Tap "Type ID" to enter the number.');
+      }
     } finally {
       _busy = false;
     }
@@ -170,7 +176,14 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver, Si
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 95);
     if (picked == null || !mounted) return;
     setState(() => _hint = 'Reading the photo…');
-    final found = await _read(InputImage.fromFilePath(picked.path));
+    final List<IdCandidate> found;
+    try {
+      found = await _read(InputImage.fromFilePath(picked.path));
+    } catch (e) {
+      debugPrint('scan photo failed: $e');
+      if (mounted) setState(() => _hint = 'Couldn\'t read that photo. Try another, or tap "Type ID".');
+      return;
+    }
     if (!mounted) return;
     if (found.isEmpty) {
       setState(() => _hint = 'No ID number found in that photo. Try a closer, sharper picture.');

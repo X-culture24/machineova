@@ -43,7 +43,7 @@ export default function OpsOverview() {
           {ward && (
             <div className="grid quick-links">
               <Link className="quick-link" to="/ops/stations"><strong>My stations</strong><small className="muted">{num(data.stations)} stations in {data.scope_label}</small></Link>
-              <Link className="quick-link" to="/ops/stations?status=issue"><strong>Needs attention</strong><small className="muted">{num(data.attention_count)} to clear</small></Link>
+              <Link className="quick-link" to="/ops/stations?status=issue"><strong>Open issues</strong><small className="muted">{num(data.issues)} {data.issues === 1 ? "station" : "stations"} flagged</small></Link>
               <Link className="quick-link" to="/ops/people?role=agent"><strong>My agents</strong><small className="muted">{num(data.agents)} agents · tap to call</small></Link>
             </div>
           )}
@@ -55,7 +55,7 @@ export default function OpsOverview() {
             <Kpi label="Turnout so far" value={pct(data.turnout)} caption={`${num(data.cast)} of ${num(data.registered)} registered`}
               progress={data.turnout} tone="teal" />
             <Kpi label="Needs attention" value={num(data.attention_count)}
-              caption={`${num(data.issues)} issues · ${num(data.uncovered)} uncovered · ${num(data.to_verify)} to verify`} tone="amber" />
+              caption={`${num(data.issues)} ${data.issues === 1 ? "issue" : "issues"} · ${num(data.uncovered)} uncovered · ${num(data.to_verify)} to verify`} tone="amber" />
           </div>
           <div className="grid cols-2">
             <Card title={`Turnout trend — ${data.scope_label}`} extra={data.last_update && <small className="muted">Last updated {time(data.last_update)}</small>}>

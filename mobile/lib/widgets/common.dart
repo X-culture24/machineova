@@ -58,28 +58,99 @@ class RegionPill extends StatelessWidget {
       : const Pill('OUT REGION', fg: AppColors.amber, bg: AppColors.amberSoft);
 }
 
+/// KPI tile: a wash of the accent colour, a glowing icon orb and a large watermark of the icon.
+/// The icon is picked from the label unless one is given.
 class KpiTile extends StatelessWidget {
   final String label, value;
   final String? caption;
   final Color accent;
-  const KpiTile({super.key, required this.label, required this.value, this.caption, this.accent = AppColors.teal});
+  final IconData? icon;
+  const KpiTile(
+      {super.key, required this.label, required this.value, this.caption, this.accent = AppColors.purple, this.icon});
+
+  static IconData iconFor(String label) {
+    final l = label.toLowerCase();
+    const rules = <(String, IconData)>[
+      ('need', Icons.priority_high_rounded),
+      ('issue', Icons.priority_high_rounded),
+      ('turnout', Icons.how_to_vote_rounded),
+      ('report', Icons.insights_rounded),
+      ('open', Icons.storefront_rounded),
+      ('check-in', Icons.verified_rounded),
+      ('unique', Icons.fingerprint_rounded),
+      ('mobiliz', Icons.campaign_rounded),
+      ('remaining', Icons.flag_rounded),
+      ('target', Icons.track_changes_rounded),
+      ('team', Icons.groups_rounded),
+      ('voter', Icons.badge_rounded),
+      ('region', Icons.place_rounded),
+      ('peak', Icons.schedule_rounded),
+    ];
+    for (final (key, ic) in rules) {
+      if (l.contains(key)) return ic;
+    }
+    return Icons.bar_chart_rounded;
+  }
 
   @override
-  Widget build(BuildContext context) => Card(
-        clipBehavior: Clip.antiAlias,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(border: Border(top: BorderSide(color: accent, width: 3))),
+  Widget build(BuildContext context) {
+    final ic = icon ?? iconFor(label);
+    final deep = Color.lerp(accent, Colors.black, .22)!;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Color.lerp(AppColors.border, accent, .22)!),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [Color.lerp(Colors.white, accent, .13)!, Colors.white],
+          stops: const [0, .7],
+        ),
+        boxShadow: [BoxShadow(color: accent.withValues(alpha: .16), blurRadius: 18, offset: const Offset(0, 8))],
+      ),
+      child: Stack(children: [
+        Positioned(
+          right: -14,
+          bottom: -18,
+          child: Transform.rotate(angle: -.2, child: Icon(ic, size: 84, color: accent.withValues(alpha: .08))),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label.toUpperCase(),
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.muted, fontWeight: FontWeight.w600, letterSpacing: .5)),
-            const SizedBox(height: 6),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
-            if (caption != null) Text(caption!, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Text(label.toUpperCase(),
+                      style: const TextStyle(
+                          fontSize: 10.5, color: AppColors.muted, fontWeight: FontWeight.w600, letterSpacing: .6)),
+                ),
+              ),
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color.lerp(accent, Colors.white, .25)!, accent, deep],
+                  ),
+                  boxShadow: [BoxShadow(color: accent.withValues(alpha: .4), blurRadius: 10, offset: const Offset(0, 4))],
+                ),
+                child: Icon(ic, size: 18, color: Colors.white),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Text(value, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -.3)),
+            if (caption != null)
+              Text(caption!, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
           ]),
         ),
-      );
+      ]),
+    );
+  }
 }
 
 /// Two KPI tiles per row.

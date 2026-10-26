@@ -38,7 +38,8 @@ cp -R "$ROOT/dashboard/dist" "$STAGE/dashboard"
 
 if [[ "${DEPLOY_APK:-}" == 1 ]]; then
   step "Build field app APK"
-  export JAVA_HOME="${JAVA_HOME:-$HOME/development/jdk-17/Contents/Home}" PATH="$JAVA_HOME/bin:$PATH"
+  export JAVA_HOME="${JAVA_HOME:-$HOME/development/jdk-17/Contents/Home}"
+  export PATH="$JAVA_HOME/bin:$PATH"
   FLUTTER="${FLUTTER:-$(command -v flutter || echo "$HOME/development/flutter/bin/flutter")}"
   (cd "$ROOT/mobile" && "$FLUTTER" build apk --release --dart-define=API_URL="$PUBLIC_URL" >/dev/null)
   cp "$ROOT/mobile/build/app/outputs/flutter-apk/app-release.apk" "$STAGE/MachineNova.apk"
