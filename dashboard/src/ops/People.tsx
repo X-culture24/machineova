@@ -101,7 +101,7 @@ function AddPersonModal({ onClose, onAdded }: { onClose: () => void; onAdded: ()
   const { me } = useAuth();
   const myRank = rank[me?.role ?? ""] ?? 0;
   const roles = (["executive", "admin", "chief_agent", "manager", "agent"] as OpsRole[]).filter((r) => rank[r]! < myRank);
-  const regions = useAsync(ops.regions, []);
+  const regions = useAsync(ops.areas, []);
   const [f, setF] = useState({
     role: roles[roles.length - 1] ?? "agent", name: "", phone: "", national_id: "", email: "", password: "",
     county: me?.scope.county ?? me?.organization?.boundary.county ?? "", constituency: me?.scope.constituency ?? "", ward: me?.scope.ward ?? "", station_code: "",
@@ -113,7 +113,12 @@ function AddPersonModal({ onClose, onAdded }: { onClose: () => void; onAdded: ()
   const county = counties.find((c) => c.name === f.county) ?? (counties.length === 1 ? counties[0] : undefined);
   const constituencies = county?.constituencies ?? [];
   const wards = constituencies.find((c) => c.name === f.constituency)?.wards ?? [];
-  const stations = wards.find((w) => w.name === f.ward)?.stations ?? [];
+  // Stations load for the chosen ward only — the national register is ~30,000 stations.
+  const wardStations = useAsync(
+    () => (f.role === "agent" && f.ward && county ? ops.registryStations("", 1, { county: county.name, constituency: f.constituency, ward: f.ward }, 200) : Promise.resolve(null)),
+    [f.role, county?.name, f.constituency, f.ward],
+  );
+  const stations = wardStations.data?.items ?? [];
   const need = needs[f.role]!;
   const area = need === "none" ? me?.scope_label : need === "constituency" ? (f.constituency && `${f.constituency} Constituency`) : (f.ward && `${f.ward} Ward`);
 

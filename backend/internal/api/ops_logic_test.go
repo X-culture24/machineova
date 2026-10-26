@@ -22,13 +22,28 @@ func TestScopeContainsAndLabel(t *testing.T) {
 
 func TestScopeNarrowNeverWidens(t *testing.T) {
 	ward := scope{County: sp("Migori"), Constituency: sp("Suna East"), Ward: sp("Kakrao")}
-	got := ward.narrow("Awendo", "North Sakwa")
-	if *got.Constituency != "Suna East" || *got.Ward != "Kakrao" {
+	got := ward.narrow("Kisumu", "Awendo", "North Sakwa")
+	if *got.County != "Migori" || *got.Constituency != "Suna East" || *got.Ward != "Kakrao" {
 		t.Fatalf("a manager's drill must stay in their ward, got %+v", got)
 	}
-	county := scope{County: sp("Migori")}.narrow("Rongo", "")
+	county := scope{County: sp("Migori")}.narrow("", "Rongo", "")
 	if county.Constituency == nil || *county.Constituency != "Rongo" || county.Ward != nil {
 		t.Fatalf("drill into constituency: %+v", county)
+	}
+	national := scope{}.narrow("Migori", "", "")
+	if national.County == nil || *national.County != "Migori" || national.childLevel() != "constituency" {
+		t.Fatalf("nationwide drill into county: %+v", national)
+	}
+}
+
+func TestRegionKeyIsUniqueAcrossCounties(t *testing.T) {
+	a := stationRow{County: "Nairobi", Constituency: "Kibra", Ward: "Township"}
+	b := stationRow{County: "Kisumu", Constituency: "Kisumu Central", Ward: "Township"}
+	if regionOf(&a, "ward") != regionOf(&b, "ward") || regionKey(&a, "ward") == regionKey(&b, "ward") {
+		t.Fatalf("ward keys must differ: %q %q", regionKey(&a, "ward"), regionKey(&b, "ward"))
+	}
+	if regionKey(&a, "county") != "Nairobi" || regionKey(&a, "constituency") != "Nairobi / Kibra" {
+		t.Fatalf("keys: %q %q", regionKey(&a, "county"), regionKey(&a, "constituency"))
 	}
 }
 
@@ -118,5 +133,16 @@ func TestRecordedAt(t *testing.T) {
 	}
 	if got := at(now.Add(2 * time.Minute).Format(time.RFC3339)); got.After(time.Now()) {
 		t.Errorf("small clock skew ahead is clamped to now, got %v", got)
+	}
+}
+
+func TestStationCodeMatchesRegisterImport(t *testing.T) {
+	// import-registry -from-register gave this station 022-233559B0; stations added by hand
+	// must follow the same scheme so the two never collide.
+	if got := stationCode("Kiambu", "Kiambu", "Township", "Kasarini Pri Sch"); got != "022-233559B0" {
+		t.Fatalf("stationCode = %s, want 022-233559B0", got)
+	}
+	if got := stationCode("Diaspora", "Diaspora", "Diaspora", "X"); got[:4] != "900-" {
+		t.Fatalf("outside the 47 counties: %s", got)
 	}
 }

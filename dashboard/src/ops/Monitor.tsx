@@ -4,11 +4,12 @@ import { useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Kpi, Loading, ProgressBar } from "../components/ui";
 import { date, num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
-import { ops, pp, slotLabel, type Drill, type Leader } from "./api";
-import { DrillCrumbs, drillInto, NoElection, OpsHeader, PartyDot, TrendChart } from "./components";
+import { ops, pp, regionLabel, slotLabel, type Drill, type Leader } from "./api";
+import { DrillCrumbs, drillInto, ElectionPicker, NoElection, OpsHeader, PartyDot, PastElectionNote, TrendChart, usePickedElection } from "./components";
 
 const signalTone: Record<string, "amber" | "red" | "green" | "grey"> = {
   "Push GOTV": "amber", "Behind + low turnout": "red", "Opponent ahead": "red", Strong: "green", "Below average": "amber", "On pace": "grey",
+  "Awaiting turnout": "grey",
 };
 
 function LeaderCell({ l, weLead }: { l: Leader | null; weLead?: boolean | null }) {
@@ -26,14 +27,17 @@ function LeaderCell({ l, weLead }: { l: Leader | null; weLead?: boolean | null }
 export function TurnoutPage() {
   const { me } = useAuth();
   const [drill, setDrill] = useState<Drill>({});
-  const t = useAsync(() => ops.turnout(drill), [drill.constituency, drill.ward]);
+  const [electionId, setElectionId] = usePickedElection();
+  const pickElection = (id: string | undefined) => { setDrill({}); setElectionId(id); };
+  const t = useAsync(() => ops.turnout(drill, electionId), [electionId, drill.county, drill.constituency, drill.ward]);
   if (t.error?.includes("No active election")) return (<><OpsHeader title="Voter turnout" /><NoElection canSetup={me?.role === "owner" || me?.role === "admin"} /></>);
   const d = t.data;
   const root = me?.scope_label ?? d?.election.scope_label ?? "Scope";
   return (
     <>
       <OpsHeader title="Voter turnout" subtitle="Monitor — drill down to where you need attention" election={d?.election} scopeLabel={d?.scope_label}
-        actions={<button className="btn small secondary" onClick={t.reload}>Refresh</button>} />
+        actions={<><ElectionPicker value={electionId} onChange={pickElection} /><button className="btn small secondary" onClick={t.reload}>Refresh</button></>} />
+      <PastElectionNote election={d?.election} onBack={() => pickElection(undefined)} />
       <ErrorNote error={t.error} />
       {!d ? <Loading /> : (
         <>
@@ -51,7 +55,7 @@ export function TurnoutPage() {
             </Card>
           </div>
           <Card className="mt" title="Where attention is needed"
-            extra={<div className="row gap"><Badge tone="red">{d.attention_count} areas</Badge><small className="muted">Scope average <strong>{pct(d.turnout)}</strong></small><Link className="btn small secondary" to="/ops/results">Open in Results ›</Link></div>}>
+            extra={<div className="row gap"><Badge tone="red">{d.attention_count} areas</Badge><small className="muted">Scope average <strong>{pct(d.turnout)}</strong></small><Link className="btn small secondary" to={`/ops/results${electionId ? `?election=${electionId}` : ""}`}>Open in Results ›</Link></div>}>
             {d.focus_position && (
               <p className="muted" style={{ marginTop: -6 }}>
                 {d.focus_position.name} race{d.our_candidate && ` · ${d.our_candidate.name} (${d.our_candidate.party_name ?? d.our_candidate.party_code ?? "Independent"})`}
@@ -65,13 +69,13 @@ export function TurnoutPage() {
                   {d.areas.map((a) => {
                     const next = drillInto(drill, d.child_level, a.name);
                     return (
-                      <tr key={a.name}>
+                      <tr key={a.name} className={next ? "clickable" : ""} onClick={() => next && setDrill(next)}>
                         <td data-label={d.child_level} style={{ fontWeight: 600 }}>{a.name}</td>
-                        <td data-label="Turnout" className="num accent-text">{pct(a.turnout)}</td>
-                        <td data-label="vs avg" className={`num ${a.vs_avg < 0 ? "neg" : "pos"}`}>{pp(a.vs_avg)}</td>
+                        <td data-label="Turnout" className="num accent-text">{d.cast === 0 ? "—" : pct(a.turnout)}</td>
+                        <td data-label="vs avg" className={`num ${d.cast === 0 ? "muted" : a.vs_avg < 0 ? "neg" : "pos"}`}>{d.cast === 0 ? "—" : pp(a.vs_avg)}</td>
                         <td data-label="Leading"><LeaderCell l={a.leading} weLead={a.we_lead} /></td>
                         <td data-label="Signal"><Badge tone={signalTone[a.signal] ?? "grey"}>{a.signal}</Badge></td>
-                        <td>{next && <button className="btn small secondary" onClick={() => setDrill(next)}>Drill ›</button>}</td>
+                        <td className="num">{next && <button className="btn small secondary" onClick={(ev) => { ev.stopPropagation(); setDrill(next); }}>Drill ›</button>}</td>
                       </tr>
                     );
                   })}
@@ -79,7 +83,7 @@ export function TurnoutPage() {
               </table>
             </div>
           </Card>
-          <Card className="mt" title={`Hourly rollup — by ${d.child_level}`}>
+          <Card className="mt hide-phone" title={`Hourly rollup — by ${d.child_level}`}>
             <div className="table-wrap">
               <table className="cards">
                 <thead>
@@ -107,14 +111,17 @@ export function ResultsPage() {
   const { me } = useAuth();
   const [positionId, setPositionId] = useState<string | undefined>();
   const [drill, setDrill] = useState<Drill>({});
-  const r = useAsync(() => ops.results(positionId, drill), [positionId, drill.constituency, drill.ward]);
+  const [electionId, setElectionId] = usePickedElection();
+  const pickElection = (id: string | undefined) => { setDrill({}); setPositionId(undefined); setElectionId(id); };
+  const r = useAsync(() => ops.results(positionId, drill, electionId), [electionId, positionId, drill.county, drill.constituency, drill.ward]);
   if (r.error?.includes("No active election")) return (<><OpsHeader title="Results" /><NoElection canSetup={me?.role === "owner" || me?.role === "admin"} /></>);
   const d = r.data;
   const lead = d?.totals?.[0];
   return (
     <>
-      <OpsHeader title="Results" subtitle={d ? `Provisional tallies · ${d.scope_label}` : undefined} election={d?.election} scopeLabel={d?.scope_label}
-        actions={<button className="btn small secondary" onClick={r.reload}>Refresh</button>} />
+      <OpsHeader title="Results" subtitle={d ? `${d.election.status === "completed" ? "Final verified tallies" : "Provisional tallies"} · ${d.scope_label}` : undefined} election={d?.election} scopeLabel={d?.scope_label}
+        actions={<><ElectionPicker value={electionId} onChange={pickElection} /><button className="btn small secondary" onClick={r.reload}>Refresh</button></>} />
+      <PastElectionNote election={d?.election} onBack={() => pickElection(undefined)} />
       <ErrorNote error={r.error} />
       {!d ? <Loading /> : (
         <>
@@ -126,11 +133,11 @@ export function ResultsPage() {
             </div>
           </div>
           <DrillCrumbs root={me?.scope_label ?? d.election.scope_label} drill={drill} onChange={setDrill} />
-          <p className="muted">Provisional · {d.stations_reporting} of {d.stations} stations reporting{d.last_update && ` · last updated ${time(d.last_update)}`}</p>
+          <p className="muted">{d.election.status === "completed" ? "Final" : "Provisional"} · {num(d.stations_reporting)} of {num(d.stations)} stations reporting{d.last_update && ` · last updated ${time(d.last_update)}`}</p>
           {d.single_race && lead ? (
             <div className="grid cols-even">
               <Card>
-                <small className="muted">LEADING — {d.position.name.toUpperCase()}{d.race && d.race !== "national" ? `, ${d.race.toUpperCase()}` : ""}</small>
+                <small className="muted">LEADING — {d.position.name.toUpperCase()}{d.race && d.race !== "national" ? `, ${regionLabel(d.race).toUpperCase()}` : ""}</small>
                 <div className="row gap" style={{ marginTop: 10 }}>
                   <span className="avatar big">{lead.candidate.name.split(" ").filter(Boolean).slice(-2).map((p) => p[0]).join("")}</span>
                   <div style={{ flex: 1 }}>
@@ -143,7 +150,9 @@ export function ResultsPage() {
                   </div>
                 </div>
                 <p className="muted" style={{ fontSize: 13, marginTop: 14 }}>
-                  What this means: provisional agent-reported tallies for the stations that have reported so far — not an official declaration. Figures change as more stations report.
+                  {d.election.status === "completed"
+                    ? "Final tallies from the verified Form 37As of every station that reported — the campaign's own count, not the official declaration."
+                    : "What this means: provisional agent-reported tallies for the stations that have reported so far — not an official declaration. Figures change as more stations report."}
                 </p>
               </Card>
               <Card title="Candidate totals">
@@ -170,13 +179,13 @@ export function ResultsPage() {
                   {d.areas.map((a) => {
                     const next = drillInto(drill, d.child_level, a.name);
                     return (
-                      <tr key={a.name}>
+                      <tr key={a.name} className={next ? "clickable" : ""} onClick={() => next && setDrill(next)}>
                         <td data-label={d.child_level} style={{ fontWeight: 600 }}>{a.name}</td>
                         <td data-label="Leading">{a.leading ? <span><strong>{a.leading.candidate.name}</strong> <small className="muted">{a.leading.candidate.party_code ?? "IND"}</small> {a.leading.candidate.is_ours && "★"}</span> : <span className="muted">—</span>}</td>
                         <td data-label="Share" className="num">{a.leading ? pct(a.leading.share) : "—"}</td>
                         <td data-label="Margin" className="num">{a.margin == null ? "—" : pp(a.margin)}</td>
                         <td data-label="Reporting" className="num">{pct(a.reporting)}</td>
-                        <td>{next && <button className="btn small secondary" onClick={() => setDrill(next)}>Drill ›</button>}</td>
+                        <td className="num">{next && <button className="btn small secondary" onClick={(ev) => { ev.stopPropagation(); setDrill(next); }}>Drill ›</button>}</td>
                       </tr>
                     );
                   })}

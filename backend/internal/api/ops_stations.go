@@ -26,7 +26,7 @@ func (s *Server) listStations(w http.ResponseWriter, r *http.Request, p *Princip
 		return
 	}
 	q := r.URL.Query()
-	view := sc.narrow(q.Get("constituency"), q.Get("ward"))
+	view := sc.narrow(q.Get("county"), q.Get("constituency"), q.Get("ward"))
 	all, err := s.loadStations(r.Context(), e.ID, view)
 	if err != nil {
 		s.internal(w, r, err)
@@ -54,6 +54,7 @@ func (s *Server) listStations(w http.ResponseWriter, r *http.Request, p *Princip
 	resp := pg.response(filtered[start:end], len(filtered))
 	resp["counts"] = counts
 	resp["in_scope"] = len(all)
+	resp["election"] = e
 	resp["scope"] = view
 	resp["scope_label"] = view.label()
 	writeJSON(w, http.StatusOK, resp)
@@ -615,7 +616,7 @@ func (s *Server) raceCandidates(ctx context.Context, e election, st *stationRow,
 	}
 	var region *string
 	if pos.Level != "national" {
-		r := regionOf(st, pos.Level)
+		r := regionKey(st, pos.Level)
 		region = &r
 	}
 	out := []candidate{}

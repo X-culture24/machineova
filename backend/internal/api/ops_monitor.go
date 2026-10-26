@@ -147,7 +147,8 @@ type group struct {
 	Stations []*stationRow
 }
 
-// groupBy splits stations into child regions, preserving first-seen order.
+// groupBy splits stations into child regions, sorted by name. Names are unique here because a
+// drill always fixes the parent (county before constituency, constituency before ward).
 func groupBy(stations []stationRow, level string) []group {
 	idx := map[string]int{}
 	var out []group
@@ -161,6 +162,7 @@ func groupBy(stations []stationRow, level string) []group {
 		}
 		out[j].Stations = append(out[j].Stations, &stations[i])
 	}
+	sort.Slice(out, func(a, b int) bool { return out[a].Name < out[b].Name })
 	return out
 }
 
@@ -220,6 +222,8 @@ func lastSlotWithData(stations []*stationRow, t turnoutBySlot) int {
 
 // ---- overview ----
 
+const attentionShown = 50
+
 type attentionItem struct {
 	Code   string `json:"code"`
 	Name   string `json:"name"`
@@ -264,7 +268,8 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 		Issues     int             `json:"issues"`
 		Uncovered  int             `json:"uncovered"`
 		ToVerify   int             `json:"to_verify"`
-		Attention  []attentionItem `json:"attention"`
+		Attention  []attentionItem `json:"attention"` // the first attentionShown, most urgent first
+		AttentionN int             `json:"attention_count"`
 		Trend      []trendPoint    `json:"trend"`
 		Agents     int             `json:"agents"`
 		LastUpdate *time.Time      `json:"last_update"`
@@ -308,6 +313,11 @@ func (s *Server) opsOverview(w http.ResponseWriter, r *http.Request, p *Principa
 		}
 	}
 	out.Attention = append(append(append(out.Attention, issues...), uncovered...), verify...)
+	out.AttentionN = len(out.Attention)
+	if len(out.Attention) > attentionShown {
+		// A nationwide election starts with ~30,000 uncovered stations: send a page, not megabytes.
+		out.Attention = out.Attention[:attentionShown]
+	}
 	out.Turnout = share(out.Cast, out.Registered)
 	out.Trend = trend(ptrs(stations), t, 23)
 	if err := s.db.QueryRow(ctx, `
@@ -340,7 +350,14 @@ type turnoutArea struct {
 }
 
 func signalFor(below bool, weLead *bool, hasResults bool) (string, bool) {
+	return signalWith(true, below, weLead, hasResults)
+}
+
+// signalWith is signalFor, aware that nothing may have been reported yet.
+func signalWith(hasTurnout, below bool, weLead *bool, hasResults bool) (string, bool) {
 	switch {
+	case !hasTurnout && !hasResults:
+		return "Awaiting turnout", false
 	case !hasResults || weLead == nil:
 		if below {
 			return "Below average", true
@@ -362,7 +379,7 @@ func (s *Server) opsTurnout(w http.ResponseWriter, r *http.Request, p *Principal
 		return
 	}
 	ctx := r.Context()
-	view := sc.narrow(r.URL.Query().Get("constituency"), r.URL.Query().Get("ward"))
+	view := sc.narrow(r.URL.Query().Get("county"), r.URL.Query().Get("constituency"), r.URL.Query().Get("ward"))
 	stations, err := s.loadStations(ctx, e.ID, view)
 	if err != nil {
 		s.internal(w, r, err)
@@ -420,7 +437,7 @@ func (s *Server) opsTurnout(w http.ResponseWriter, r *http.Request, p *Principal
 				}
 			}
 		}
-		a.Signal, a.Attention = signalFor(a.Turnout < avg, a.WeLead, a.Leading != nil)
+		a.Signal, a.Attention = signalWith(cast > 0, a.Turnout < avg, a.WeLead, a.Leading != nil)
 		if a.Attention {
 			attention++
 		}
@@ -476,7 +493,7 @@ func (s *Server) opsResults(w http.ResponseWriter, r *http.Request, p *Principal
 			pos = ps
 		}
 	}
-	view := sc.narrow(r.URL.Query().Get("constituency"), r.URL.Query().Get("ward"))
+	view := sc.narrow(r.URL.Query().Get("county"), r.URL.Query().Get("constituency"), r.URL.Query().Get("ward"))
 	stations, err := s.loadStations(ctx, e.ID, view)
 	if err != nil {
 		s.internal(w, r, err)
@@ -502,7 +519,7 @@ func (s *Server) opsResults(w http.ResponseWriter, r *http.Request, p *Principal
 		}
 		key := "national"
 		if pos.Level != "national" {
-			key = regionOf(st, pos.Level)
+			key = regionKey(st, pos.Level)
 		}
 		races[key] = true
 	}

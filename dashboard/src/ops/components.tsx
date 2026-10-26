@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { useAsync } from "../useAsync";
 import { Badge } from "../components/ui";
-import { statusLabel, statusTone, slotLabel, type Drill, type Election, type StationStatus, type TrendPoint } from "./api";
+import { num } from "../format";
+import { ops, statusLabel, statusTone, slotLabel, type Drill, type Election, type StationStatus, type TrendPoint } from "./api";
 
 /** Page header for the ops workspace: title, subtitle, and the active-election + scope pills. */
 export function OpsHeader({ title, subtitle, election, scopeLabel, actions }: {
@@ -78,32 +81,29 @@ export function TrendChart({ points, slots, height = 180 }: { points: TrendPoint
   );
 }
 
-/** Breadcrumb for region drill-down: scope › constituency › ward. */
+/** Breadcrumb for region drill-down: scope › county › constituency › ward. */
 export function DrillCrumbs({ root, drill, onChange }: { root: string; drill: Drill; onChange: (d: Drill) => void }) {
+  const steps: [string, Drill][] = [];
+  if (drill.county) steps.push([drill.county, { county: drill.county }]);
+  if (drill.constituency) steps.push([drill.constituency, { county: drill.county, constituency: drill.constituency }]);
+  if (drill.ward) steps.push([drill.ward, drill]);
   return (
     <div className="crumbs">
-      <button className="crumb" onClick={() => onChange({})} disabled={!drill.constituency && !drill.ward}>{root}</button>
-      {drill.constituency && (
-        <>
+      <button className="crumb" onClick={() => onChange({})} disabled={steps.length === 0}>{root}</button>
+      {steps.map(([label, to], i) => (
+        <span key={label + i} className="row gap">
           <span className="muted">›</span>
-          <button className="crumb" onClick={() => onChange({ constituency: drill.constituency })} disabled={!drill.ward}>
-            {drill.constituency}
-          </button>
-        </>
-      )}
-      {drill.ward && (
-        <>
-          <span className="muted">›</span>
-          <span className="crumb current">{drill.ward}</span>
-        </>
-      )}
+          {i === steps.length - 1 ? <span className="crumb current">{label}</span> : <button className="crumb" onClick={() => onChange(to)}>{label}</button>}
+        </span>
+      ))}
     </div>
   );
 }
 
-/** Drill into a child row: constituency first, then ward. */
+/** Drill into a child row: county, then constituency, then ward (each keeps its parents). */
 export function drillInto(drill: Drill, childLevel: string, name: string): Drill | null {
-  if (childLevel === "constituency") return { constituency: name };
+  if (childLevel === "county") return { county: name };
+  if (childLevel === "constituency") return { county: drill.county, constituency: name };
   if (childLevel === "ward") return { ...drill, ward: name };
   return null;
 }
@@ -114,7 +114,7 @@ export function Pager({ page, pageSize, total, onPage }: { page: number; pageSiz
   const to = Math.min(total, page * pageSize);
   return (
     <div className="pager">
-      <span className="muted">Showing {from}–{to} of {total}</span>
+      <span className="muted">Showing {num(from)}–{num(to)} of {num(total)}</span>
       <div className="row gap">
         <button className="btn small secondary" disabled={page <= 1} onClick={() => onPage(page - 1)}>Prev</button>
         {Array.from({ length: Math.min(pages, 5) }, (_, i) => {
@@ -151,8 +151,50 @@ export function NoElection({ canSetup }: { canSetup: boolean }) {
       <div className="empty">
         <p style={{ fontWeight: 600, color: "var(--text)" }}>No active election</p>
         <p>{canSetup ? "Create or activate one under Set up › Election." : "Ask your admin to activate the election."}</p>
-        {canSetup && <a className="btn" href="/ops/election">Go to Election setup</a>}
+        {canSetup && <Link className="btn" to="/ops/election">Go to Election setup</Link>}
       </div>
+    </div>
+  );
+}
+
+/** The election a monitor page shows: the active one, or a completed one picked to look back (?election=). */
+export function usePickedElection(): [string | undefined, (id: string | undefined) => void] {
+  const [params, setParams] = useSearchParams();
+  const id = params.get("election") ?? undefined;
+  return [id, (next) => {
+    const n = new URLSearchParams(params);
+    if (next) n.set("election", next);
+    else n.delete("election");
+    setParams(n, { replace: true });
+  }];
+}
+
+/** Switch between the active election and completed ones. Hidden when there is nothing to switch to. */
+export function ElectionPicker({ value, onChange }: { value: string | undefined; onChange: (id: string | undefined) => void }) {
+  const list = useAsync(ops.elections, []);
+  const options = (list.data ?? []).filter((e) => e.status !== "draft");
+  if (options.length < 2 && !value) return null;
+  const active = options.find((e) => e.status === "active");
+  return (
+    <select className="input election-picker" aria-label="Election" value={value ?? active?.id ?? ""}
+      onChange={(e) => onChange(e.target.value === active?.id ? undefined : e.target.value)}>
+      {options.map((e) => (
+        <option key={e.id} value={e.id}>{e.name}{e.status === "completed" ? ` · ${e.election_date.slice(0, 4)} results` : " · live"}</option>
+      ))}
+    </select>
+  );
+}
+
+/** Banner for a completed election opened from a monitor page. */
+export function PastElectionNote({ election, onBack }: { election?: Election | null; onBack: () => void }) {
+  if (!election || election.status !== "completed") return null;
+  return (
+    <div className="alert teal row spread wrap">
+      <span>Looking back at <strong>{election.name}</strong> — completed, read-only.</span>
+      <span className="row gap">
+        <Link className="btn small secondary" to={`/ops/replay/${election.id}`}>▶ Replay the day</Link>
+        <button className="btn small" onClick={onBack}>Back to the live election</button>
+      </span>
     </div>
   );
 }

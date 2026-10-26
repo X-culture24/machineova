@@ -44,7 +44,8 @@ class OpsOverview {
   final String electionName, scopeLabel;
   final int stations, reported, open, closed, cast, registered, issues, uncovered, toVerify, agents;
   final double turnout;
-  final List<AttentionItem> attention;
+  final List<AttentionItem> attention; // the most urgent few
+  final int attentionCount; // all of them
 
   OpsOverview.fromJson(Map<String, dynamic> j)
       : electionName = j['election']['name'],
@@ -60,7 +61,8 @@ class OpsOverview {
         toVerify = _i(j['to_verify']),
         agents = _i(j['agents']),
         turnout = _dn(j['turnout']) ?? 0,
-        attention = [for (final a in j['attention'] as List) AttentionItem.fromJson(a)];
+        attention = [for (final a in j['attention'] as List) AttentionItem.fromJson(a)],
+        attentionCount = _i(j['attention_count'] ?? (j['attention'] as List).length);
 }
 
 class OpsPerson {

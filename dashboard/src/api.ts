@@ -408,6 +408,17 @@ export const api = {
     accent_color?: string;
     trial?: boolean;
   }) => request<OrgSummary>("POST", "/api/platform/organizations", body),
+  platformRegions: () => request<RegisterCounty[]>("GET", "/api/platform/regions"),
+  platformStations: (p: { county?: string; constituency?: string; ward?: string; q?: string; page?: number }) => {
+    const u = new URLSearchParams();
+    for (const [k, v] of Object.entries({ ...p, page_size: 25 })) if (v !== undefined && v !== "") u.set(k, String(v));
+    return request<{ items: RegisterStation[]; total: number; page: number; page_size: number; registered_voters: number }>("GET", `/api/platform/stations?${u}`);
+  },
+  createStation: (body: { name: string; county: string; constituency: string; ward: string; registered_voters: number }) =>
+    request<{ station: RegisterStation; added_to_elections: number }>("POST", "/api/platform/stations", body),
+  updateStation: (code: string, body: { name?: string; ward?: string; registered_voters?: number }) =>
+    request<RegisterStation>("PATCH", `/api/platform/stations/${encodeURIComponent(code)}`, body),
+  deleteStation: (code: string) => request<void>("DELETE", `/api/platform/stations/${encodeURIComponent(code)}`),
   platformOverview: () =>
     request<{ organizations: number; active: number; trial: number; members: number; stations: number; agents: number }>(
       "GET",
@@ -430,3 +441,21 @@ export const api = {
   updateOrg: (id: string, body: { active?: boolean; name?: string; trial?: boolean }) =>
     request<OrgSummary>("PATCH", `/api/platform/organizations/${id}`, body),
 };
+
+/** The shared polling-station register (maintained by platform admins). */
+export interface RegisterStation {
+  code: string;
+  name: string;
+  county: string;
+  constituency: string;
+  ward: string;
+  registered_voters: number;
+  elections: number;
+  in_use: boolean;
+}
+
+export interface RegisterCounty {
+  name: string;
+  stations: number;
+  constituencies: { name: string; stations: number; wards: { name: string; stations: number }[] }[];
+}

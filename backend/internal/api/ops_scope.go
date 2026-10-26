@@ -36,7 +36,10 @@ func (s scope) orElse(f scope) scope {
 }
 
 // narrow applies drill-down filters, ignoring any that would widen the scope.
-func (s scope) narrow(constituency, ward string) scope {
+func (s scope) narrow(county, constituency, ward string) scope {
+	if c := strings.TrimSpace(county); c != "" && s.County == nil {
+		s.County = &c
+	}
 	if c := strings.TrimSpace(constituency); c != "" && s.Constituency == nil {
 		s.Constituency = &c
 	}
@@ -94,6 +97,21 @@ func (s scope) childLevel() string {
 	return "station"
 }
 
+// regionKey identifies a race's region uniquely across the country: ward and constituency
+// names repeat between counties, so keys carry their parents ("Migori / Rongo / North Kamagambo").
+func regionKey(st *stationRow, level string) string {
+	switch level {
+	case "constituency":
+		return st.County + regionSep + st.Constituency
+	case "ward":
+		return st.County + regionSep + st.Constituency + regionSep + st.Ward
+	}
+	return regionOf(st, level)
+}
+
+const regionSep = " / "
+
+// regionOf is the bare name of a station's region at a level (unique only within its parent).
 func regionOf(st *stationRow, level string) string {
 	switch level {
 	case "county":
@@ -195,6 +213,11 @@ func (s *Server) opsContext(w http.ResponseWriter, r *http.Request, p *Principal
 		return e, scope{}, false
 	case err != nil:
 		s.internal(w, r, err)
+		return e, scope{}, false
+	}
+	// Past elections (?election_id= of a completed one) are for looking back, not editing.
+	if e.Status == "completed" && r.Method != http.MethodGet {
+		writeErr(w, http.StatusConflict, "this election is completed and read-only")
 		return e, scope{}, false
 	}
 	return e, p.userScope().orElse(e.Scope), true

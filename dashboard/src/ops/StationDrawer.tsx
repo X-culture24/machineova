@@ -423,7 +423,11 @@ function ResultsDialog({ d, onClose, onDone }: { d: StationDetail; onClose: () =
                 Candidate total {num(candTotal)} + rejected {num(Number(rejected) || 0)} = {num(total)} · recorded turnout {f.turnout == null ? "—" : num(f.turnout)}
                 {mismatch && " — check the figures against the form"}
               </p>
-              {f.submitted_at && <p className="muted" style={{ fontSize: 13 }}>Already verified {dateTime(f.submitted_at)} — saving replaces it.</p>}
+              {f.verified_at ? (
+                <p className="muted" style={{ fontSize: 13 }}>Already verified {dateTime(f.verified_at)} — saving replaces it.</p>
+              ) : f.submitted_at && (
+                <p className="muted" style={{ fontSize: 13 }}>Submitted {dateTime(f.submitted_at)}, waiting for a manager to verify — saving replaces it.</p>
+              )}
               <label className="row gap" style={{ alignItems: "flex-start", marginTop: 8 }}>
                 <input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} style={{ marginTop: 3 }} />
                 <span>I confirm these figures match the signed Form 37A from this station.</span>

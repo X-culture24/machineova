@@ -117,6 +117,7 @@ export function NewOrgWizard() {
     owner_name: "", owner_email: "", owner_password: "",
   });
   const [error, setError] = useState<string | null>(null);
+  const regions = useAsync(api.platformRegions, []);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
   const valid = [f.name.trim() !== "", true, /^#[0-9a-fA-F]{6}$/.test(f.accent_color),
     f.owner_name.trim() !== "" && f.owner_email.includes("@") && f.owner_password.length >= 8, true];
@@ -137,9 +138,19 @@ export function NewOrgWizard() {
         )}
         {step === 1 && (
           <div className="form-grid">
-            <Field label="County" hint="Leave blank for a nationwide organization."><input value={f.boundary_county} onChange={set("boundary_county")} /></Field>
-            <Field label="Constituency (optional)"><input value={f.boundary_constituency} disabled={!f.boundary_county} onChange={set("boundary_constituency")} /></Field>
-            <p className="full muted">Names must match the polling-station register exactly. Everything inside the organization is scoped to this boundary.</p>
+            <Field label="County" hint="Nationwide for a party or presidential campaign; a county or constituency for a candidate's seat.">
+              <select value={f.boundary_county} onChange={(e) => setF({ ...f, boundary_county: e.target.value, boundary_constituency: "" })}>
+                <option value="">Nationwide — all counties</option>
+                {(regions.data ?? []).map((c) => <option key={c.name}>{c.name}</option>)}
+              </select>
+            </Field>
+            <Field label="Constituency (optional)" hint="Pick one for an MP or MCA aspirant.">
+              <select value={f.boundary_constituency} disabled={!f.boundary_county} onChange={set("boundary_constituency")}>
+                <option value="">{f.boundary_county ? `Whole of ${f.boundary_county}` : "Pick a county first"}</option>
+                {(regions.data?.find((c) => c.name === f.boundary_county)?.constituencies ?? []).map((k) => <option key={k.name}>{k.name}</option>)}
+              </select>
+            </Field>
+            <p className="full muted">Everything inside the organization is scoped to this boundary, from the register.</p>
           </div>
         )}
         {step === 2 && (

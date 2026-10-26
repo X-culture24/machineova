@@ -77,15 +77,15 @@ class _OpsHomeScreenState extends State<OpsHomeScreen> {
               KpiTile(
                   label: 'Reporting',
                   value: fmtPct(d.stations == 0 ? 0 : d.reported / d.stations),
-                  caption: '${d.reported} of ${d.stations}'),
-              KpiTile(label: 'Open', value: fmtNum(d.open), caption: '${d.closed} closed'),
+                  caption: '${fmtNum(d.reported)} of ${fmtNum(d.stations)}'),
+              KpiTile(label: 'Open', value: fmtNum(d.open), caption: '${fmtNum(d.closed)} closed'),
               KpiTile(
                   label: 'Turnout', value: fmtPct(d.turnout), caption: '${fmtNum(d.cast)} of ${fmtNum(d.registered)}'),
               KpiTile(
                   label: 'Needs me',
-                  value: fmtNum(d.attention.length),
+                  value: fmtNum(d.attentionCount),
                   accent: AppColors.amber,
-                  caption: '${d.issues} issues · ${d.uncovered} uncovered'),
+                  caption: '${fmtNum(d.issues)} issues · ${fmtNum(d.uncovered)} uncovered'),
             ]),
             SectionCard(
               title: 'Needs attention',
@@ -93,7 +93,7 @@ class _OpsHomeScreenState extends State<OpsHomeScreen> {
               child: d.attention.isEmpty
                   ? const EmptyNote('All clear — every station is covered and nothing is flagged.')
                   : Column(children: [
-                      for (final a in d.attention)
+                      for (final a in d.attention.take(20))
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           minVerticalPadding: 10,

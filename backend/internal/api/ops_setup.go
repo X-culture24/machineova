@@ -361,13 +361,13 @@ func (s *Server) getElection(w http.ResponseWriter, r *http.Request, p *Principa
 			if lvl == "national" {
 				set["National"] = true
 			} else {
-				set[regionOf(&stations[i], lvl)] = true
+				set[regionKey(&stations[i], lvl)] = true
 			}
 		}
 		levels = append(levels, levelRegions{Level: lvl, Positions: names, Regions: sortedKeys(set)})
 	}
 
-	drill := e.Scope.narrow(r.URL.Query().Get("constituency"), r.URL.Query().Get("ward"))
+	drill := e.Scope.narrow(r.URL.Query().Get("county"), r.URL.Query().Get("constituency"), r.URL.Query().Get("ward"))
 	child := drill.childLevel()
 	racesAt := map[string][]string{}
 	for _, pos := range positions {
@@ -397,7 +397,10 @@ func (s *Server) getElection(w http.ResponseWriter, r *http.Request, p *Principa
 				if races != "" {
 					races += " + "
 				}
-				races += strconv.Itoa(above) + " wider races"
+				races += strconv.Itoa(above) + " wider race"
+				if above > 1 {
+					races += "s"
+				}
 			}
 			rr = &regionRow{Name: name, Races: races}
 			byRegion[name] = rr
@@ -406,6 +409,7 @@ func (s *Server) getElection(w http.ResponseWriter, r *http.Request, p *Principa
 		rr.Stations++
 		rr.Registered += st.Registered
 	}
+	sort.Strings(order)
 	table := make([]regionRow, 0, len(order))
 	for _, n := range order {
 		table = append(table, *byRegion[n])
@@ -471,7 +475,7 @@ func (s *Server) listRaces(w http.ResponseWriter, r *http.Request, p *Principal)
 		} else {
 			set := map[string]bool{}
 			for i := range stations {
-				set[regionOf(&stations[i], pos.Level)] = true
+				set[regionKey(&stations[i], pos.Level)] = true
 			}
 			for _, k := range sortedKeys(set) {
 				regions = append(regions, &k)
@@ -602,16 +606,35 @@ func (s *Server) addCandidate(w http.ResponseWriter, r *http.Request, p *Princip
 			writeErr(w, http.StatusBadRequest, "region is required: the "+level+" this candidate stands in")
 			return
 		}
-		var exists bool
-		if err := s.db.QueryRow(r.Context(), `
-			SELECT EXISTS(SELECT 1 FROM election_stations es JOIN polling_stations s ON s.code = es.station_code
-			WHERE es.election_id = $1 AND lower(CASE $2 WHEN 'county' THEN s.county WHEN 'constituency' THEN s.constituency ELSE s.ward END) = lower($3))`,
-			e.ID, level, *region).Scan(&exists); err != nil {
+		// The region is a full key ("Migori / Rongo") or, when it is unambiguous, a bare name ("Rongo").
+		rows, err := s.db.Query(r.Context(), `
+			SELECT DISTINCT CASE $2 WHEN 'county' THEN s.county
+			                        WHEN 'constituency' THEN s.county || $4 || s.constituency
+			                        ELSE s.county || $4 || s.constituency || $4 || s.ward END AS key
+			FROM election_stations es JOIN polling_stations s ON s.code = es.station_code
+			WHERE es.election_id = $1 AND (
+				lower(CASE $2 WHEN 'county' THEN s.county WHEN 'constituency' THEN s.constituency ELSE s.ward END) = lower($3) OR
+				lower(CASE $2 WHEN 'county' THEN s.county
+				              WHEN 'constituency' THEN s.county || $4 || s.constituency
+				              ELSE s.county || $4 || s.constituency || $4 || s.ward END) = lower($3))`,
+			e.ID, level, strings.TrimSpace(*region), regionSep)
+		if err != nil {
 			s.internal(w, r, err)
 			return
 		}
-		if !exists {
+		keys, err := pgx.CollectRows(rows, pgx.RowTo[string])
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		switch len(keys) {
+		case 0:
 			writeErr(w, http.StatusBadRequest, *region+" is not a "+level+" in this election")
+			return
+		case 1:
+			region = &keys[0]
+		default:
+			writeErr(w, http.StatusBadRequest, "there is more than one "+level+" called "+*region+" in this election — pick the race from the list")
 			return
 		}
 	}
@@ -701,14 +724,16 @@ func (s *Server) registryStations(w http.ResponseWriter, r *http.Request, p *Pri
 	}
 	q := r.URL.Query()
 	pg := pageParams(q.Get("page"), q.Get("page_size"))
+	// Optional county/constituency/ward filters, never outside the organization's boundary.
+	sc := b.narrow(q.Get("county"), q.Get("constituency"), q.Get("ward"))
 	var total int
 	rows, err := s.db.Query(r.Context(), `
 		SELECT code, name, county, constituency, ward, registered_voters, count(*) OVER ()
 		FROM polling_stations
-		WHERE ($1::text IS NULL OR county = $1) AND ($2::text IS NULL OR constituency = $2)
+		WHERE ($1::text IS NULL OR county = $1) AND ($2::text IS NULL OR constituency = $2) AND ($6::text IS NULL OR ward = $6)
 		  AND ($3::text IS NULL OR name ILIKE $3 OR code ILIKE $3 OR ward ILIKE $3)
-		ORDER BY constituency, ward, name LIMIT $4 OFFSET $5`,
-		b.County, b.Constituency, likePattern(q.Get("q")), pg.size, pg.offset())
+		ORDER BY county, constituency, ward, name LIMIT $4 OFFSET $5`,
+		sc.County, sc.Constituency, likePattern(q.Get("q")), pg.size, pg.offset(), sc.Ward)
 	if err != nil {
 		s.internal(w, r, err)
 		return
@@ -760,6 +785,9 @@ func (s *Server) registryRegions(w http.ResponseWriter, r *http.Request, p *Prin
 		return
 	}
 	sc := p.userScope().orElse(b)
+	// ?stations=0 leaves out the station list: a nationwide tree is ~30,000 stations,
+	// and filters only need county › constituency › ward.
+	withStations := r.URL.Query().Get("stations") != "0"
 	rows, err := s.db.Query(r.Context(), `
 		SELECT county, constituency, ward, code, name FROM polling_stations
 		WHERE ($1::text IS NULL OR county = $1) AND ($2::text IS NULL OR constituency = $2) AND ($3::text IS NULL OR ward = $3)
@@ -774,7 +802,7 @@ func (s *Server) registryRegions(w http.ResponseWriter, r *http.Request, p *Prin
 	}
 	type ward struct {
 		Name     string       `json:"name"`
-		Stations []stationRef `json:"stations"`
+		Stations []stationRef `json:"stations,omitempty"`
 	}
 	type constituency struct {
 		Name  string  `json:"name"`
@@ -802,8 +830,10 @@ func (s *Server) registryRegions(w http.ResponseWriter, r *http.Request, p *Prin
 		if len(kk.Wards) == 0 || kk.Wards[len(kk.Wards)-1].Name != wd {
 			kk.Wards = append(kk.Wards, &ward{Name: wd})
 		}
-		ww := kk.Wards[len(kk.Wards)-1]
-		ww.Stations = append(ww.Stations, stationRef{Code: code, Name: name})
+		if withStations {
+			ww := kk.Wards[len(kk.Wards)-1]
+			ww.Stations = append(ww.Stations, stationRef{Code: code, Name: name})
+		}
 	}
 	if err := rows.Err(); err != nil {
 		s.internal(w, r, err)

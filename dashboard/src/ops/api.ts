@@ -162,6 +162,8 @@ export interface Overview {
   uncovered: number;
   to_verify: number;
   attention: AttentionItem[];
+  /** All items needing attention; `attention` holds only the most urgent few. */
+  attention_count: number;
   trend: TrendPoint[];
   agents: number;
   last_update: string | null;
@@ -241,7 +243,7 @@ export interface Replay {
 
 export interface Regions {
   scope: Scope;
-  counties: { name: string; constituencies: { name: string; wards: { name: string; stations: { code: string; name: string }[] }[] }[] }[];
+  counties: { name: string; constituencies: { name: string; wards: { name: string; stations?: { code: string; name: string }[] }[] }[] }[];
 }
 
 export interface Party {
@@ -271,7 +273,7 @@ const qs = (p: Record<string, string | number | undefined | null>) => {
   return s ? `?${s}` : "";
 };
 
-export type Drill = { constituency?: string; ward?: string };
+export type Drill = { county?: string; constituency?: string; ward?: string };
 
 export const ops = {
   elections: () => req<ElectionSummary[]>("GET", "/api/ops/elections"),
@@ -293,7 +295,7 @@ export const ops = {
   setElectionStatus: (id: string, status: Election["status"]) => req<ElectionSummary>("POST", `/api/ops/elections/${id}/status`, { status }),
   deleteElection: (id: string) => req<void>("DELETE", `/api/ops/elections/${id}`),
 
-  races: () => req<{ election: Election; positions: Position[]; races: Race[] }>("GET", "/api/ops/races"),
+  races: (electionId?: string) => req<{ election: Election; positions: Position[]; races: Race[] }>("GET", `/api/ops/races${qs({ election_id: electionId })}`),
   addPosition: (name: string, level: Level) => req<Position>("POST", "/api/ops/positions", { name, level }),
   deletePosition: (id: string) => req<void>("DELETE", `/api/ops/positions/${id}`),
   addCandidate: (body: { position_id: string; region: string | null; name: string; party_code?: string; is_ours?: boolean }) =>
@@ -302,9 +304,12 @@ export const ops = {
     req<void>("PATCH", `/api/ops/candidates/${id}`, body),
   deleteCandidate: (id: string) => req<void>("DELETE", `/api/ops/candidates/${id}`),
 
-  registryStations: (q: string, page: number) => req<Paged<Station>>("GET", `/api/ops/registry/stations${qs({ q, page, page_size: 25 })}`),
+  registryStations: (q: string, page: number, area: Drill = {}, pageSize = 25) =>
+    req<Paged<Station>>("GET", `/api/ops/registry/stations${qs({ q, page, page_size: pageSize, ...area })}`),
   parties: () => req<Party[]>("GET", "/api/ops/registry/parties"),
   regions: () => req<Regions>("GET", "/api/ops/registry/regions"),
+  /** County › constituency › ward only — no station list (for filters on nationwide scopes). */
+  areas: () => req<Regions>("GET", "/api/ops/registry/regions?stations=0"),
 
   people: (p: { role?: string; q?: string; page?: number }) => req<Paged<Person>>("GET", `/api/ops/people${qs({ ...p, page_size: 25 })}`),
   addPerson: (body: Record<string, string | undefined>) => req<Person>("POST", "/api/ops/people", body),
@@ -312,8 +317,9 @@ export const ops = {
     req<void>("PATCH", `/api/ops/people/${id}`, body),
 
   overview: () => req<Overview>("GET", "/api/ops/overview"),
-  stations: (p: { status?: string; q?: string; constituency?: string; ward?: string; page?: number }) =>
-    req<Paged<Station> & { counts: Record<string, number>; in_scope: number; scope: Scope; scope_label: string }>(
+  seatHistory: () => req<SeatHistory[]>("GET", "/api/ops/seat-history"),
+  stations: (p: { status?: string; q?: string; county?: string; constituency?: string; ward?: string; page?: number }) =>
+    req<Paged<Station> & { counts: Record<string, number>; in_scope: number; scope: Scope; scope_label: string; election: Election }>(
       "GET",
       `/api/ops/stations${qs({ ...p, page_size: 10 })}`,
     ),
@@ -350,9 +356,9 @@ export const ops = {
   submitResults: (code: string, body: { position_id: string; votes: Record<string, number>; rejected: number; confirm: boolean }) =>
     req<void>("POST", `/api/ops/stations/${encodeURIComponent(code)}/results`, body),
 
-  turnout: (drill: Drill) => req<TurnoutMonitor>("GET", `/api/ops/turnout${qs(drill)}`),
-  results: (positionId: string | undefined, drill: Drill) =>
-    req<ResultsMonitor>("GET", `/api/ops/results${qs({ position_id: positionId, ...drill })}`),
+  turnout: (drill: Drill, electionId?: string) => req<TurnoutMonitor>("GET", `/api/ops/turnout${qs({ ...drill, election_id: electionId })}`),
+  results: (positionId: string | undefined, drill: Drill, electionId?: string) =>
+    req<ResultsMonitor>("GET", `/api/ops/results${qs({ position_id: positionId, ...drill, election_id: electionId })}`),
   replay: (electionId: string, hour: number) => req<Replay>("GET", `/api/ops/replay${qs({ election_id: electionId, hour })}`),
 
   /** Downloads a CSV export with the bearer token (plain links can't carry it). */
@@ -407,3 +413,20 @@ export const statusTone: Record<StationStatus, "green" | "teal" | "grey" | "red"
 export const opsRoles = new Set(["owner", "executive", "admin", "chief_agent", "manager", "agent"]);
 export const slotLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12} ${h < 12 ? "AM" : "PM"}`;
 export const pp = (n: number) => `${n > 0 ? "+" : ""}${Math.round(n)}pp`;
+
+/** A race's region key ("Migori / Rongo / North Kamagambo") as a readable label, most specific first. */
+export const regionLabel = (key: string | null | undefined) => (key ? key.split(" / ").reverse().join(", ") : "");
+
+/** How our candidate's seat went in the organization's last completed election. */
+export interface SeatHistory {
+  election: Election;
+  position: Position;
+  region: string | null;
+  ours: Candidate;
+  ours_then: { candidate: Candidate; votes: number; share: number } | null;
+  rank: number;
+  totals: { candidate: Candidate; votes: number; share: number }[];
+  turnout: number;
+  child_level: string;
+  areas: { name: string; leader: Leader | null; our_share: number | null; margin: number | null; turnout: number }[];
+}

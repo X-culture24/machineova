@@ -24,6 +24,7 @@ type Server struct {
 	mail        *mail.Mailer
 	appURL      string
 	apkPath     string
+	limits      *limiter
 }
 
 // Options are the optional extras; zero values disable each feature gracefully.
@@ -49,7 +50,7 @@ func New(db *pgxpool.Pool, tokens auth.Tokens, corsOrigins string) *Server {
 			origins[o] = true
 		}
 	}
-	return &Server{db: db, tokens: tokens, corsOrigins: origins, mail: mail.FromEnv(), appURL: "http://localhost:5173"}
+	return &Server{db: db, tokens: tokens, corsOrigins: origins, mail: mail.FromEnv(), appURL: "http://localhost:5173", limits: newLimiter()}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -58,9 +59,9 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
-	mux.HandleFunc("POST /api/auth/login", s.login)
-	mux.HandleFunc("POST /api/auth/forgot", s.forgotPassword)
-	mux.HandleFunc("POST /api/auth/redeem", s.redeemLink)
+	mux.HandleFunc("POST /api/auth/login", s.limitIP(ruleLogin, s.login))
+	mux.HandleFunc("POST /api/auth/forgot", s.limitIP(ruleForgot, s.forgotPassword))
+	mux.HandleFunc("POST /api/auth/redeem", s.limitIP(ruleRedeem, s.redeemLink))
 
 	// Authenticated org routes.
 	a := func(pattern string, h func(http.ResponseWriter, *http.Request, *Principal)) {
@@ -125,6 +126,7 @@ func (s *Server) Handler() http.Handler {
 	a("POST /api/ops/people", s.addPerson)
 	a("PATCH /api/ops/people/{id}", s.updatePerson)
 	a("GET /api/ops/overview", s.opsOverview)
+	a("GET /api/ops/seat-history", s.opsSeatHistory)
 	a("GET /api/ops/stations", s.listStations)
 	a("GET /api/ops/stations/{code}", s.getStation)
 	a("POST /api/ops/stations/{code}/status", s.updateStationStatus)
@@ -152,6 +154,11 @@ func (s *Server) Handler() http.Handler {
 	a("PUT /api/platform/email-templates/{key}", s.platformSaveTemplate)
 	a("GET /api/platform/organizations", s.platformListOrgs)
 	a("POST /api/platform/organizations", s.platformCreateOrg)
+	a("GET /api/platform/regions", s.platformRegions)
+	a("GET /api/platform/stations", s.platformStations)
+	a("POST /api/platform/stations", s.platformCreateStation)
+	a("PATCH /api/platform/stations/{code}", s.platformUpdateStation)
+	a("DELETE /api/platform/stations/{code}", s.platformDeleteStation)
 	a("PATCH /api/platform/organizations/{id}", s.platformUpdateOrg)
 
 	return s.recoverer(s.logger(s.cors(mux)))
@@ -187,12 +194,16 @@ func (s *Server) authed(h func(http.ResponseWriter, *http.Request, *Principal)) 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
 		if !ok {
-			writeErr(w, http.StatusUnauthorized, "missing bearer token")
+			if !s.limited(w, ruleUnknown, clientIP(r)) {
+				writeErr(w, http.StatusUnauthorized, "missing bearer token")
+			}
 			return
 		}
 		uid, err := s.tokens.Verify(raw)
 		if err != nil {
-			writeErrCode(w, http.StatusUnauthorized, "token_invalid", "invalid or expired token")
+			if !s.limited(w, ruleUnknown, clientIP(r)) {
+				writeErrCode(w, http.StatusUnauthorized, "token_invalid", "invalid or expired token")
+			}
 			return
 		}
 		p, err := s.loadPrincipal(r.Context(), uid)
@@ -203,6 +214,10 @@ func (s *Server) authed(h func(http.ResponseWriter, *http.Request, *Principal)) 
 		}
 		if err != nil {
 			s.internal(w, r, err)
+			return
+		}
+		if s.limited(w, ruleFor(r), p.UserID) {
+			slog.Warn("rate limited", "user", p.Email, "route", r.Pattern, "ip", clientIP(r))
 			return
 		}
 		r = r.WithContext(context.WithValue(r.Context(), ctxKey{}, p))

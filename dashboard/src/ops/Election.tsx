@@ -73,7 +73,7 @@ export default function ElectionPage() {
 
 function ActiveElection({ e, canSetup, onComplete }: { e: ElectionSummary; canSetup: boolean; onComplete: () => void }) {
   const [drill, setDrill] = useState<Drill>({});
-  const detail = useAsync(() => ops.election(e.id, drill), [e.id, drill.constituency, drill.ward]);
+  const detail = useAsync(() => ops.election(e.id, drill), [e.id, drill.county, drill.constituency, drill.ward]);
   const d = detail.data;
   return (
     <>
@@ -88,21 +88,22 @@ function ActiveElection({ e, canSetup, onComplete }: { e: ElectionSummary; canSe
         </div>
         <div className="grid kpis" style={{ marginBottom: 0 }}>
           <div className="stat"><small>POSITIONS</small><strong>{e.positions}</strong></div>
-          <div className="stat"><small>ELECTION REGIONS</small><strong>{e.counties} · {e.constituencies} · {e.wards}</strong><small className="muted">counties · constituencies · wards</small></div>
+          <div className="stat"><small>ELECTION REGIONS</small><strong>{num(e.counties)} · {num(e.constituencies)} · {num(e.wards)}</strong><small className="muted">counties · constituencies · wards</small></div>
           <div className="stat"><small>REGISTERED VOTERS</small><strong>{num(e.registered)}</strong></div>
           <div className="stat"><small>STATIONS REPORTED</small><strong>{pct(e.reported_share)}</strong></div>
         </div>
       </Card>
       <ErrorNote error={detail.error} />
+      {!d && !detail.error && <Card className="mt"><Loading /></Card>}
       {d && (
-        <div className="grid cols-even mt">
+        <div className="stack mt" style={{ gap: 16 }}>
           <Card title="Election regions — derived from positions">
-            <div className="stack">
+            <div className="grid region-grid">
               {d.levels.map((l) => (
                 <div key={l.level} className="region-derive">
                   <div style={{ fontWeight: 600 }}>{l.positions.join(" · ")}</div>
                   <div className="muted">→ {describeLevel(l.level, e.scope_label)}</div>
-                  <Badge tone="teal">{l.regions.length} {plural(l.level, l.regions.length)}</Badge>
+                  <Badge tone="teal">{num(l.regions.length)} {plural(l.level, l.regions.length)}</Badge>
                 </div>
               ))}
             </div>
@@ -111,17 +112,17 @@ function ActiveElection({ e, canSetup, onComplete }: { e: ElectionSummary; canSe
             <DrillCrumbs root={e.scope_label} drill={drill} onChange={setDrill} />
             <div className="table-wrap">
               <table className="cards">
-                <thead><tr><th>{d.drill.child_level}</th><th>Races held here</th><th className="num">Stations</th><th className="num">Reg. voters</th><th /></tr></thead>
+                <thead><tr><th>{d.drill.child_level}</th><th>Races held here</th><th className="num">Stations</th><th className="num">Reg. voters</th><th className="num" /></tr></thead>
                 <tbody>
                   {d.drill.rows.map((r) => {
                     const next = drillInto(drill, d.drill.child_level, r.name);
                     return (
-                      <tr key={r.name}>
+                      <tr key={r.name} className={next ? "clickable" : ""} onClick={() => next && setDrill(next)}>
                         <td data-label={d.drill.child_level} style={{ fontWeight: 600 }}>{r.name}</td>
                         <td data-label="Races">{r.races || "—"}</td>
-                        <td data-label="Stations" className="num">{r.stations}</td>
+                        <td data-label="Stations" className="num">{num(r.stations)}</td>
                         <td data-label="Reg. voters" className="num">{num(r.registered)}</td>
-                        <td>{next && <button className="btn small secondary" onClick={() => setDrill(next)}>Drill ›</button>}</td>
+                        <td className="num">{next && <button className="btn small secondary" onClick={(ev) => { ev.stopPropagation(); setDrill(next); }}>Drill ›</button>}</td>
                       </tr>
                     );
                   })}
@@ -141,7 +142,7 @@ const plural = (level: string, n: number) =>
 function describeLevel(level: string, scope: string) {
   switch (level) {
     case "national": return "one national race";
-    case "county": return `${scope} — one county-wide race each`;
+    case "county": return scope === "All regions" ? "Every county holds its own race" : `${scope} — one county-wide race`;
     case "constituency": return "Every constituency in scope holds its own race";
     default: return "Every ward in scope holds its own race";
   }
@@ -163,7 +164,7 @@ const steps = ["Details", "Scope", "Positions", "Candidates", "Review"];
 export function NewElectionWizard() {
   const { me } = useAuth();
   const nav = useNavigate();
-  const regions = useAsync(ops.regions, []);
+  const regions = useAsync(ops.areas, []);
   const [step, setStep] = useState(0);
   const [f, setF] = useState({ name: "", code: "", election_date: "", county: me?.organization?.boundary.county ?? "", constituency: me?.organization?.boundary.constituency ?? "" });
   const [picked, setPicked] = useState<Set<string>>(new Set(["Governor", "Senator", "Woman Representative", "Member of Parliament", "MCA"]));

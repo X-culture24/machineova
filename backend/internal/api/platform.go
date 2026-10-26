@@ -1,7 +1,9 @@
 package api
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -94,6 +96,16 @@ func (s *Server) platformCreateOrg(w http.ResponseWriter, r *http.Request, p *Pr
 		writeErr(w, http.StatusBadRequest, "accent color must be a hex value like #0D9488")
 		return
 	}
+	county, constituency, msg, err := s.registerBoundary(r.Context(), emptyNil(in.BoundaryCounty), emptyNil(in.BoundaryConstituency))
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	if msg != "" {
+		writeErr(w, http.StatusBadRequest, msg)
+		return
+	}
+	in.BoundaryCounty, in.BoundaryConstituency = county, constituency
 	hash, err := auth.HashPassword(in.OwnerPassword)
 	if err != nil {
 		s.internal(w, r, err)
@@ -175,4 +187,80 @@ func (s *Server) platformUpdateOrg(w http.ResponseWriter, r *http.Request, p *Pr
 		return
 	}
 	writeJSON(w, http.StatusOK, o)
+}
+
+// registerBoundary checks an organization boundary against the polling-station register and
+// returns the register's spelling ("nairobi" → "Nairobi"). msg explains a boundary that matches nothing.
+func (s *Server) registerBoundary(ctx context.Context, county, constituency *string) (*string, *string, string, error) {
+	if county == nil {
+		if constituency != nil {
+			return nil, nil, "pick the county before the constituency", nil
+		}
+		return nil, nil, "", nil
+	}
+	var c, k *string
+	err := s.db.QueryRow(ctx, `
+		SELECT county, CASE WHEN $2::text IS NULL THEN NULL ELSE constituency END FROM polling_stations
+		WHERE lower(county) = lower($1) AND ($2::text IS NULL OR lower(constituency) = lower($2)) LIMIT 1`,
+		strings.TrimSpace(*county), constituency).Scan(&c, &k)
+	if errors.Is(err, pgx.ErrNoRows) {
+		if constituency != nil {
+			return nil, nil, fmt.Sprintf("%s is not a constituency of %s in the polling-station register", *constituency, *county), nil
+		}
+		return nil, nil, *county + " is not a county in the polling-station register", nil
+	}
+	return c, k, "", err
+}
+
+// platformRegions lists counties › constituencies › wards for the boundary picker and the
+// polling-station register, with station counts.
+func (s *Server) platformRegions(w http.ResponseWriter, r *http.Request, p *Principal) {
+	if !requirePlatform(w, p) {
+		return
+	}
+	rows, err := s.db.Query(r.Context(), `
+		SELECT county, constituency, ward, count(*) FROM polling_stations GROUP BY 1, 2, 3 ORDER BY 1, 2, 3`)
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	type ward struct {
+		Name     string `json:"name"`
+		Stations int    `json:"stations"`
+	}
+	type constituency struct {
+		Name     string `json:"name"`
+		Stations int    `json:"stations"`
+		Wards    []ward `json:"wards"`
+	}
+	type county struct {
+		Name           string          `json:"name"`
+		Stations       int             `json:"stations"`
+		Constituencies []*constituency `json:"constituencies"`
+	}
+	out := []*county{}
+	for rows.Next() {
+		var c, k, wd string
+		var n int
+		if err := rows.Scan(&c, &k, &wd, &n); err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		if len(out) == 0 || out[len(out)-1].Name != c {
+			out = append(out, &county{Name: c})
+		}
+		cc := out[len(out)-1]
+		if len(cc.Constituencies) == 0 || cc.Constituencies[len(cc.Constituencies)-1].Name != k {
+			cc.Constituencies = append(cc.Constituencies, &constituency{Name: k})
+		}
+		kk := cc.Constituencies[len(cc.Constituencies)-1]
+		kk.Wards = append(kk.Wards, ward{Name: wd, Stations: n})
+		kk.Stations += n
+		cc.Stations += n
+	}
+	if err := rows.Err(); err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, out)
 }

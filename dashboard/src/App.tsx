@@ -20,6 +20,7 @@ import RegistrationPage from "./pages/Registration";
 import FieldAppPage from "./pages/FieldApp";
 import { ForgotPage, SetPasswordPage } from "./pages/AuthLinks";
 import PlatformOrgs, { EmailTemplates, NewOrgWizard, PlatformOrgDetail } from "./pages/PlatformOrgs";
+import PlatformStations from "./pages/PlatformStations";
 import { opsRoles, roleLabel } from "./ops/api";
 import OpsOverview from "./ops/Overview";
 import ElectionPage, { NewElectionWizard } from "./ops/Election";
@@ -98,6 +99,7 @@ export default function App() {
             <Route path="platform/new" element={<NewOrgWizard />} />
             <Route path="platform/orgs/:id" element={<PlatformOrgDetail />} />
             <Route path="platform/templates" element={<EmailTemplates />} />
+            <Route path="platform/stations" element={<PlatformStations />} />
           </>
         )}
         <Route path="account" element={<AccountPage />} />
@@ -112,7 +114,7 @@ export default function App() {
 /** Phone reflow: the sidebar's main destinations become a bottom tab bar. */
 function TabBar({ inOps, me }: { inOps: boolean; me: Me }) {
   const tabs: [string, string, string][] = !me.organization
-    ? [["/platform", "Overview", "⌂"], ["/platform/new", "New org", "+"], ["/platform/templates", "Emails", "✉"], ["/account", "Account", "☺"]]
+    ? [["/platform", "Overview", "⌂"], ["/platform/new", "New org", "+"], ["/platform/stations", "Stations", "⚑"], ["/platform/templates", "Emails", "✉"], ["/account", "Account", "☺"]]
     : inOps
       ? [["/ops", "Home", "⌂"], ["/ops/stations", "Stations", "⚑"], ...(me.role !== "agent" ? [["/ops/people", "Agents", "☺"] as [string, string, string]] : []),
          ["/ops/turnout", "Turnout", "↗"], ["/account", "Account", "⚙"]]
@@ -210,6 +212,7 @@ function Shell() {
             {section("Platform")}
             {link("/platform", "Platform overview", "⌂", true)}
             {link("/platform/new", "New organization", "+")}
+            {link("/platform/stations", "Polling stations", "⚑")}
             {link("/platform/templates", "Email templates", "✉")}
             {link("/activity", "Activity log", "≣")}
           </>

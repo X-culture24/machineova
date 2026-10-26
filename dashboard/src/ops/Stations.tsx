@@ -9,6 +9,7 @@ import { NoElection, OpsHeader, Pager, StatusBadge } from "./components";
 import { StationDrawer } from "./StationDrawer";
 
 const chips: { key: string; label: string; dot: string }[] = [
+  { key: "not_open", label: "Not open", dot: "grey" },
   { key: "open", label: "Open", dot: "green" },
   { key: "reporting", label: "Reporting", dot: "teal" },
   { key: "issue", label: "Issue", dot: "red" },
@@ -23,6 +24,7 @@ export default function StationsPage() {
   const open = params.get("station");
   const [q, setQ] = useState("");
   const [dq, setDq] = useState("");
+  const [county, setCounty] = useState("");
   const [constituency, setConstituency] = useState("");
   const [ward, setWard] = useState("");
   const [page, setPage] = useState(1);
@@ -32,8 +34,8 @@ export default function StationsPage() {
     const t = setTimeout(() => setDq(q), 250);
     return () => clearTimeout(t);
   }, [q]);
-  const list = useAsync(() => ops.stations({ status, q: dq, constituency, ward, page }), [status, dq, constituency, ward, page]);
-  const regions = useAsync(ops.regions, []);
+  const list = useAsync(() => ops.stations({ status, q: dq, county, constituency, ward, page }), [status, dq, county, constituency, ward, page]);
+  const regions = useAsync(ops.areas, []);
 
   const setParam = (k: string, v: string | null) => {
     const n = new URLSearchParams(params);
@@ -41,9 +43,12 @@ export default function StationsPage() {
     else n.delete(k);
     setParams(n);
   };
-  if (list.error?.includes("No active election")) return (<><OpsHeader title="Station operations" /><NoElection canSetup={me?.role === "owner" || me?.role === "admin"} /></>);
+  if (list.error?.includes("No active election")) return (<><OpsHeader title="Polling stations" /><NoElection canSetup={me?.role === "owner" || me?.role === "admin"} /></>);
 
-  const constituencies = regions.data?.counties.flatMap((c) => c.constituencies) ?? [];
+  // County › constituency › ward; a single option at a level is picked implicitly (bounded users).
+  const counties = regions.data?.counties ?? [];
+  const inCounty = counties.find((c) => c.name === county) ?? (counties.length === 1 ? counties[0] : undefined);
+  const constituencies = inCounty?.constituencies ?? [];
   const wards = constituencies.find((c) => c.name === constituency)?.wards ?? (constituencies.length === 1 ? constituencies[0]!.wards : []);
   const d = list.data;
   const pageCodes = d?.items.map((s) => s.code) ?? [];
@@ -52,30 +57,36 @@ export default function StationsPage() {
 
   return (
     <>
-      <OpsHeader title="Station operations" subtitle="The do surface — status, turnout, assignments, incidents, results" scopeLabel={d?.scope_label} />
+      <OpsHeader title="Polling stations" subtitle="Status, turnout, agents, incidents and results for every station" election={d?.election} scopeLabel={d?.scope_label} />
       <ErrorNote error={list.error} />
       <div className="chip-row">
         {chips.map((c) => (
           <button key={c.key} className={`count-chip ${status === c.key ? "on" : ""}`} onClick={() => { setParam("status", status === c.key ? null : c.key); setPage(1); }}>
-            <span className={`dot ${c.dot}`} /> <strong>{d?.counts[c.key] ?? "–"}</strong> {c.label}
+            <span className={`dot ${c.dot}`} /> <strong>{d ? num(d.counts[c.key] ?? 0) : "–"}</strong> {c.label}
           </button>
         ))}
       </div>
       <div className="toolbar">
         <input className="input" placeholder="Search stations…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
+        {!me?.scope.county && counties.length > 1 && (
+          <select className="input" value={county} onChange={(e) => { setCounty(e.target.value); setConstituency(""); setWard(""); setPage(1); }}>
+            <option value="">All counties</option>
+            {counties.map((c) => <option key={c.name}>{c.name}</option>)}
+          </select>
+        )}
         {!me?.scope.constituency && (
-          <select className="input" value={constituency} onChange={(e) => { setConstituency(e.target.value); setWard(""); setPage(1); }}>
-            <option value="">All constituencies</option>
+          <select className="input" value={constituency} disabled={!inCounty} onChange={(e) => { setConstituency(e.target.value); setWard(""); setPage(1); }}>
+            <option value="">{inCounty ? "All constituencies" : "Pick a county first"}</option>
             {constituencies.map((c) => <option key={c.name}>{c.name}</option>)}
           </select>
         )}
         {!me?.scope.ward && (
-          <select className="input" value={ward} onChange={(e) => { setWard(e.target.value); setPage(1); }}>
-            <option value="">All wards</option>
+          <select className="input" value={ward} disabled={wards.length === 0} onChange={(e) => { setWard(e.target.value); setPage(1); }}>
+            <option value="">{wards.length ? "All wards" : "Pick a constituency first"}</option>
             {wards.map((w) => <option key={w.name}>{w.name}</option>)}
           </select>
         )}
-        <span className="muted" style={{ alignSelf: "center" }}>{d ? `${d.total} of ${d.in_scope} stations` : ""}</span>
+        <span className="muted" style={{ alignSelf: "center" }}>{d ? `${num(d.total)} of ${num(d.in_scope)} stations` : ""}</span>
         {selected.size > 0 && canBulk && (
           <button className="btn" style={{ marginLeft: "auto" }} onClick={() => setBulk(true)}>Update {selected.size} selected</button>
         )}
@@ -112,7 +123,7 @@ export default function StationsPage() {
                           }} />
                         </td>
                       )}
-                      <td data-label="Station"><div style={{ fontWeight: 600 }}>{s.name}</div><small className="muted">{s.code} · {s.constituency}</small></td>
+                      <td data-label="Station"><div style={{ fontWeight: 600 }}>{s.name}</div><small className="muted">{s.code} · {s.constituency}{!d.scope.county && `, ${s.county}`}</small></td>
                       <td data-label="Ward">{s.ward}</td>
                       <td data-label="Voters" className="num">{num(s.registered)}</td>
                       <td data-label="Turnout" className="num accent-text">{s.turnout == null ? "—" : pct(s.turnout)}</td>

@@ -2,7 +2,7 @@
 DATABASE_URL ?= postgres://postgres@localhost:5432/checkin?sslmode=disable
 export DATABASE_URL
 
-.PHONY: api dashboard mobile db bootstrap import-register import-idregistry import-registry build test e2e e2e-idlookup
+.PHONY: api dashboard mobile db bootstrap import-register import-idregistry import-registry build test e2e e2e-idlookup deploy
 
 db:                 ## Create the local database (Postgres.app / local server)
 	createdb checkin 2>/dev/null || true
@@ -51,3 +51,6 @@ e2e-idlookup:       ## ID lookup / check-in end-to-end on a throwaway copy of th
 	DATABASE_URL=postgres://postgres@localhost:5432/checkin_e2e_id?sslmode=disable ADDR=:8199 backend/bin/e2e-api & pid=$$!; sleep 2; \
 		DATABASE_URL=postgres://postgres@localhost:5432/checkin_e2e_id?sslmode=disable API=http://localhost:8199 python3 backend/scripts/e2e_idlookup.py; \
 		status=$$?; kill $$pid; dropdb checkin_e2e_id; exit $$status
+
+deploy:             ## Test, build and ship to production over SSH as root (SKIP_TESTS=1, DEPLOY_APK=1, DEPLOY_HOST=…)
+	./scripts/deploy.sh

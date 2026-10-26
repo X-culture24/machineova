@@ -60,14 +60,26 @@ func (s *Server) audit(ctx context.Context, orgID, userID, actor, action, path s
 	}
 }
 
+// clientIP is the caller's address for rate limits and the audit log. Proxy headers are only
+// believed from a reverse proxy on this machine (nginx in front of 127.0.0.1): X-Real-IP, which
+// nginx overwrites with the connecting address, then the last X-Forwarded-For hop (the one nginx
+// appended). The first X-Forwarded-For entry is whatever the client sent, so it is never used.
 func clientIP(r *http.Request) string {
+	peer := r.RemoteAddr
+	if h, _, err := net.SplitHostPort(peer); err == nil {
+		peer = h
+	}
+	if ip := net.ParseIP(peer); ip == nil || !ip.IsLoopback() {
+		return peer
+	}
+	if ip := strings.TrimSpace(r.Header.Get("X-Real-IP")); ip != "" {
+		return ip
+	}
 	if f := r.Header.Get("X-Forwarded-For"); f != "" {
-		return strings.TrimSpace(strings.Split(f, ",")[0])
+		hops := strings.Split(f, ",")
+		return strings.TrimSpace(hops[len(hops)-1])
 	}
-	if h, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
-		return h
-	}
-	return r.RemoteAddr
+	return peer
 }
 
 // auditChanges wraps an authenticated handler: every non-GET request is recorded with who,
