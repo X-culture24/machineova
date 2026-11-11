@@ -176,7 +176,7 @@ func (s *Server) checkLogin(ctx context.Context, login, password, ip string) (st
 	if orgID != nil {
 		org = *orgID
 	}
-	if lockedUntil != nil && lockedUntil.After(time.Now()) {
+	if !s.limitsOff && lockedUntil != nil && lockedUntil.After(time.Now()) {
 		mins := int(time.Until(*lockedUntil).Minutes()) + 1
 		s.audit(ctx, org, id, email, "LOGIN blocked (locked)", "/api/auth/login", http.StatusTooManyRequests, ip)
 		return "", http.StatusTooManyRequests, "account_locked",
@@ -184,7 +184,7 @@ func (s *Server) checkLogin(ctx context.Context, login, password, ip string) (st
 	}
 	if hash == nil || !auth.CheckPassword(*hash, password) {
 		failed++
-		if failed >= maxFailedLogins {
+		if !s.limitsOff && failed >= maxFailedLogins {
 			_, err = s.db.Exec(ctx, `UPDATE users SET failed_logins = 0, locked_until = now() + $2::interval WHERE id = $1`,
 				id, fmt.Sprintf("%d seconds", int(lockFor.Seconds())))
 			s.audit(ctx, org, id, email, "LOGIN failed — account locked", "/api/auth/login", http.StatusTooManyRequests, ip)

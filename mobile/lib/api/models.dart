@@ -27,7 +27,11 @@ class Me {
   static const _opsRoles = {'owner', 'executive', 'admin', 'chief_agent', 'manager', 'agent'};
   static const _checkinRoles = {'owner', 'admin', 'member', 'viewer'};
   bool get hasOps => _opsRoles.contains(role);
-  bool get hasCheckin => _checkinRoles.contains(role);
+  bool get hasCheckin => _checkinRoles.contains(role) || isFieldAgent;
+
+  /// The field app is for field agents only: election agents and Checkin field members.
+  /// Owners, admins, managers and candidates use the web dashboard.
+  bool get isFieldAgent => role == 'agent' || role == 'member';
   bool get isAgent => role == 'agent';
   bool get canActOnStations => hasOps && role != 'executive';
 }

@@ -25,6 +25,9 @@ type Server struct {
 	appURL      string
 	apkPath     string
 	limits      *limiter
+	// limitsOff (RATE_LIMITS=off) turns off the request rate limits and the sign-in lockout.
+	limitsOff bool
+	sdics     *pgxpool.Pool
 }
 
 // Options are the optional extras; zero values disable each feature gracefully.
@@ -32,11 +35,15 @@ type Options struct {
 	Mail    *mail.Mailer
 	AppURL  string
 	ApkPath string
+	// SDICS is an optional read-only connection to the SDICS database, used to look up IDs
+	// MachineNova's own register and ID records don't know.
+	SDICS *pgxpool.Pool
 }
 
 // WithOptions sets the optional extras.
 func (s *Server) WithOptions(o Options) *Server {
 	s.mail, s.appURL, s.apkPath = o.Mail, strings.TrimRight(o.AppURL, "/"), o.ApkPath
+	s.sdics = o.SDICS
 	if s.mail == nil {
 		s.mail = mail.FromEnv()
 	}
@@ -50,7 +57,7 @@ func New(db *pgxpool.Pool, tokens auth.Tokens, corsOrigins string) *Server {
 			origins[o] = true
 		}
 	}
-	return &Server{db: db, tokens: tokens, corsOrigins: origins, mail: mail.FromEnv(), appURL: "http://localhost:5173", limits: newLimiter()}
+	return &Server{db: db, tokens: tokens, corsOrigins: origins, mail: mail.FromEnv(), appURL: "http://localhost:5173", limits: newLimiter(), limitsOff: limitsDisabled()}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -231,7 +238,8 @@ func (s *Server) loadPrincipal(ctx context.Context, uid string) (*Principal, err
 	var orgActive *bool
 	err := s.db.QueryRow(ctx, `
 		SELECT u.id, u.org_id, u.name, COALESCE(u.email, ''), u.role, u.is_platform_admin,
-		       u.module_events, u.module_mobilization, o.active,
+		       -- Owners run every part of their organization; field agents check in and mobilize.
+		       u.module_events OR u.role IN ('owner', 'agent'), u.module_mobilization OR u.role IN ('owner', 'agent'), o.active,
 		       u.scope_county, u.scope_constituency, u.scope_ward
 		FROM users u LEFT JOIN organizations o ON o.id = u.org_id
 		WHERE u.id = $1 AND u.active`, uid).

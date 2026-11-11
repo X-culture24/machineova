@@ -25,7 +25,7 @@ class Session extends ChangeNotifier {
     prefetchForOffline();
   }
 
-  void _pickMode() => opsMode = me != null && me!.hasOps && !me!.hasCheckin;
+  void _pickMode() => opsMode = false; // the field app is check-in and mobilize only
 
   Future<void> _activate(Me m) async {
     me = m;
@@ -43,11 +43,13 @@ class Session extends ChangeNotifier {
     await outbox.load();
     if (api.hasToken) {
       try {
-        await _activate(await api.me());
+        final m = await api.me();
+        if (!m.isFieldAgent) throw const NotFieldAgent();
+        await _activate(m);
       } catch (e) {
         // No signal: open with the last profile so field work can continue offline.
         final cached = isNetworkError(e) ? await api.cachedMe() : null;
-        if (cached != null) {
+        if (cached != null && cached.isFieldAgent) {
           await _activate(cached);
         } else if (me == null) {
           await api.logout();
@@ -69,7 +71,12 @@ class Session extends ChangeNotifier {
   }
 
   Future<void> signIn(String login, String password) async {
-    await _activate(await api.login(login, password));
+    final m = await api.login(login, password);
+    if (!m.isFieldAgent) {
+      await api.logout();
+      throw const NotFieldAgent();
+    }
+    await _activate(m);
     wiped = null;
     await appLock.onSessionStart(restored: false); // asks for a new PIN
     notifyListeners();
@@ -105,3 +112,11 @@ class Session extends ChangeNotifier {
 
 final session = Session();
 final appLock = AppLock(PinStore(vault.keyStore), onWipe: session.wipe);
+
+/// Thrown when someone other than a field agent signs in to the field app.
+class NotFieldAgent implements Exception {
+  const NotFieldAgent();
+  @override
+  String toString() =>
+      'This app is for field agents. Managers, admins and candidates sign in on the web dashboard.';
+}

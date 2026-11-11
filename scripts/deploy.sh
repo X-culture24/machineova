@@ -41,8 +41,10 @@ if [[ "${DEPLOY_APK:-}" == 1 ]]; then
   export JAVA_HOME="${JAVA_HOME:-$HOME/development/jdk-17/Contents/Home}"
   export PATH="$JAVA_HOME/bin:$PATH"
   FLUTTER="${FLUTTER:-$(command -v flutter || echo "$HOME/development/flutter/bin/flutter")}"
-  (cd "$ROOT/mobile" && "$FLUTTER" build apk --release --dart-define=API_URL="$PUBLIC_URL" >/dev/null)
-  cp "$ROOT/mobile/build/app/outputs/flutter-apk/app-release.apk" "$STAGE/MachineNova.apk"
+  # One APK per CPU type (about 42 MB instead of 108 MB); the 64-bit ARM build fits nearly every phone.
+  (cd "$ROOT/mobile" && "$FLUTTER" build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols \
+    --dart-define=API_URL="$PUBLIC_URL" >/dev/null)
+  cp "$ROOT/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" "$STAGE/MachineNova.apk"
 fi
 
 step "Back up the server"

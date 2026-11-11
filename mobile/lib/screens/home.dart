@@ -132,7 +132,7 @@ class _Hero extends StatelessWidget {
               Text(me.name.split(' ').first,
                   style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
               if (me.orgName != null)
-                Text(me.orgName!, style: const TextStyle(color: Colors.white70, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text('${me.orgName!} · Field Agent', style: const TextStyle(color: Colors.white70, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
             ]),
           ),
           CircleAvatar(

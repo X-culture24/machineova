@@ -135,7 +135,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver, Si
       debugPrint('scan frame failed: $e');
       // A failing recogniser would otherwise look like "nothing happens": say so.
       if (++_failures == 5 && mounted) {
-        setState(() => _hint = 'The scanner can\'t read on this phone right now. Tap "Type ID" to enter the number.');
+        setState(() => _hint = 'The scanner is getting ready (the first scan needs internet) — or tap "Type ID" to enter the number.');
       }
     } finally {
       _busy = false;

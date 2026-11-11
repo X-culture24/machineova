@@ -44,6 +44,26 @@ cp android_template/proguard-rules.pro android/app/proguard-rules.pro
 grep -q 'proguard-rules.pro' "$gradle" ||
   edit "$gradle" 's#(release \{\n)#$1            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")\n#'
 
+# ID scanning uses the ML Kit copies in Google Play services instead of bundling its own
+# (about 16 MB smaller APKs; same API). Play services fetches the models, asked for at install.
+grep -q 'play-services-mlkit-text-recognition' "$gradle" || cat >> "$gradle" <<'GRADLE'
+
+// ID scanning uses the ML Kit copies inside Google Play services instead of bundling its own
+// (about 16 MB less per APK). Same API, so the Flutter plugins work unchanged. Play services
+// fetches the models once; the manifest's DEPENDENCIES entry asks for them at install time.
+configurations.all {
+    exclude(group = "com.google.mlkit", module = "text-recognition")
+    exclude(group = "com.google.mlkit", module = "barcode-scanning")
+}
+
+dependencies {
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
+}
+GRADLE
+grep -q 'com.google.mlkit.vision.DEPENDENCIES' "$manifest" ||
+  edit "$manifest" 's#(\s*)</application>#$1    <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="ocr,barcode" />$1</application>#'
+
 # ---------------- iOS ----------------
 plist=ios/Runner/Info.plist
 grep -q NSCameraUsageDescription "$plist" ||

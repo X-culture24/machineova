@@ -7,7 +7,6 @@ import 'screens/login.dart';
 import 'screens/onboarding.dart';
 import 'screens/splash.dart';
 import 'security/app_lock.dart';
-import 'screens/ops/ops_shell.dart';
 import 'screens/shell.dart';
 import 'session.dart';
 import 'theme.dart';
@@ -72,7 +71,7 @@ class _CheckinAppState extends State<CheckinApp> with WidgetsBindingObserver {
             case AppLockState.locked:
               return const LockScreen();
             case AppLockState.open:
-              return session.opsMode ? const OpsShell() : const Shell();
+              return const Shell();
           }
         },
       ),

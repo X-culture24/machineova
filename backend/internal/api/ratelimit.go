@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -93,6 +95,9 @@ func (l *limiter) sweep(now time.Time) {
 
 // limited answers 429 when key is over rule r; it returns false when the caller may proceed.
 func (s *Server) limited(w http.ResponseWriter, r rule, key string) bool {
+	if s.limitsOff {
+		return false
+	}
 	ok, wait := s.limits.allow(r, key)
 	if ok {
 		return false
@@ -122,4 +127,14 @@ func (s *Server) limitIP(rl rule, h http.HandlerFunc) http.HandlerFunc {
 		}
 		h(w, r)
 	}
+}
+
+// limitsDisabled reports whether RATE_LIMITS=off is set: no request rate limits and no account
+// lockout after wrong passwords. Anything else (or unset) keeps both on.
+func limitsDisabled() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("RATE_LIMITS"))) {
+	case "off", "false", "0", "disabled":
+		return true
+	}
+	return false
 }

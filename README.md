@@ -11,7 +11,7 @@ One platform, two workspaces:
 | Web dashboard | TypeScript · React 18 · Vite | `dashboard/` |
 | Field app | Flutter (Android first, iOS ready) | `mobile/` |
 
-Mobile field roles (Manager, Agent, Chief Agent) get the Election Ops field app; Checkin roles get the check-in/mobilize app.
+The field app is for **field agents only** (election agents and Checkin field members): check in and mobilize, as in the *Checkin App Training Manual*. Owners, admins, managers and candidates use the web dashboard. Agents always have check-in and mobilize access; owners always have Events and Mobilization on the dashboard.
 
 The backend is the single source of truth. The dashboard and the mobile app both talk to the same `/api`.
 
@@ -50,6 +50,8 @@ Then sign in to the dashboard as the platform admin, go to **Organizations → N
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated |
 | `APP_URL` | `http://localhost:5173` | Dashboard address used in emailed links (invites, password resets, digests) |
 | `APP_APK_PATH` | — | Field app APK served to signed-in users at **Field app** (`/api/app/download`); not public |
+| `SDICS_DATABASE_URL` | — | Optional read-only connection to the SDICS database. ID lookups that MachineNova's own register and ID records don't know fall back to it (national ID records + voter register with polling centres). Set up with `ssh sdics 'bash -s' < scripts/enable-sdics-lookup.sh` |
+| `RATE_LIMITS` | on | `off` disables the per-IP/per-user request limits **and** the lockout after 5 wrong passwords |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` / `MAIL_FROM` | — / 587 | Email delivery. Without `SMTP_HOST`, emails are written to the server log (links still work in dev) |
 
 ### Accounts & security

@@ -18,8 +18,8 @@ String roleName(String r) =>
       'admin': 'Admin',
       'chief_agent': 'Chief Agent',
       'manager': 'Manager',
-      'agent': 'Agent',
-      'member': 'Member',
+      'agent': 'Field Agent',
+      'member': 'Field Agent',
       'viewer': 'Viewer',
     }[r] ??
     r;
@@ -53,16 +53,6 @@ class AccountScreen extends StatelessWidget {
                   ? const Pill('ACTIVE', fg: AppColors.green, bg: AppColors.greenSoft)
                   : const Pill('INACTIVE', fg: AppColors.red, bg: AppColors.redSoft),
             ),
-            if (me.hasOps && me.hasCheckin) ...[
-              const Divider(height: 1),
-              SwitchListTile(
-                secondary: const Icon(Icons.how_to_vote_outlined, color: AppColors.teal),
-                title: const Text('Election Ops workspace'),
-                subtitle: const Text('Stations, turnout, incidents and results'),
-                value: session.opsMode,
-                onChanged: session.setOpsMode,
-              ),
-            ],
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.lock_outline, color: AppColors.teal),

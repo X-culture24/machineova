@@ -125,7 +125,11 @@ func (s *Server) registerLookup(ctx context.Context, nationalID string) (*voter,
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
-	return s.idRegistryLookup(ctx, nationalID)
+	id, err := s.idRegistryLookup(ctx, nationalID)
+	if id != nil || err != nil {
+		return id, err
+	}
+	return s.sdicsLookup(ctx, nationalID)
 }
 
 func (s *Server) idRegistryLookup(ctx context.Context, nationalID string) (*voter, error) {

@@ -95,3 +95,20 @@ func TestRuleForPersonalDataRoutes(t *testing.T) {
 		t.Fatal("everything else uses the general budget")
 	}
 }
+
+func TestRateLimitsOff(t *testing.T) {
+	t.Setenv("RATE_LIMITS", "off")
+	if !limitsDisabled() {
+		t.Fatal("RATE_LIMITS=off should disable limits")
+	}
+	t.Setenv("RATE_LIMITS", "")
+	if limitsDisabled() {
+		t.Fatal("limits must stay on when RATE_LIMITS is unset")
+	}
+	s := &Server{limits: newLimiter(), limitsOff: true}
+	for i := 0; i < 50; i++ {
+		if s.limited(httptest.NewRecorder(), ruleLogin, "1.2.3.4") {
+			t.Fatalf("request %d was limited with limits off", i+1)
+		}
+	}
+}
