@@ -291,7 +291,7 @@ void main() {
 
     await tester.tap(find.text('Mark as registered'));
     await tester.pumpAndSettle();
-    await shot(tester, '07_confirm', {'1': find.textContaining('will be recorded'), '2': find.widgetWithText(TextButton, 'Cancel'), '3': find.widgetWithText(FilledButton, 'Register')});
+    await shot(tester, '07_confirm', {'1': find.textContaining('will be recorded'), '2': find.byKey(const Key('back-button')), '3': find.widgetWithText(FilledButton, 'Register')});
 
     await tester.tap(find.widgetWithText(FilledButton, 'Register'));
     await waitFor(tester, find.textContaining('is now registered'));

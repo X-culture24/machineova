@@ -22,7 +22,7 @@ CFG = {
         title='IEBC Clerks', who='IEBC clerks',
         sub1='How to use the SDICS Field app,', sub2='step by step, in simple words.',
         covers='Phone basics · SDICS Field app · Quick reference',
-        footer='IEBC Clerks · Version 3.3 · November 2026', p0_sub='Read this before you start.',
+        footer='IEBC Clerks · Version 3.4 · November 2026', p0_sub='Read this before you start.',
         battery_off='Charge it. Work saved in SDICS Field stays on the phone and is sent when you are back online.',
         pdf_title='SDICS Training Manual — IEBC Clerks',
         pdf_subject='SDICS Field app (IEBC clerks)'),
@@ -30,7 +30,7 @@ CFG = {
         title='Chiefs and Sub-chiefs', who='Chiefs and Sub-chiefs (SDICS Field app officers)',
         sub1='How to use the SDICS Field app,', sub2='step by step, in simple words.',
         covers='Phone basics · SDICS Field app · Quick reference',
-        footer='Chiefs and Sub-chiefs · Version 2.3 · November 2026', p0_sub='Read this before you start.',
+        footer='Chiefs and Sub-chiefs · Version 2.4 · November 2026', p0_sub='Read this before you start.',
         battery_off='Charge it. Your saved work in the SDICS Field app stays on the phone; it is sent when the phone is on and has signal.',
         pdf_title='SDICS Training Manual — Chiefs and Sub-chiefs',
         pdf_subject='SDICS Field app'),
@@ -511,9 +511,12 @@ def part_field(n):
                   'It is changed on the SDICS dashboard; sign out and in again after it is changed.')]
 
     S += [P(f'{n}.5 Moving around: the back arrow', H2),
-          P('<b>Every page has a back arrow</b> at the top left: the sign-in page, Home, Roll, Check ID, Statistics, '
-            'a person\'s details, Daily total, Correct figure and the guide. Tap it to go back. '
-            'The phone\'s own <b>Back</b> button does the same.'),
+          P('<b>Every page has a back arrow</b> at the top left: the sign-in page (it stays on screen while you type your '
+            'National ID and PIN), Home, Roll, Check ID, Statistics, a person\'s details, Daily total, Correct figure, '
+            'the offline box and the guide. Tap it to go back. The phone\'s own <b>Back</b> button does the same.'),
+          P('<b>Every question and form has a Back button too</b>: "Mark as registered?" (Back = nothing is registered), '
+            '"Sign out?" (Stay signed in), Daily total and Correct figure (Back under the Send button), and the roll PDF '
+            'while it is being made (Back stops it).'),
           P('On a person\'s details (before you tap Mark as registered) you can also <b>swipe down</b> to go back to the roll. '
             'Nothing is registered when you go back. '
             'On Home and on the sign-in page, press Back twice to close the app.')]
@@ -535,8 +538,8 @@ def part_field(n):
         items=[('1', 'Name'), ('2', 'NOT REGISTERED'), ('3', 'ID number (last 3 digits)'), ('4', 'Mark as registered'), ('5', 'Back arrow')]))
     S.append(shot_steps(F('07_confirm'), 'Step 7: confirm', [
         ('Tap Register', 'The box asks "Mark as registered?". It says the person will be recorded as registered by you, now. '
-         'Tap <b>Register</b> if it is correct. Tap <b>Cancel</b> if it is the wrong person.')], start=7,
-        items=[('1', 'The question'), ('2', 'Cancel'), ('3', 'Register')]))
+         'Tap <b>Register</b> if it is correct. Tap <b>Back</b> if it is the wrong person.')], start=7,
+        items=[('1', 'The question'), ('2', 'Back'), ('3', 'Register')]))
     S.append(shot_steps(F('08_success'), 'Step 8: done', [
         ('See the message', '"<i>Name</i> is now registered." The person leaves the list. The green chip shows how many you did today.')], start=8,
         items=[('1', 'Success message'), ('2', 'Number registered today')],
@@ -672,8 +675,9 @@ def part_field_clerks(n):
         ('Use the bottom tabs', '<b>Home, Roll, Check ID, Statistics.</b> Tap one to move.')],
         items=[('1', 'Clerk'), ('2', 'Your location'), ('3', 'Today\'s target'), ('4', 'Bottom tabs')]))
     S += [callout('TIP', 'Going back',
-                  '<b>Every page has a back arrow</b> at the top left: the sign-in page, Home, Roll, Check ID, Statistics, '
-                  'a person\'s details and the guide. The phone\'s own <b>Back</b> button does the same. On a person\'s details '
+                  '<b>Every page has a back arrow</b> at the top left: the sign-in page (it stays on screen while you type your PIN), '
+                  'Home, Roll, Check ID, Statistics, a person\'s details and the guide. Every question has a <b>Back</b> button '
+                  '(on "Mark as registered?", Back means nothing is registered). The phone\'s own <b>Back</b> button does the same. On a person\'s details '
                   '(before you tap Mark as registered) you can also <b>swipe down</b> to go back; nothing is registered. '
                   'On Home and on the sign-in page, press Back twice to close the app.')]
 
@@ -692,7 +696,7 @@ def part_field_clerks(n):
         items=[('1', 'Name'), ('2', 'NOT REGISTERED'), ('3', 'Mark as registered')]))
     S.append(shot_steps(G('c09_confirm'), 'Step 6: confirm', [
         ('Tap Register', 'The box asks "Mark as registered?". Tap <b>Register</b> if it is the right person, '
-         '<b>Cancel</b> if it is not.')], start=6,
+         '<b>Back</b> if it is not.')], start=6,
         items=[('1', 'The question'), ('2', 'Register')]))
     S.append(shot_steps(G('c10_success'), 'Step 7: done', [
         ('See the message', '"<i>Name</i> is now registered." The person leaves the list.')], start=7,
