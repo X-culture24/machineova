@@ -4,10 +4,12 @@ import { api } from "../api";
 import { isManager, useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader, ProgressBar } from "../components/ui";
 import { area, num, pct } from "../format";
+import { useTerms } from "../terms";
 import { useAsync } from "../useAsync";
 
 export default function MobilizationPage() {
   const { me } = useAuth();
+  const t = useTerms();
   const nav = useNavigate();
   const { data, error, loading, reload } = useAsync(() => api.drives(), []);
   const [creating, setCreating] = useState(false);
@@ -16,29 +18,29 @@ export default function MobilizationPage() {
   return (
     <>
       <PageHeader
-        title="Mobilization"
-        subtitle="Voters your field teams register during outreach, by region."
-        actions={isManager(me) && <button className="btn amber" onClick={() => setCreating(true)}>+ New drive</button>}
+        title={t.mobilization}
+        subtitle={t.mobilizationSubtitle}
+        actions={isManager(me) && <button className="btn amber" onClick={() => setCreating(true)}>{t.newDrive}</button>}
       />
       <ErrorNote error={error} />
       {loading && !data && <Loading />}
       {data && s && (
         <>
           <div className="grid kpis">
-            <Kpi label="Active regions" value={num(s.active_regions)} tone="amber" />
-            <Kpi label="Voters mobilized" value={num(s.mobilized)} caption={s.target ? `${pct(s.mobilized / s.target)} of ${num(s.target)} target` : undefined}
+            <Kpi label={t.activeRegions} value={num(s.active_regions)} tone="amber" />
+            <Kpi label={t.peopleMobilized} value={num(s.mobilized)} caption={s.target ? `${pct(s.mobilized / s.target)} of ${num(s.target)} target` : undefined}
               progress={s.target ? s.mobilized / s.target : undefined} tone="amber" />
             <Kpi label="Boundary" value={<span style={{ fontSize: 18 }}>{area(s.boundary_county, s.boundary_constituency)}</span>} />
             <Kpi label="Org status" value={s.org_active ? <Badge tone="green">Active</Badge> : <Badge tone="red">Inactive</Badge>} />
           </div>
           <Card>
             {data.items.length === 0 ? (
-              <Empty>No mobilization drives yet.</Empty>
+              <Empty>{t.noDrives}</Empty>
             ) : (
               <div className="table-wrap">
                 <table>
                   <thead>
-                    <tr><th>Region / drive</th><th>Area</th><th className="num">Target</th><th className="num">Mobilized</th><th className="num">Remaining</th><th style={{ width: 200 }}>Progress</th><th>Status</th></tr>
+                    <tr><th>{t.driveColumn}</th><th>Area</th><th className="num">Target</th><th className="num">{t.mobilized}</th><th className="num">Remaining</th><th style={{ width: 200 }}>Progress</th><th>Status</th></tr>
                   </thead>
                   <tbody>
                     {data.items.map((d) => (

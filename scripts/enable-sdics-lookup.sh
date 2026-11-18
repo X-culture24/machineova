@@ -7,11 +7,24 @@
 # (core_citizen, core_analytics_person, core_analytics_pc, core_analytics_ward), every
 # transaction read-only and an 8 s statement limit; adds SDICS_DATABASE_URL to
 # /opt/machinenova/.env (backed up first) and restarts the API. Safe to run again.
+#
+# Chief training (bin/seed-sdics-training) also reads the SDICS county list, usajili_location_ref.
+# Chiefs themselves are looked up in the IEBC voter register like everyone else, so SDICS
+# officer records are not readable (earlier grants on them are revoked).
 set -euo pipefail
 ENV=/opt/machinenova/.env
 
+grant_county_list() {
+  sudo -u postgres psql -d sdics_db -v ON_ERROR_STOP=1 -q <<'SQL'
+GRANT SELECT ON usajili_location_ref TO machinenova_sdics_ro;
+REVOKE ALL ON core_officer, core_officerassignedlocation, field_officer_title, field_officer_sublocation FROM machinenova_sdics_ro;
+SQL
+  echo "county list readable; officer records not"
+}
+
 if grep -q '^SDICS_DATABASE_URL=' "$ENV"; then
-  echo "SDICS_DATABASE_URL is already set in $ENV — nothing to do."
+  echo "SDICS_DATABASE_URL is already set in $ENV."
+  grant_county_list
   exit 0
 fi
 
@@ -29,6 +42,7 @@ GRANT CONNECT ON DATABASE sdics_db TO machinenova_sdics_ro;
 GRANT USAGE ON SCHEMA public TO machinenova_sdics_ro;
 GRANT SELECT ON core_citizen, core_analytics_person, core_analytics_pc, core_analytics_ward TO machinenova_sdics_ro;
 SQL
+grant_county_list
 
 cp -p "$ENV" "$ENV.bak-$(date +%Y%m%d%H%M%S)"
 echo "SDICS_DATABASE_URL=postgres://machinenova_sdics_ro:$PW@127.0.0.1:5432/sdics_db?sslmode=disable&pool_max_conns=4" >> "$ENV"

@@ -12,7 +12,7 @@
 set -euo pipefail
 
 HOST="${DEPLOY_HOST:-root@206.81.28.246}"
-PUBLIC_URL="${PUBLIC_URL:-http://206.81.28.246}"
+PUBLIC_URL="${PUBLIC_URL:-https://checkin.sdics.tech}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
@@ -61,7 +61,13 @@ echo "  $BACKUP"
 
 step "Upload"
 ssh "$HOST" 'rm -rf /opt/machinenova/staging && mkdir -p /opt/machinenova/staging'
-scp -qr "$STAGE"/. "$HOST:/opt/machinenova/staging/"
+# Resumable and retried: big uploads (APK, binaries) over a flaky link otherwise die halfway.
+for try in 1 2 3 4 5; do
+  rsync -az --partial --timeout=60 -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=4" \
+    "$STAGE"/ "$HOST:/opt/machinenova/staging/" && break
+  [[ $try == 5 ]] && { echo "  upload failed after 5 tries" >&2; exit 1; }
+  echo "  upload interrupted, retrying ($try/5)…"; sleep 5
+done
 
 step "Install and restart"
 ssh "$HOST" "set -e; cd /opt/machinenova

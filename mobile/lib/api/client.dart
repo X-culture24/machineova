@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -37,8 +38,12 @@ class SendResult {
         data = null;
 }
 
+/// Screenshot tests swap in a fake server; the app always uses the real client.
+@visibleForTesting
+http.Client Function() httpClientFactory = http.Client.new;
+
 class ApiClient {
-  final http.Client _http = http.Client();
+  late final http.Client _http = httpClientFactory();
   String? _token;
 
   /// Signed-in user; scopes the response cache and the outbox.

@@ -29,6 +29,7 @@ type orgRef struct {
 	Name        string `json:"name"`
 	Active      bool   `json:"active"`
 	AccentColor string `json:"accent_color"`
+	Vocabulary  string `json:"vocabulary"` // standard | sdics_chiefs
 	Boundary    scope  `json:"boundary"`
 }
 
@@ -95,11 +96,16 @@ func (s *Server) meFor(r *http.Request, p *Principal) (meResponse, error) {
 	if p.OrgID != "" {
 		var o orgRef
 		if err := s.db.QueryRow(r.Context(), `
-			SELECT id, name, active, accent_color, boundary_county, boundary_constituency FROM organizations WHERE id=$1`, p.OrgID).
-			Scan(&o.ID, &o.Name, &o.Active, &o.AccentColor, &o.Boundary.County, &o.Boundary.Constituency); err != nil {
+			SELECT id, name, active, accent_color, vocabulary, boundary_county, boundary_constituency FROM organizations WHERE id=$1`, p.OrgID).
+			Scan(&o.ID, &o.Name, &o.Active, &o.AccentColor, &o.Vocabulary, &o.Boundary.County, &o.Boundary.Constituency); err != nil {
 			return me, err
 		}
 		me.Org = &o
+		// Chief training has one field job: mark the chief present and collect their phone
+		// number. There is no outreach registration, so the mobilization module is off.
+		if o.Vocabulary == vocabSDICSChiefs {
+			me.ModMobilization = false
+		}
 		me.ScopeLabel = p.userScope().orElse(o.Boundary).label()
 	}
 	return me, nil

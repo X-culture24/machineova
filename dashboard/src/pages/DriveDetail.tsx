@@ -7,6 +7,7 @@ import { Badge, BarChart, Card, Empty, ErrorNote, Field, Kpi, Loading, PageHeade
 import { area, dateTime, num, pct } from "../format";
 import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
+import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
 
 const paceLabel: Record<Pace["status"], [string, "green" | "teal" | "red" | "blue"]> = {
@@ -19,6 +20,7 @@ const paceLabel: Record<Pace["status"], [string, "green" | "teal" | "red" | "blu
 export default function DriveDetail() {
   const { id = "" } = useParams();
   const { me } = useAuth();
+  const t = useTerms();
   const manager = isManager(me);
   const detail = useAsync(() => api.drive(id), [id]);
   const ins = useAsync(() => api.mobilizationInsights(id), [id]);
@@ -57,10 +59,10 @@ export default function DriveDetail() {
       />
       <ErrorNote error={err} />
       <div className="grid kpis">
-        <Kpi label="Voters mobilized" value={num(d.mobilized)} tone="amber" />
+        <Kpi label={t.peopleMobilized} value={num(d.mobilized)} tone="amber" />
         <Kpi label="Of target" value={d.target ? pct(d.progress) : "—"} caption={`target ${num(d.target)}`} progress={d.progress} tone="amber" />
         <Kpi label="Remaining" value={num(d.remaining)} />
-        <Kpi label="Mobilized today" value={m ? num(m.today) : "—"} tone="amber" />
+        <Kpi label={t.mobilizedToday} value={m ? num(m.today) : "—"} tone="amber" />
       </div>
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
         <Card title="Momentum · last 14 days" extra={m?.pace && <small className="muted">{m.pace.momentum}</small>}>
@@ -78,14 +80,14 @@ export default function DriveDetail() {
           {manager && (
             <form className="row gap" style={{ marginTop: 16, alignItems: "flex-end" }}
               onSubmit={(e) => { e.preventDefault(); if (target !== null) update({ target: Number(target) }).then(() => setTarget(null)); }}>
-              <Field label="Target voters"><input type="number" min={0} value={target ?? d.target} onChange={(e) => setTarget(e.target.value)} /></Field>
+              <Field label={t.targetPeople}><input type="number" min={0} value={target ?? d.target} onChange={(e) => setTarget(e.target.value)} /></Field>
               <button className="btn amber small" disabled={target === null}>Save</button>
             </form>
           )}
         </Card>
       </div>
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
-        <Card title="Top mobilizers">{m ? <RankList tone="amber" items={m.top_mobilizers} /> : <Loading />}</Card>
+        <Card title={t.topMobilizers}>{m ? <RankList tone="amber" items={m.top_mobilizers} /> : <Loading />}</Card>
         <Card title={`Assigned mobilizers · ${assigned_users.length}`} extra={manager && <button className="btn small secondary" onClick={() => setAssigning(true)}>Assign</button>}>
           {assigned_users.length === 0 ? <Empty>Nobody assigned yet.</Empty> : (
             <div className="stack">{assigned_users.map((u) => <div key={u.id} className="row spread"><span>{u.name}</span><small className="muted">{u.phone ?? u.email}</small></div>)}</div>
@@ -93,11 +95,11 @@ export default function DriveDetail() {
         </Card>
       </div>
       <CoveragePanel group={{ drive_id: d.id }} />
-      <Card title="Registered voters">
-        {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>No voters registered yet.</Empty> : (
+      <Card title={t.registeredList}>
+        {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>{t.noneRegistered}</Empty> : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>ID number</th><th>Phone</th><th>Location</th><th>Mobilized by</th><th>When</th></tr></thead>
+              <thead><tr><th>Name</th><th>ID number</th><th>Phone</th><th>Location</th><th>{t.mobilizedBy}</th><th>When</th></tr></thead>
               <tbody>
                 {list.data.map((p) => (
                   <tr key={p.id}><td>{p.name}</td><td className="id-masked">{maskId(p.national_id)}</td><td>{p.phone ?? "—"}</td><td>{area(p.constituency, p.ward)}</td><td>{p.by}</td><td>{dateTime(p.at)}</td></tr>
@@ -108,7 +110,7 @@ export default function DriveDetail() {
         )}
       </Card>
       {assigning && (
-        <AssignModal title="Assign mobilizers" current={assigned_users} save={(ids) => api.setDriveAssignments(d.id, ids)}
+        <AssignModal title={t.assignMobilizers} current={assigned_users} save={(ids) => api.setDriveAssignments(d.id, ids)}
           onClose={() => setAssigning(false)} onSaved={() => { setAssigning(false); detail.reload(); }} />
       )}
     </>

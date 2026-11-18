@@ -382,6 +382,15 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 		writeErrCode(w, http.StatusConflict, "event_closed", "This event is closed")
 		return
 	}
+	vocab, err := s.orgVocabulary(r.Context(), p.OrgID)
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	if phoneMissing(vocab, in.Phone) {
+		writeErrCode(w, http.StatusBadRequest, "phone_required", "Enter the chief's phone number")
+		return
+	}
 	if msg, err := s.resolvePerson(r.Context(), &in.personInput); err != nil {
 		s.internal(w, r, err)
 		return

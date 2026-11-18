@@ -5,6 +5,7 @@ import '../offline/store.dart';
 import '../offline/sync.dart';
 import '../widgets/offline_banner.dart';
 import '../api/models.dart';
+import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'voter_form.dart';
@@ -63,7 +64,7 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
   }
 
   Future<void> _pickDrive() async {
-    final picked = await pickFrom<Drive>(context, 'Choose your drive', _drives!, (d) => d.name, (d) => d.area);
+    final picked = await pickFrom<Drive>(context, terms.chooseDrive, _drives!, (d) => d.name, (d) => d.area);
     if (picked != null) {
       _reset();
       setState(() => _drive = picked);
@@ -119,7 +120,7 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
       final known = v != null && !(_lookup?.isOffline ?? false);
       final r = await api.mobilize(
           _drive!.id, {'national_id': nid, ..._f.toJson(identity: !known || v.missingIdentity, location: !known)},
-          label: 'Mobilized: $name · ${_drive!.name}');
+          label: '${terms.mobilized}: $name · ${_drive!.name}');
       await ledger.add(kind: 'mobilization', group: _drive!.id, nationalId: nid, name: name);
       // Offline (or cached), show progress optimistically until the next refresh.
       final fresh = r.queued ? null : await api.drive(_drive!.id).catchError((_) => _drive!.bumped());
@@ -127,14 +128,14 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: AppColors.amber,
-        content: Text(r.queued ? '$name saved on this phone — will sync when online' : '✓ $name registered'),
+        content: Text(r.queued ? '$name saved on this phone — will sync when online' : '✓ $name ${terms.chiefs ? 'onboarded' : 'registered'}'),
       ));
       _reset();
       setState(() => _drive = updated);
     } on ApiException catch (e) {
       final prev = e.body['previous'];
       setState(() => _error =
-          prev is Map<String, dynamic> ? 'Already mobilized by ${prev['by']} in ${prev['where']}.' : e.message);
+          prev is Map<String, dynamic> ? '${terms.alreadyMobilized} by ${prev['by']} in ${prev['where']}.' : e.message);
     } catch (e) {
       setState(() => _error = errorText(e));
     } finally {
@@ -145,7 +146,7 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mobilize', style: TextStyle(fontWeight: FontWeight.w800))),
+      appBar: AppBar(title: Text(terms.mobilize, style: const TextStyle(fontWeight: FontWeight.w800))),
       body: SafeArea(child: Column(children: [const OfflineBanner(), Expanded(child: _body())])),
     );
   }
@@ -158,15 +159,15 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
     }
     if (_drives == null) return const Center(child: CircularProgressIndicator());
     if (_drives!.isEmpty) {
-      return const EmptyNote("You're not assigned to any active drive.\nAsk an admin to assign you.");
+      return EmptyNote('${terms.noDrive}\nAsk an admin to assign you.');
     }
     final d = _drive;
     return ListView(padding: const EdgeInsets.all(16), children: [
-      const Text('Register voters your team reaches in the field.', style: TextStyle(color: AppColors.muted)),
+      Text(terms.mobilizeIntro, style: const TextStyle(color: AppColors.muted)),
       const SizedBox(height: 12),
       GroupBanner(
-        kicker: _drives!.length > 1 ? 'DRIVE · TAP TO SWITCH' : 'DRIVE',
-        title: d?.name ?? 'Choose your drive',
+        kicker: _drives!.length > 1 ? '${terms.driveLabel.toUpperCase()} · TAP TO SWITCH' : terms.driveLabel.toUpperCase(),
+        title: d?.name ?? terms.chooseDrive,
         subtitle: d?.area ?? '',
         color: AppColors.amber,
         soft: AppColors.amberSoft,
@@ -203,17 +204,17 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
       final p = l.previous;
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Notice(
-          'Already mobilized${p == null ? '' : ' by ${p.by} in ${p.where} on ${fmtDateTime(p.at)}'}. No double counting needed.',
+          '${terms.alreadyMobilized}${p == null ? '' : ' by ${p.by} in ${p.where} on ${fmtDateTime(p.at)}'}. No double counting needed.',
           fg: AppColors.amber,
           bg: AppColors.amberSoft,
           icon: Icons.check_circle_outline,
         ),
         const SizedBox(height: 10),
-        OutlinedButton(onPressed: _reset, child: const Text('Next voter')),
+        OutlinedButton(onPressed: _reset, child: Text(terms.nextPerson)),
       ]);
     }
     return SectionCard(
-      title: 'Voter details',
+      title: terms.personDetails,
       child: Form(
         key: _form,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -227,7 +228,7 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
             ),
             const SizedBox(height: 10),
           ] else if (l.voter == null) ...[
-            const Notice('Not found in the register. Fill in their details.',
+            Notice(terms.notFound,
                 fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
             const SizedBox(height: 10),
           ],
@@ -245,10 +246,15 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
             IdentityInputs(_f, required: !offline),
             const SizedBox(height: 10),
           ],
+          // Onboarding chiefs is how their phone numbers are collected: required there.
           TextFormField(
             controller: _f.phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: 'Phone', hintText: '+254…'),
+            decoration: InputDecoration(
+                labelText: terms.chiefs ? "Chief's phone number" : 'Phone', hintText: '07… or +254…'),
+            validator: terms.chiefs
+                ? (s) => (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? "Enter the chief's phone number" : null
+                : null,
           ),
           const SizedBox(height: 10),
           if (offline || l.voter == null) LocationInputs(_f, required: !offline),
@@ -256,7 +262,7 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.amber),
             onPressed: _busy ? null : _doRegister,
-            child: Text(_busy ? 'Registering…' : 'Register'),
+            child: Text(_busy ? 'Registering…' : (terms.chiefs ? 'Mark as onboarded' : 'Register')),
           ),
         ]),
       ),
@@ -281,7 +287,7 @@ class _ProgressCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(children: [
-          Row(children: [stat('Mobilized', d.mobilized), stat('Target', d.target), stat('Remaining', d.remaining)]),
+          Row(children: [stat(terms.mobilized, d.mobilized), stat('Target', d.target), stat('Remaining', d.remaining)]),
           const SizedBox(height: 10),
           Row(children: [
             Expanded(child: ProgressLine(d.progress)),

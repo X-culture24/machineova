@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../session.dart';
 import '../widgets/offline_banner.dart';
+import '../terms.dart';
 import '../theme.dart';
 import 'account.dart';
 import 'checkin.dart';
@@ -38,15 +39,15 @@ class _ShellState extends State<Shell> {
               _ActionTile(
                   icon: Icons.how_to_reg,
                   color: AppColors.teal,
-                  title: 'Check in',
-                  subtitle: 'Mark voters present at an event',
+                  title: terms.checkIn,
+                  subtitle: terms.checkInSub,
                   onTap: () => Navigator.pop(ctx, 'checkin')),
               const SizedBox(height: 10),
               _ActionTile(
                   icon: Icons.campaign,
                   color: AppColors.amber,
-                  title: 'Mobilize',
-                  subtitle: 'Register voters during outreach',
+                  title: terms.mobilize,
+                  subtitle: terms.mobilizeSub,
                   onTap: () => Navigator.pop(ctx, 'mobilize')),
             ]),
           ),
@@ -99,7 +100,7 @@ class _ShellState extends State<Shell> {
           elevation: 0,
           highlightElevation: 0,
           shape: const CircleBorder(),
-          tooltip: 'Check in or mobilize',
+          tooltip: terms.fabTooltip,
           child: const Icon(Icons.add, size: 30),
         ),
       ),

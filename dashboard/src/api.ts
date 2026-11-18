@@ -15,6 +15,8 @@ export interface Me {
     name: string;
     active: boolean;
     accent_color: string;
+    /** "standard" (voters, mobilize) or "sdics_chiefs" (chiefs, onboarding): see terms.ts */
+    vocabulary: "standard" | "sdics_chiefs";
     boundary: { county: string | null; constituency: string | null; ward: string | null };
   } | null;
   scope: { county: string | null; constituency: string | null; ward: string | null };
@@ -407,6 +409,7 @@ export const api = {
     contact_email?: string;
     accent_color?: string;
     trial?: boolean;
+    vocabulary?: "standard" | "sdics_chiefs";
   }) => request<OrgSummary>("POST", "/api/platform/organizations", body),
   platformRegions: () => request<RegisterCounty[]>("GET", "/api/platform/regions"),
   platformStations: (p: { county?: string; constituency?: string; ward?: string; q?: string; page?: number }) => {

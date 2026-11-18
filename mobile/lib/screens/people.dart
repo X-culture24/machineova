@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api/client.dart';
 import '../api/models.dart';
+import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
@@ -12,12 +13,19 @@ class PeopleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Chief training: one list, the chiefs marked present (with their phone numbers).
+    if (terms.chiefs) {
+      return Scaffold(
+        appBar: AppBar(title: Text(terms.checkins, style: const TextStyle(fontWeight: FontWeight.w800))),
+        body: const _PeopleList(checkins: true),
+      );
+    }
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('People', style: TextStyle(fontWeight: FontWeight.w800)),
-          bottom: const TabBar(tabs: [Tab(text: 'Check-ins'), Tab(text: 'Mobilized')]),
+          bottom: TabBar(tabs: [Tab(text: terms.checkins), Tab(text: terms.mobilized)]),
         ),
         body: const TabBarView(children: [_PeopleList(checkins: true), _PeopleList(checkins: false)]),
       ),
@@ -102,9 +110,9 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
             child: DropdownButtonFormField<String?>(
               initialValue: _groupId,
               isExpanded: true,
-              decoration: InputDecoration(labelText: widget.checkins ? 'Event' : 'Drive', isDense: true),
+              decoration: InputDecoration(labelText: widget.checkins ? terms.eventLabel : terms.driveLabel, isDense: true),
               items: [
-                DropdownMenuItem(value: null, child: Text(widget.checkins ? 'All events' : 'All drives')),
+                DropdownMenuItem(value: null, child: Text(widget.checkins ? 'All ${terms.event}s' : (terms.chiefs ? 'All counties' : 'All drives'))),
                 for (final g in _groups)
                   DropdownMenuItem(value: g.id, child: Text(g.name, overflow: TextOverflow.ellipsis)),
               ],
@@ -157,7 +165,11 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
                             return ListTile(
                               leading: Avatar(p.name, color: color),
                               title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                              subtitle: Text('ID ${maskId(p.nationalId)} · ${p.ward}\n${p.groupName}', maxLines: 2),
+                              subtitle: Text(
+                                  terms.chiefs
+                                      ? '${p.phone ?? 'No phone'} · ${p.ward}\nID ${maskId(p.nationalId)}'
+                                      : 'ID ${maskId(p.nationalId)} · ${p.ward}\n${p.groupName}',
+                                  maxLines: 2),
                               isThreeLine: true,
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/client.dart';
 import '../api/models.dart';
 import '../session.dart';
+import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
@@ -56,18 +57,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()))
               else ...[
                 KpiGrid([
-                  KpiTile(label: 'Team check-ins today', value: fmtNum(snap.data!.orgCheckinsToday)),
-                  KpiTile(
-                      label: 'Team mobilized today',
-                      value: fmtNum(snap.data!.orgMobilizedToday),
-                      accent: AppColors.amber),
+                  KpiTile(label: terms.teamCheckinsToday, value: fmtNum(snap.data!.orgCheckinsToday)),
+                  if (!terms.chiefs)
+                    KpiTile(
+                        label: terms.teamMobilizedToday,
+                        value: fmtNum(snap.data!.orgMobilizedToday),
+                        accent: AppColors.amber),
                 ]),
                 const SizedBox(height: 6),
                 SectionCard(
                   title: 'Recent activity',
                   trailing: TextButton(onPressed: widget.onStart, child: const Text('Start')),
                   child: snap.data!.feed.isEmpty
-                      ? const EmptyNote('Nothing yet today. Tap + to check in or mobilize.')
+                      ? EmptyNote(terms.startHint)
                       : Column(children: [for (final f in snap.data!.feed) _FeedRow(f)]),
                 ),
               ],
@@ -90,13 +92,12 @@ class _FeedRow extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: Avatar(f.name, color: color),
       title: Text(f.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text('${f.isCheckin ? 'Checked in' : 'Mobilized'} · ${f.group} · ${f.by}',
+      subtitle: Text('${f.isCheckin ? terms.checkedIn : terms.mobilized} · ${f.group} · ${f.by}',
           maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(fmtTime(f.at), style: const TextStyle(color: AppColors.muted, fontSize: 12)),
     );
   }
 }
-
 
 /// Gradient greeting card with the operator's own numbers for today.
 class _Hero extends StatelessWidget {
@@ -110,7 +111,8 @@ class _Hero extends StatelessWidget {
     Widget stat(String label, String value) => Expanded(
           child: Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(16)),
+            decoration:
+                BoxDecoration(color: Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(16)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(value, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
               Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
@@ -122,7 +124,9 @@ class _Hero extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: brandGradient,
         borderRadius: BorderRadius.circular(26),
-        boxShadow: [BoxShadow(color: AppColors.purple.withValues(alpha: .3), blurRadius: 24, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(color: AppColors.purple.withValues(alpha: .3), blurRadius: 24, offset: const Offset(0, 10))
+        ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -132,20 +136,24 @@ class _Hero extends StatelessWidget {
               Text(me.name.split(' ').first,
                   style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
               if (me.orgName != null)
-                Text('${me.orgName!} · Field Agent', style: const TextStyle(color: Colors.white70, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text('${me.orgName!} · ${terms.fieldRole}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
             ]),
           ),
           CircleAvatar(
             radius: 24,
             backgroundColor: Colors.white,
-            child: Text(initials(me.name), style: const TextStyle(color: AppColors.purple, fontWeight: FontWeight.w700)),
+            child:
+                Text(initials(me.name), style: const TextStyle(color: AppColors.purple, fontWeight: FontWeight.w700)),
           ),
         ]),
         const SizedBox(height: 18),
         Row(children: [
-          stat('Checked in today', data == null ? '–' : fmtNum(data!.myCheckinsToday)),
-          const SizedBox(width: 10),
-          stat('Mobilized today', data == null ? '–' : fmtNum(data!.myMobilizedToday)),
+          stat(terms.checkedInToday, data == null ? '–' : fmtNum(data!.myCheckinsToday)),
+          if (!terms.chiefs) const SizedBox(width: 10),
+          if (!terms.chiefs) stat(terms.mobilizedToday, data == null ? '–' : fmtNum(data!.myMobilizedToday)),
         ]),
       ]),
     );
@@ -169,8 +177,8 @@ class _QuickActions extends StatelessWidget {
               onTap: enabled ? onStart : null,
               child: Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.border)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.border)),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -186,11 +194,15 @@ class _QuickActions extends StatelessWidget {
           ),
         );
     return Row(children: [
-      tile('Check in', 'Mark voters present', Icons.how_to_reg, AppColors.teal, AppColors.tealSoft,
+      tile(terms.checkIn, terms.checkInTile, Icons.how_to_reg, AppColors.teal, AppColors.tealSoft,
           me.canOperate && me.moduleEvents),
-      const SizedBox(width: 12),
-      tile('Mobilize', 'Register in the field', Icons.campaign, AppColors.amber, AppColors.amberSoft,
-          me.canOperate && me.moduleMobilization),
+      if (terms.chiefs)
+        ...[]
+      else ...[
+        const SizedBox(width: 12),
+        tile(terms.mobilize, terms.mobilizeTile, Icons.campaign, AppColors.amber, AppColors.amberSoft,
+            me.canOperate && me.moduleMobilization),
+      ],
     ]);
   }
 }

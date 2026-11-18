@@ -36,3 +36,13 @@ func TestSDICSLookupOffWithoutConnection(t *testing.T) {
 		t.Fatalf("got %v, %v; want nil, nil when SDICS isn't connected", v, err)
 	}
 }
+
+func TestPhoneMissing(t *testing.T) {
+	empty, blank, ph := "", "  ", "0712000000"
+	if !phoneMissing(vocabSDICSChiefs, nil) || !phoneMissing(vocabSDICSChiefs, &empty) || !phoneMissing(vocabSDICSChiefs, &blank) {
+		t.Fatal("chief onboarding needs a phone number")
+	}
+	if phoneMissing(vocabSDICSChiefs, &ph) || phoneMissing(vocabStandard, nil) {
+		t.Fatal("a phone satisfies onboarding; campaigns don't need one")
+	}
+}

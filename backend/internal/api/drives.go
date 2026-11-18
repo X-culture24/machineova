@@ -295,6 +295,15 @@ func (s *Server) createMobilization(w http.ResponseWriter, r *http.Request, p *P
 		writeErrCode(w, http.StatusConflict, "drive_closed", "This drive is closed")
 		return
 	}
+	vocab, err := s.orgVocabulary(r.Context(), p.OrgID)
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	if phoneMissing(vocab, in.Phone) {
+		writeErrCode(w, http.StatusBadRequest, "phone_required", "Enter the chief's phone number")
+		return
+	}
 	if msg, err := s.resolvePerson(r.Context(), &in.personInput); err != nil {
 		s.internal(w, r, err)
 		return

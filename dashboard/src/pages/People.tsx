@@ -3,6 +3,7 @@ import { api, type PersonRecord } from "../api";
 import { Card, Empty, ErrorNote, Loading, PageHeader, RegionBadge } from "../components/ui";
 import { area, dateTime, initials } from "../format";
 import { useAsync } from "../useAsync";
+import { useTerms } from "../terms";
 import { maskId } from "../mask";
 
 type Tab = "checkins" | "mobilized";
@@ -29,6 +30,7 @@ function downloadCsv(rows: PersonRecord[], tab: Tab) {
 }
 
 export default function PeoplePage() {
+  const t = useTerms();
   const [tab, setTab] = useState<Tab>("checkins");
   const [group, setGroup] = useState("");
   const [q, setQ] = useState("");
@@ -45,16 +47,16 @@ export default function PeoplePage() {
     <>
       <PageHeader
         title="People reached"
-        subtitle="Everyone checked in at events and mobilized in the field."
+        subtitle={t.peopleSubtitle}
         actions={list.data && list.data.length > 0 && <button className="btn secondary" onClick={() => downloadCsv(list.data!, tab)}>Export CSV</button>}
       />
       <div className="toolbar">
         <div className="tabs" role="tablist">
-          <button className={tab === "checkins" ? "on" : ""} onClick={() => { setTab("checkins"); setGroup(""); }}>Check-ins</button>
-          <button className={tab === "mobilized" ? "on" : ""} onClick={() => { setTab("mobilized"); setGroup(""); }}>Mobilized</button>
+          <button className={tab === "checkins" ? "on" : ""} onClick={() => { setTab("checkins"); setGroup(""); }}>{t.checkins}</button>
+          {!t.chiefs && <button className={tab === "mobilized" ? "on" : ""} onClick={() => { setTab("mobilized"); setGroup(""); }}>{t.mobilized}</button>}
         </div>
         <select className="input" value={group} onChange={(e) => setGroup(e.target.value)}>
-          <option value="">{tab === "checkins" ? "All events" : "All drives"}</option>
+          <option value="">{tab === "checkins" ? `All ${t.events.toLowerCase()}` : t.chiefs ? "All counties" : "All drives"}</option>
           {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
         <input className="input" placeholder="Search name or ID number…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -65,7 +67,7 @@ export default function PeoplePage() {
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Name</th><th>Location</th><th>{tab === "checkins" ? "Event" : "Drive"}</th><th>By</th><th>Time</th>{tab === "checkins" && <th>Region</th>}</tr>
+                <tr><th>Name</th>{t.chiefs && <th>Phone</th>}<th>Location</th><th>{tab === "checkins" ? t.event : t.drive}</th><th>By</th><th>Time</th>{tab === "checkins" && <th>Region</th>}</tr>
               </thead>
               <tbody>
                 {list.data.map((p) => (
@@ -76,6 +78,7 @@ export default function PeoplePage() {
                         <div><div style={{ fontWeight: 600 }}>{p.name}</div><small className="muted">ID {maskId(p.national_id)}</small></div>
                       </div>
                     </td>
+                    {t.chiefs && <td>{p.phone ?? "—"}</td>}
                     <td>{area(p.constituency, p.ward)}</td>
                     <td>{p.group_name}</td>
                     <td>{p.by}</td>

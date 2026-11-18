@@ -418,3 +418,124 @@ html.privacy-blur .shell > :not(.privacy-shield):not(.watermark) {
   /* The hourly rollup repeats every area of the table above; the trend chart covers it on phones. */
   .hide-phone { display: none; }
 }
+
+/* ================================================================================================
+   SDICS look (data-brand="sdics", see brand.ts): Lexend, SDICS green / navy / amber, Kenyan flag.
+   Palette from the SDICS dashboard (surfaces, text) and SDICS brand (green #00875A on light,
+   #00D084 on dark, navy #0F1419 / #1A2332, amber #B45309 on light / #FFA500 on dark, flag black / red #BB0000 / green
+   #006600). Lexend is self-hosted from /fonts (SIL Open Font License, public/fonts/OFL.txt).
+   ============================================================================================== */
+@font-face { font-family: Lexend; font-weight: 400; font-display: swap; src: url("/fonts/Lexend-400.ttf") format("truetype"); }
+@font-face { font-family: Lexend; font-weight: 500; font-display: swap; src: url("/fonts/Lexend-500.ttf") format("truetype"); }
+@font-face { font-family: Lexend; font-weight: 600; font-display: swap; src: url("/fonts/Lexend-600.ttf") format("truetype"); }
+@font-face { font-family: Lexend; font-weight: 700; font-display: swap; src: url("/fonts/Lexend-700.ttf") format("truetype"); }
+@font-face { font-family: Lexend; font-weight: 800; font-display: swap; src: url("/fonts/Lexend-800.ttf") format("truetype"); }
+
+:root[data-brand="sdics"] {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #d5dae1;
+  --text: #111827;
+  --muted: #4b5563;
+  --teal: #00875a;          /* SDICS green, readable on white */
+  --teal-strong: #006b47;
+  --teal-soft: #e0f5ed;
+  --amber: #b45309;         /* SDICS light-theme amber */
+  --amber-soft: #fdf0d7;
+  --red: #bb0000;
+  --red-soft: #fbe6e6;
+  --green: #00875a;
+  --green-soft: #e0f5ed;
+  --blue: #1a2332;          /* "ink" accents use SDICS navy */
+  --blue-soft: #e9eef6;
+  --sidebar: #0f1419;
+  --sidebar-text: #b7c0cc;
+  --sd-bright: #00d084;
+  --sd-amber: #ffa500;
+  --sd-head: #eef1f5;
+  --radius: 8px;
+  --sd-navy-2: #1a2332;
+  --shadow: 0 1px 2px rgb(15 20 25 / 6%);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-brand="sdics"]:not([data-theme="light"]) {
+    --bg: #0f1419;
+    --surface: #1a2332;
+    --surface-2: #22293a;
+    --border: #2a3444;
+    --text: #ffffff;
+    --muted: #8b95a5;
+    --teal: #00a86b;
+    --teal-strong: #00d084;
+    --teal-soft: #10372b;
+    --amber: #ffa500;
+    --amber-soft: #3a2c10;
+    --red: #ff5a5a;
+    --red-soft: #3b1a1a;
+    --green: #00d084;
+    --green-soft: #10372b;
+    --blue: #8fb4ff;
+    --blue-soft: #1d2a40;
+    --sidebar: #0d1117;
+    --sd-head: #0f1419;
+  }
+}
+
+[data-brand="sdics"] body,
+[data-brand="sdics"] input,
+[data-brand="sdics"] select,
+[data-brand="sdics"] textarea,
+[data-brand="sdics"] button { font-family: Lexend, "Helvetica Neue", Arial, sans-serif; }
+[data-brand="sdics"] body { font-size: 14px; letter-spacing: -.005em; }
+[data-brand="sdics"] h1 { font-weight: 700; letter-spacing: -.015em; }
+[data-brand="sdics"] h2, [data-brand="sdics"] h3 { font-weight: 600; }
+
+/* Sidebar: SDICS navy, flag stripe on top, bright-green active marker. */
+[data-brand="sdics"] .sidebar {
+  background: linear-gradient(180deg, var(--sidebar) 0%, var(--sd-navy-2) 100%);
+  border-top: 5px solid;
+  border-image: linear-gradient(90deg, #000 0 33.4%, #bb0000 33.4% 66.7%, #006600 66.7%) 1;
+}
+[data-brand="sdics"] .brand-mark {
+  background: var(--sd-bright); color: #0f1419 !important; font-weight: 800; letter-spacing: -.02em;
+  box-shadow: 0 0 0 3px rgb(0 208 132 / 18%);
+}
+[data-brand="sdics"] .nav-link { font-weight: 500; position: relative; }
+[data-brand="sdics"] .nav-link:hover { background: rgb(255 255 255 / 6%); color: #fff; }
+[data-brand="sdics"] .nav-link.active { background: rgb(0 208 132 / 14%); color: #fff; font-weight: 600; }
+[data-brand="sdics"] .nav-link.active::before {
+  content: ""; position: absolute; left: -14px; top: 6px; bottom: 6px; width: 4px; border-radius: 0 4px 4px 0; background: var(--sd-bright);
+}
+[data-brand="sdics"] .nav-link.active .nav-icon { color: var(--sd-bright); }
+[data-brand="sdics"] .nav-section { color: var(--sd-bright); opacity: .75; font-weight: 600; }
+[data-brand="sdics"] .workspace-switch button.on { background: var(--sd-bright); color: #0f1419; }
+
+/* Buttons and accents. */
+[data-brand="sdics"] .btn { border-radius: 8px; font-weight: 600; }
+[data-brand="sdics"] .btn:not(.secondary):not(.amber):not(.danger):hover { background: var(--teal-strong); }
+[data-brand="sdics"] .btn.amber { background: var(--sd-amber); color: #0f1419; }
+[data-brand="sdics"] .btn.amber:hover { background: #e67e00; }
+[data-brand="sdics"] .card { border-radius: 10px; }
+[data-brand="sdics"] th { font-weight: 600; letter-spacing: .05em; background: var(--sd-head); }
+[data-brand="sdics"] .kpi-label { font-weight: 600; }
+[data-brand="sdics"] .kpi-value { font-weight: 700; letter-spacing: -.02em; }
+[data-brand="sdics"] .page-header h1 { font-size: 24px; }
+
+/* Sign-in: SDICS navy with a green glow, flag stripe across the top, white card. */
+[data-brand="sdics"] .login {
+  position: relative;
+  background:
+    radial-gradient(70% 60% at 85% 10%, rgb(0 208 132 / 22%) 0%, transparent 60%),
+    radial-gradient(60% 50% at 10% 95%, rgb(0 135 90 / 30%) 0%, transparent 60%),
+    linear-gradient(160deg, #0f1419 0%, #1a2332 100%);
+}
+[data-brand="sdics"] .login::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 6px;
+  background: linear-gradient(90deg, #000 0 33%, #bb0000 33% 66%, #006600 66%);
+}
+[data-brand="sdics"] .login .card { border: 0; border-radius: 18px; box-shadow: 0 24px 60px -20px rgb(0 0 0 / 55%); }
+[data-brand="sdics"] .login .brand { font-size: 18px; }
+[data-brand="sdics"] .login .brand-mark { width: 40px; height: 40px; border-radius: 11px; font-size: 14px; }
+[data-brand="sdics"] .login .btn { padding: 11px 14px; font-size: 15px; }
+

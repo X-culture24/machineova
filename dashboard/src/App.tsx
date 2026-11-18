@@ -28,6 +28,8 @@ import { PositionsPage, RegistryPage } from "./ops/Setup";
 import OpsPeople from "./ops/People";
 import StationsPage from "./ops/Stations";
 import { ReplayPage, ResultsPage, TurnoutPage } from "./ops/Monitor";
+import { useTerms } from "./terms";
+import { applyBrand, isSdicsBrand, sdicsHost } from "./brand";
 import { ReportsPage, SettingsPage } from "./ops/Workspace";
 
 const checkinRoles = new Set(["owner", "admin", "member", "viewer"]);
@@ -38,12 +40,15 @@ const canSetup = (me: Me) => me.role === "owner" || me.role === "admin" || me.ro
 export default function App() {
   const { me, loading } = useAuth();
 
-  // White-label: the org's accent colour drives every accent token.
+  // SDICS look on *.sdics.tech and for the SDICS chiefs training; otherwise white-label: the
+  // org's accent colour drives every accent token.
+  const sdics = sdicsHost() || me?.organization?.vocabulary === "sdics_chiefs";
   useEffect(() => {
+    applyBrand(sdics);
     const accent = me?.organization?.accent_color;
-    if (accent) document.documentElement.style.setProperty("--teal", accent);
+    if (accent && !sdics) document.documentElement.style.setProperty("--teal", accent);
     else document.documentElement.style.removeProperty("--teal");
-  }, [me?.organization?.accent_color]);
+  }, [sdics, me?.organization?.accent_color]);
 
   if (loading) return <Loading />;
   if (!me) {
@@ -113,12 +118,13 @@ export default function App() {
 
 /** Phone reflow: the sidebar's main destinations become a bottom tab bar. */
 function TabBar({ inOps, me }: { inOps: boolean; me: Me }) {
+  const t = useTerms();
   const tabs: [string, string, string][] = !me.organization
     ? [["/platform", "Overview", "⌂"], ["/platform/new", "New org", "+"], ["/platform/stations", "Stations", "⚑"], ["/platform/templates", "Emails", "✉"], ["/account", "Account", "☺"]]
     : inOps
       ? [["/ops", "Home", "⌂"], ["/ops/stations", "Stations", "⚑"], ...(me.role !== "agent" ? [["/ops/people", "Agents", "☺"] as [string, string, string]] : []),
          ["/ops/turnout", "Turnout", "↗"], ["/account", "Account", "⚙"]]
-      : [["/", "Home", "◧"], ["/events", "Events", "▦"], ["/mobilization", "Mobilize", "➚"], ["/people", "People", "☰"], ["/account", "Account", "⚙"]];
+      : [["/", "Home", "◧"], ["/events", t.events, "▦"], ...(me.module_mobilization ? [["/mobilization", t.mobilizationTab, "➚"] as [string, string, string]] : []), ["/people", "People", "☰"], ["/account", "Account", "⚙"]];
   return (
     <nav className="tabbar" aria-label="Sections">
       {tabs.map(([to, label, icon]) => (
@@ -133,11 +139,13 @@ function TabBar({ inOps, me }: { inOps: boolean; me: Me }) {
 
 function Shell() {
   const { me, signOut } = useAuth();
+  const t = useTerms();
   const loc = useLocation();
   const nav = useNavigate();
   if (!me) return null;
   const inOps = loc.pathname.startsWith("/ops") || (!hasCheckin(me) && hasOps(me) && !loc.pathname.startsWith("/platform"));
-  const both = hasCheckin(me) && hasOps(me);
+  // SDICS chiefs training is check-in only: no Election Ops workspace or register analysis.
+  const both = hasCheckin(me) && hasOps(me) && !t.chiefs;
   const link = (to: string, label: string, icon: string, end = false) => (
     <NavLink to={to} end={end} className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
       <span aria-hidden className="nav-icon">{icon}</span>
@@ -151,7 +159,7 @@ function Shell() {
       <Protect who={me.email} />
       <nav className="sidebar" aria-label="Main">
         <div className="brand">
-          <span className="brand-mark">{me.organization ? initials(me.organization.name) : "M"}</span>
+          <span className="brand-mark">{isSdicsBrand() ? "SD" : me.organization ? initials(me.organization.name) : "M"}</span>
           <span>
             {me.organization?.name ?? "MachineNova"}
             <small className="brand-sub">{me.organization ? me.scope_label + (me.organization.boundary.county ? " · bounded" : "") : "Platform console"}</small>
@@ -167,12 +175,12 @@ function Shell() {
           <>
             {link("/", "Dashboard", "◧", true)}
             {section("Operate")}
-            {me.module_events && link("/events", "Events", "▦")}
-            {me.module_events && me.role !== "viewer" && link("/checkin", "Check-in", "✓")}
-            {me.module_mobilization && link("/mobilization", "Mobilization", "➚")}
+            {me.module_events && link("/events", t.events, "▦")}
+            {me.module_events && me.role !== "viewer" && link("/checkin", t.checkin, "✓")}
+            {me.module_mobilization && link("/mobilization", t.mobilization, "➚")}
             {section("People")}
             {link("/people", "People reached", "☰")}
-            {link("/registration", "Registration analysis", "◔")}
+            {!t.chiefs && link("/registration", "Registration analysis", "◔")}
             {isManager(me) && link("/team", "Team", "☺")}
             {section("Workspace")}
             {link("/app", "Field app", "▯")}

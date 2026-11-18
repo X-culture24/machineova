@@ -7,11 +7,13 @@ import { Badge, BarChart, Card, Empty, ErrorNote, Kpi, Loading, Modal, PageHeade
 import { area, dateTime, hourLabel, num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
+import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
 
 export default function EventDetail() {
   const { id = "" } = useParams();
   const { me } = useAuth();
+  const t = useTerms();
   const manager = isManager(me);
   const detail = useAsync(() => api.event(id), [id]);
   const insights = useAsync(() => api.checkinInsights(id), [id]);
@@ -48,14 +50,14 @@ export default function EventDetail() {
             {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
             {e.list_only && <Badge tone="blue">List-only</Badge>}
             {e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}
-            {e.active && me?.role !== "viewer" && <Link className="btn" to={`/checkin?event=${e.id}`}>Check in voters</Link>}
+            {e.active && me?.role !== "viewer" && <Link className="btn" to={`/checkin?event=${e.id}`}>{t.checkInPeople}</Link>}
             <button className="btn secondary" onClick={reloadAll}>Refresh</button>
           </>
         }
       />
       <ErrorNote error={actionErr} />
       <div className="grid kpis">
-        <Kpi label="Check-ins" value={num(e.checkins)} caption="all visits, every day" tone="teal" />
+        <Kpi label={t.checkins} value={num(e.checkins)} caption="all visits, every day" tone="teal" />
         <Kpi label="Unique" value={num(e.unique)} caption="different people" tone="teal" />
         <Kpi
           label="Out of region"

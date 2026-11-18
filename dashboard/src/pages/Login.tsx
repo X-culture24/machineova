@@ -2,9 +2,11 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Field } from "../components/ui";
+import { isSdicsBrand } from "../brand";
 
 export default function Login() {
   const { signIn } = useAuth();
+  const sdics = isSdicsBrand();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -26,10 +28,17 @@ export default function Login() {
   return (
     <div className="login">
       <form className="card stack" onSubmit={submit}>
-        <div className="brand">
-          <span className="brand-mark" style={{ color: "#fff" }}>✓</span> Checkin
-        </div>
-        <p className="muted" style={{ margin: 0 }}>Sign in to your organization.</p>
+        {sdics ? (
+          <div className="brand">
+            <span className="brand-mark">SD</span>
+            <span>SDICS Checkin<small className="brand-sub">Chiefs training · Republic of Kenya</small></span>
+          </div>
+        ) : (
+          <div className="brand">
+            <span className="brand-mark" style={{ color: "#fff" }}>✓</span> Checkin
+          </div>
+        )}
+        <p className="muted" style={{ margin: 0 }}>{sdics ? "Sign in with the account your SDICS admin gave you." : "Sign in to your organization."}</p>
         {error && <div className="alert red">{error}</div>}
         <Field label="User ID or email">
           <input autoFocus autoComplete="username" value={login} onChange={(e) => setLogin(e.target.value)} required />

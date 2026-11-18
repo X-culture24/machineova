@@ -5,11 +5,13 @@ import '../offline/store.dart';
 import '../offline/sync.dart';
 import '../widgets/offline_banner.dart';
 import '../api/models.dart';
+import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'voter_form.dart';
 
 /// Teal flow: pick event → look up ID → confirm → check in → next voter.
+/// Chief training: pick the training → find the chief in the IEBC register → phone → mark present.
 class CheckinFlow extends StatefulWidget {
   const CheckinFlow({super.key});
   @override
@@ -65,7 +67,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
   }
 
   Future<void> _pickEvent() async {
-    final picked = await pickFrom<EventItem>(context, 'Choose your event', _events!, (e) => e.name, (e) => e.area);
+    final picked = await pickFrom<EventItem>(context, terms.chooseEvent, _events!, (e) => e.name, (e) => e.area);
     if (picked != null) {
       _reset();
       setState(() => _event = picked);
@@ -118,7 +120,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
       final out = data is Map && data['in_region'] == false ? ' (out of region)' : '';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: r.queued ? AppColors.amber : AppColors.green,
-        content: Text(r.queued ? '$name saved on this phone — will sync when online' : '✓ $name checked in$out'),
+        content: Text(r.queued ? '$name saved on this phone — will sync when online' : '✓ $name ${terms.checkedInDone}$out'),
       ));
       _reset();
     } on ApiException catch (e) {
@@ -130,10 +132,13 @@ class _CheckinFlowState extends State<CheckinFlow> {
     }
   }
 
+  static String? _phoneRequired(String? s) =>
+      (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? "Enter the chief's phone number" : null;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Check in', style: TextStyle(fontWeight: FontWeight.w800))),
+      appBar: AppBar(title: Text(terms.checkIn, style: const TextStyle(fontWeight: FontWeight.w800))),
       body: SafeArea(child: Column(children: [const OfflineBanner(), Expanded(child: _body())])),
     );
   }
@@ -146,14 +151,14 @@ class _CheckinFlowState extends State<CheckinFlow> {
     }
     if (_events == null) return const Center(child: CircularProgressIndicator());
     if (_events!.isEmpty) {
-      return const EmptyNote("You're not assigned to any active event.\nAsk an admin to assign you.");
+      return EmptyNote("You're not assigned to any active ${terms.event}.\nAsk an admin to assign you.");
     }
     return ListView(padding: const EdgeInsets.all(16), children: [
-      const Text('Scan or enter an ID to mark a voter present.', style: TextStyle(color: AppColors.muted)),
+      Text(terms.checkinIntro, style: const TextStyle(color: AppColors.muted)),
       const SizedBox(height: 12),
       GroupBanner(
-        kicker: _events!.length > 1 ? 'EVENT · TAP TO SWITCH' : 'EVENT',
-        title: _event?.name ?? 'Choose your event',
+        kicker: _events!.length > 1 ? '${terms.eventLabel.toUpperCase()} · TAP TO SWITCH' : terms.eventLabel.toUpperCase(),
+        title: _event?.name ?? terms.chooseEvent,
         subtitle: _event?.area ?? '',
         color: AppColors.teal,
         soft: AppColors.tealSoft,
@@ -191,15 +196,15 @@ class _CheckinFlowState extends State<CheckinFlow> {
       case 'already_checked_in':
         final p = l.previous;
         return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Notice('Already checked in today${p == null ? '' : ' at ${fmtTime(p.at)} by ${p.by}'}. Move on.',
+          Notice('${terms.alreadyCheckedIn}${p == null ? '' : ' at ${fmtTime(p.at)} by ${p.by}'}. Move on.',
               fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.check_circle_outline),
           const SizedBox(height: 10),
-          OutlinedButton(onPressed: _reset, child: const Text('Next voter')),
+          OutlinedButton(onPressed: _reset, child: Text(terms.nextPerson)),
         ]);
     }
     final v = l.voter;
     return SectionCard(
-      title: 'Confirm & check in',
+      title: terms.chiefs ? 'Confirm chief present' : 'Confirm & check in',
       child: Form(
         key: _form,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -214,22 +219,24 @@ class _CheckinFlowState extends State<CheckinFlow> {
               IdentityInputs(_f),
             ],
           ] else ...[
-            const Notice('Not found in the register. Fill in their details.',
-                fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
+            Notice(terms.notFound, fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
             const SizedBox(height: 10),
             IdentityInputs(_f),
           ],
           const SizedBox(height: 12),
+          // Chief training collects every chief's phone number here: required.
           TextFormField(
+            key: const Key('phone-input'),
             controller: _f.phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: 'Phone', hintText: '+254…'),
+            decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07… or +254…'),
+            validator: terms.chiefs ? _phoneRequired : null,
           ),
           // Known person outside the event area: show where they're from, from the records.
           if (v != null && !l.inRegion) ...[const SizedBox(height: 12), OriginPanel(v)],
           if (v == null) ...[const SizedBox(height: 8), LocationInputs(_f)],
           const SizedBox(height: 16),
-          FilledButton(onPressed: _busy ? null : _doCheckin, child: Text(_busy ? 'Checking in…' : 'Check in')),
+          FilledButton(onPressed: _busy ? null : _doCheckin, child: Text(_busy ? 'Saving…' : terms.checkIn)),
         ]),
       ),
     );
@@ -237,13 +244,13 @@ class _CheckinFlowState extends State<CheckinFlow> {
 
   /// Offline entry: ID (+ whatever details are known); the server completes it from the register on sync.
   Widget _offlineForm() => SectionCard(
-        title: 'Save check-in offline',
+        title: terms.chiefs ? 'Save offline' : 'Save check-in offline',
         child: Form(
           key: _form,
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const Notice(
+            Notice(
               "Offline — can't check the register right now. This check-in is saved on the phone and verified "
-              'when you\'re back online. Add the name and sex if the voter might not be on the register.',
+              'when you\'re back online. Add the name and sex if the ${terms.person} might not be on the register.',
               fg: AppColors.amber,
               bg: AppColors.amberSoft,
               icon: Icons.cloud_off,
@@ -254,7 +261,8 @@ class _CheckinFlowState extends State<CheckinFlow> {
             TextFormField(
               controller: _f.phone,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'Phone', hintText: '+254…'),
+              decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07… or +254…'),
+              validator: terms.chiefs ? _phoneRequired : null,
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -265,7 +273,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
             if (_outside) LocationInputs(_f),
             const SizedBox(height: 16),
             FilledButton(
-                onPressed: _busy ? null : _doCheckin, child: Text(_busy ? 'Saving…' : 'Check in (save offline)')),
+                onPressed: _busy ? null : _doCheckin, child: Text(_busy ? 'Saving…' : '${terms.checkIn} (save offline)')),
           ]),
         ),
       );

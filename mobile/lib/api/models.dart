@@ -9,6 +9,9 @@ class Me {
   final bool moduleEvents, moduleMobilization;
   final String? orgName;
   final bool orgActive;
+
+  /// The organization's wording: 'standard' or 'sdics_chiefs' (see terms.dart).
+  final String vocabulary;
   final String scopeLabel;
 
   Me.fromJson(Map<String, dynamic> j)
@@ -20,6 +23,7 @@ class Me {
         moduleMobilization = j['module_mobilization'] ?? false,
         orgName = (j['organization'] as Map?)?['name'],
         orgActive = (j['organization'] as Map?)?['active'] ?? false,
+        vocabulary = (j['organization'] as Map?)?['vocabulary'] ?? 'standard',
         scopeLabel = j['scope_label'] ?? '';
 
   bool get canOperate => role != 'viewer';
@@ -192,11 +196,13 @@ class Lookup {
 
 class PersonRecord {
   final String id, nationalId, name, county, constituency, ward, by, groupName;
+  final String? phone;
   final bool? inRegion;
   final DateTime at;
 
   PersonRecord.fromJson(Map<String, dynamic> j)
       : id = j['id'],
+        phone = _s(j['phone']),
         nationalId = j['national_id'],
         name = j['name'],
         county = j['county'],

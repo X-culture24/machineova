@@ -4,10 +4,12 @@ import { api } from "../api";
 import { isManager, useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader, Toggle } from "../components/ui";
 import { area, dateTime, num } from "../format";
+import { useTerms } from "../terms";
 import { useAsync } from "../useAsync";
 
 export default function EventsPage() {
   const { me } = useAuth();
+  const t = useTerms();
   const nav = useNavigate();
   const { data, error, loading, reload } = useAsync(() => api.events(), []);
   const [creating, setCreating] = useState(false);
@@ -15,19 +17,19 @@ export default function EventsPage() {
   return (
     <>
       <PageHeader
-        title="Events"
-        subtitle="Every event your organization runs check-in for."
-        actions={isManager(me) && <button className="btn" onClick={() => setCreating(true)}>+ New event</button>}
+        title={t.events}
+        subtitle={t.chiefs ? "One training per county. Open a training to see the chiefs marked present." : "Every event your organization runs check-in for."}
+        actions={isManager(me) && <button className="btn" onClick={() => setCreating(true)}>{t.chiefs ? "+ New training" : "+ New event"}</button>}
       />
       <ErrorNote error={error} />
       {loading && !data && <Loading />}
       {data && (
         <>
           <div className="grid kpis">
-            <Kpi label="Total events" value={num(data.summary.total)} />
+            <Kpi label={t.chiefs ? "Trainings" : "Total events"} value={num(data.summary.total)} />
             <Kpi label="Active now" value={num(data.summary.active)} tone="teal" />
             <Kpi label="Closed" value={num(data.summary.closed)} />
-            <Kpi label="Total check-ins" value={num(data.summary.checkins)} tone="teal" />
+            <Kpi label={t.chiefs ? "Chiefs present" : "Total check-ins"} value={num(data.summary.checkins)} tone="teal" />
           </div>
           <Card>
             {data.items.length === 0 ? (
@@ -37,12 +39,12 @@ export default function EventsPage() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Event</th>
+                      <th>{t.event}</th>
                       <th>Area</th>
                       <th>Starts</th>
                       <th>Rules</th>
-                      <th className="num">Check-ins</th>
-                      <th className="num">Unique</th>
+                      <th className="num">{t.chiefs ? "Marked present" : "Check-ins"}</th>
+                      <th className="num">{t.chiefs ? "Chiefs" : "Unique"}</th>
                       <th>Status</th>
                     </tr>
                   </thead>

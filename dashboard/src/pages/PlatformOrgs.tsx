@@ -113,7 +113,7 @@ export function NewOrgWizard() {
   const nav = useNavigate();
   const [step, setStep] = useState(0);
   const [f, setF] = useState({
-    name: "", contact_email: "", boundary_county: "", boundary_constituency: "", accent_color: "#0F8A7A", trial: false,
+    name: "", contact_email: "", boundary_county: "", boundary_constituency: "", accent_color: "#0F8A7A", trial: false, vocabulary: "standard" as "standard" | "sdics_chiefs",
     owner_name: "", owner_email: "", owner_password: "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -162,6 +162,12 @@ export function NewOrgWizard() {
               </div>
             </Field>
             <Toggle label="Trial organization" checked={f.trial} onChange={(v) => setF({ ...f, trial: v })} />
+            <Field label="Wording">
+              <select className="input" value={f.vocabulary} onChange={set("vocabulary")}>
+                <option value="standard">Campaign: voters, mobilize, check in</option>
+                <option value="sdics_chiefs">SDICS chiefs: chiefs, onboard, mark chief present</option>
+              </select>
+            </Field>
           </div>
         )}
         {step === 3 && (

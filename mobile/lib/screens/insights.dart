@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api/client.dart';
 import '../api/models.dart';
+import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
@@ -10,12 +11,18 @@ class InsightsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (terms.chiefs) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Insights', style: TextStyle(fontWeight: FontWeight.w800))),
+        body: const _CheckinInsightsTab(),
+      );
+    }
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Insights', style: TextStyle(fontWeight: FontWeight.w800)),
-          bottom: const TabBar(tabs: [Tab(text: 'Check-ins'), Tab(text: 'Mobilization')]),
+          bottom: TabBar(tabs: [Tab(text: terms.checkins), Tab(text: terms.mobilization)]),
         ),
         body: const TabBarView(children: [_CheckinInsightsTab(), _MobilizationInsightsTab()]),
       ),
@@ -65,13 +72,13 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
     super.build(context);
     if (_error != null) return _ErrorView(_error!, _load);
     if (_events == null) return const Center(child: CircularProgressIndicator());
-    if (_events!.isEmpty) return const EmptyNote('No events yet.');
+    if (_events!.isEmpty) return EmptyNote('No ${terms.event}s yet.');
     final d = _data;
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 96), children: [
         GroupBanner(
-          kicker: 'EVENT · TAP TO SWITCH',
+          kicker: '${terms.eventLabel.toUpperCase()} · TAP TO SWITCH',
           title: _event!.name,
           subtitle: d == null ? '' : 'Showing ${d.day}',
           color: AppColors.teal,
@@ -92,15 +99,15 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
           const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()))
         else ...[
           KpiGrid([
-            KpiTile(label: 'Total check-ins', value: fmtNum(d.total)),
-            KpiTile(label: 'Unique voters', value: fmtNum(d.unique)),
+            KpiTile(label: terms.chiefs ? 'Times marked present' : 'Total check-ins', value: fmtNum(d.total)),
+            KpiTile(label: terms.uniquePeople, value: fmtNum(d.unique)),
             KpiTile(
                 label: 'In-region rate', value: d.total == 0 ? '—' : fmtPct(d.inRegionRate), accent: AppColors.green),
             KpiTile(
                 label: 'Peak hour', value: d.peakHour == null ? '—' : hourLabel(d.peakHour!), accent: AppColors.amber),
           ]),
           SectionCard(
-            title: 'Check-ins by hour',
+            title: terms.chiefs ? 'Chiefs marked present, by hour' : 'Check-ins by hour',
             child: MiniBarChart(
               data: [for (final h in d.byHour) MapEntry(hourLabel(h.key), h.value)],
               highlight: d.byHour.indexWhere((h) => h.key == d.peakHour),
@@ -110,7 +117,7 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
           SectionCard(
             title: 'Gender mix',
             child: d.total == 0
-                ? const EmptyNote('No check-ins yet.')
+                ? EmptyNote(terms.chiefs ? 'No chiefs marked present yet.' : 'No check-ins yet.')
                 : Column(children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(99),
@@ -184,7 +191,7 @@ class _MobilizationInsightsTabState extends State<_MobilizationInsightsTab> with
     super.build(context);
     if (_error != null) return _ErrorView(_error!, _load);
     if (_drives == null) return const Center(child: CircularProgressIndicator());
-    if (_drives!.isEmpty) return const EmptyNote('No mobilization drives yet.');
+    if (_drives!.isEmpty) return EmptyNote(terms.chiefs ? 'No counties set up for onboarding yet.' : 'No mobilization drives yet.');
     final m = _data;
     return RefreshIndicator(
       onRefresh: _load,
@@ -211,18 +218,18 @@ class _MobilizationInsightsTabState extends State<_MobilizationInsightsTab> with
           const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()))
         else ...[
           KpiGrid([
-            KpiTile(label: 'Voters mobilized', value: fmtNum(m.drive.mobilized), accent: AppColors.amber),
+            KpiTile(label: terms.peopleMobilized, value: fmtNum(m.drive.mobilized), accent: AppColors.amber),
             KpiTile(
                 label: 'Of target',
                 value: m.drive.target == 0 ? '—' : fmtPct(m.drive.progress),
                 accent: AppColors.amber),
             KpiTile(label: 'Remaining', value: fmtNum(m.drive.remaining)),
-            KpiTile(label: 'Mobilized today', value: fmtNum(m.today), accent: AppColors.amber),
+            KpiTile(label: terms.mobilizedToday, value: fmtNum(m.today), accent: AppColors.amber),
           ]),
           SectionCard(
-            title: 'Top mobilizers',
+            title: terms.topMobilizers,
             child: m.topMobilizers.isEmpty
-                ? const EmptyNote('No one has registered voters yet.')
+                ? EmptyNote(terms.nobodyMobilized)
                 : Column(children: [
                     for (final (i, t) in m.topMobilizers.indexed)
                       ListTile(

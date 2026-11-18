@@ -22,6 +22,7 @@ type orgSummary struct {
 	Active               bool    `json:"active"`
 	Trial                bool    `json:"trial"`
 	AccentColor          string  `json:"accent_color"`
+	Vocabulary           string  `json:"vocabulary"`
 	Members              int     `json:"members"`
 	Events               int     `json:"events"`
 	Mobilized            int     `json:"mobilized"`
@@ -36,7 +37,7 @@ func requirePlatform(w http.ResponseWriter, p *Principal) bool {
 }
 
 const orgSummarySQL = `
-	SELECT o.id, o.name, o.slug, o.boundary_county, o.boundary_constituency, o.active, o.trial, o.accent_color,
+	SELECT o.id, o.name, o.slug, o.boundary_county, o.boundary_constituency, o.active, o.trial, o.accent_color, o.vocabulary,
 	       (SELECT count(*) FROM users u WHERE u.org_id = o.id),
 	       (SELECT count(*) FROM events e WHERE e.org_id = o.id),
 	       (SELECT count(*) FROM mobilizations m WHERE m.org_id = o.id)
@@ -44,7 +45,7 @@ const orgSummarySQL = `
 
 func scanOrgSummary(row pgx.Row) (orgSummary, error) {
 	var o orgSummary
-	err := row.Scan(&o.ID, &o.Name, &o.Slug, &o.BoundaryCounty, &o.BoundaryConstituency, &o.Active, &o.Trial, &o.AccentColor,
+	err := row.Scan(&o.ID, &o.Name, &o.Slug, &o.BoundaryCounty, &o.BoundaryConstituency, &o.Active, &o.Trial, &o.AccentColor, &o.Vocabulary,
 		&o.Members, &o.Events, &o.Mobilized)
 	return o, err
 }
@@ -83,8 +84,16 @@ func (s *Server) platformCreateOrg(w http.ResponseWriter, r *http.Request, p *Pr
 		ContactEmail         *string `json:"contact_email"`
 		AccentColor          *string `json:"accent_color"`
 		Trial                bool    `json:"trial"`
+		Vocabulary           string  `json:"vocabulary"`
 	}
 	if !readJSON(w, r, &in) {
+		return
+	}
+	if in.Vocabulary == "" {
+		in.Vocabulary = vocabStandard
+	}
+	if !validVocabulary(in.Vocabulary) {
+		writeErr(w, http.StatusBadRequest, "vocabulary must be standard or sdics_chiefs")
 		return
 	}
 	in.OwnerEmail = strings.TrimSpace(strings.ToLower(in.OwnerEmail))
@@ -121,9 +130,9 @@ func (s *Server) platformCreateOrg(w http.ResponseWriter, r *http.Request, p *Pr
 	defer tx.Rollback(r.Context())
 	var orgID string
 	err = tx.QueryRow(r.Context(), `
-		INSERT INTO organizations (name, slug, boundary_county, boundary_constituency, contact_email, accent_color, trial)
-		VALUES ($1,$2,$3,$4,$5,COALESCE($6,'#0F8A7A'),$7) RETURNING id`,
-		in.Name, slug, emptyNil(in.BoundaryCounty), emptyNil(in.BoundaryConstituency), emptyNil(in.ContactEmail), in.AccentColor, in.Trial).Scan(&orgID)
+		INSERT INTO organizations (name, slug, boundary_county, boundary_constituency, contact_email, accent_color, trial, vocabulary)
+		VALUES ($1,$2,$3,$4,$5,COALESCE($6,'#0F8A7A'),$7,$8) RETURNING id`,
+		in.Name, slug, emptyNil(in.BoundaryCounty), emptyNil(in.BoundaryConstituency), emptyNil(in.ContactEmail), in.AccentColor, in.Trial, in.Vocabulary).Scan(&orgID)
 	if isUniqueViolation(err) {
 		writeErr(w, http.StatusConflict, "an organization with this name already exists")
 		return
