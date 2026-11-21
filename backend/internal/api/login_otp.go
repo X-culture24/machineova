@@ -1,12 +1,15 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
 	"net/http"
 	"os"
@@ -28,8 +31,10 @@ import (
 //   - the addresses in LOGIN_OTP_EXEMPT (the system administrator).
 // Without LOGIN_OTP_EMAIL nobody is asked for a code (as before).
 //
-// The codes go out through LOGIN_OTP_SMTP_HOST/PORT/USER/PASSWORD and
-// LOGIN_OTP_MAIL_FROM: only the codes. Other Checkin email (invites,
+// The codes go out through Brevo's HTTPS API (LOGIN_OTP_BREVO_API_KEY,
+// sender LOGIN_OTP_MAIL_FROM), as the SDICS servers send: DigitalOcean blocks
+// outgoing SMTP from the droplet. Without a Brevo key, LOGIN_OTP_SMTP_HOST/
+// PORT/USER/PASSWORD. Only the codes. Other Checkin email (invites,
 // resets, the daily digest) keeps the SMTP_* settings, which are unset on
 // production, so it is still only logged.
 
@@ -128,7 +133,7 @@ func (s *Server) startOTP(w http.ResponseWriter, r *http.Request, userID, orgID,
 	body := fmt.Sprintf("Sign-in code for %s on Checkin (checkin.sdics.tech):\n\n    %s\n\n"+
 		"It works once, for 10 minutes. If nobody you know is signing in as %s, don't share it.\n",
 		email, code, email)
-	if err := otpMailer(s).Send(to, "Checkin sign-in code: "+email, body); err != nil {
+	if err := otpSend(s, to, "Checkin sign-in code: "+email, body); err != nil {
 		otpStore.mu.Lock()
 		delete(otpStore.m, tok)
 		otpStore.mu.Unlock()
@@ -224,4 +229,44 @@ func otpMailer(s *Server) *mail.Mailer {
 			os.Getenv("LOGIN_OTP_SMTP_PASSWORD"), os.Getenv("LOGIN_OTP_MAIL_FROM"))
 	}
 	return s.mail
+}
+
+// otpSend emails one code: Brevo when LOGIN_OTP_BREVO_API_KEY is set (15 s
+// limit), else SMTP (otpMailer).
+func otpSend(s *Server, to, subject, body string) error {
+	key := strings.TrimSpace(os.Getenv("LOGIN_OTP_BREVO_API_KEY"))
+	if key == "" {
+		return otpMailer(s).Send(to, subject, body)
+	}
+	from := strings.TrimSpace(os.Getenv("LOGIN_OTP_MAIL_FROM"))
+	if i := strings.LastIndex(from, "<"); i >= 0 { // "Name <email>"
+		from = strings.TrimSuffix(strings.TrimSpace(from[i+1:]), ">")
+	}
+	if from == "" {
+		return fmt.Errorf("LOGIN_OTP_MAIL_FROM is not set")
+	}
+	payload, _ := json.Marshal(map[string]any{
+		"sender":      map[string]string{"name": "SDICS Checkin", "email": from},
+		"to":          []map[string]string{{"email": to}},
+		"subject":     subject,
+		"textContent": body,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.brevo.com/v3/smtp/email", bytes.NewReader(payload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("api-key", key)
+	req.Header.Set("Content-Type", "application/json")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("brevo: %w", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode/100 != 2 {
+		msg, _ := io.ReadAll(io.LimitReader(res.Body, 300))
+		return fmt.Errorf("brevo: %s %s", res.Status, strings.TrimSpace(string(msg)))
+	}
+	return nil
 }
