@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../api/client.dart';
-import 'package:local_auth/local_auth.dart';
 
 import '../offline/sync.dart';
-import '../security/app_lock.dart';
-import 'lock_screen.dart';
 import '../session.dart';
 import 'sync_screen.dart';
 import '../theme.dart';
@@ -60,8 +57,6 @@ class AccountScreen extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _ChangePasswordScreen())),
             ),
-            const Divider(height: 1),
-            const _SecurityTiles(),
             const Divider(height: 1),
             ListenableBuilder(
               listenable: outbox,
@@ -185,115 +180,4 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
       ),
     );
   }
-}
-
-/// Lock now · Change PIN · fingerprint unlock, with the wipe policy spelled out.
-class _SecurityTiles extends StatefulWidget {
-  const _SecurityTiles();
-  @override
-  State<_SecurityTiles> createState() => _SecurityTilesState();
-}
-
-class _SecurityTilesState extends State<_SecurityTiles> {
-  final _auth = LocalAuthentication();
-  bool _bioSupported = false;
-  bool _bioOn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    var supported = false;
-    try {
-      supported = await _auth.isDeviceSupported() && await _auth.canCheckBiometrics;
-    } catch (_) {}
-    final on = await appLock.pins.biometricEnabled();
-    if (mounted) {
-      setState(() {
-        _bioSupported = supported;
-        _bioOn = on;
-      });
-    }
-  }
-
-  Future<void> _changePin() async {
-    final ctrl = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Current PIN'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          obscureText: true,
-          keyboardType: TextInputType.number,
-          maxLength: LockPolicy.pinMax,
-          decoration: const InputDecoration(counterText: ''),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Continue')),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
-    final msg = await appLock.unlock(ctrl.text);
-    if (!mounted) return;
-    if (msg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-      return;
-    }
-    final changed =
-        await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const SetPinScreen(changing: true)));
-    if (changed == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN changed')));
-    }
-  }
-
-  Future<void> _toggleBio(bool on) async {
-    if (on) {
-      try {
-        final ok = await _auth.authenticate(
-          localizedReason: 'Confirm to use your fingerprint for Checkin',
-          options: const AuthenticationOptions(biometricOnly: true),
-        );
-        if (!ok) return;
-      } catch (_) {
-        return;
-      }
-    }
-    await appLock.pins.setBiometric(on);
-    if (mounted) setState(() => _bioOn = on);
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(children: [
-        ListTile(
-          leading: const Icon(Icons.lock_clock, color: AppColors.teal),
-          title: const Text('Lock now'),
-          subtitle: Text('Locks automatically after ${LockPolicy.lockAfter.inMinutes} min in the background. '
-              '${LockPolicy.maxAttempts} wrong PINs, or ${LockPolicy.wipeAfter.inDays} days unused, erase this phone\'s data.'),
-          isThreeLine: true,
-          onTap: appLock.lockNow,
-        ),
-        const Divider(height: 1),
-        ListTile(
-          leading: const Icon(Icons.pin_outlined, color: AppColors.teal),
-          title: const Text('Change PIN'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: _changePin,
-        ),
-        if (_bioSupported) ...[
-          const Divider(height: 1),
-          SwitchListTile(
-            secondary: const Icon(Icons.fingerprint, color: AppColors.teal),
-            title: const Text('Unlock with fingerprint / face'),
-            value: _bioOn,
-            onChanged: _toggleBio,
-          ),
-        ],
-      ]);
 }

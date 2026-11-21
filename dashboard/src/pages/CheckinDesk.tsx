@@ -5,10 +5,12 @@ import { Badge, Card, Empty, ErrorNote, Field, Loading, PageHeader, RegionBadge 
 import { area, initials, time } from "../format";
 import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
+import { useTerms } from "../terms";
 
 type Flash = { tone: "green" | "amber" | "red"; text: string } | null;
 
 export default function CheckinDesk() {
+  const t = useTerms();
   const [params, setParams] = useSearchParams();
   const events = useAsync(() => api.events(true), []);
   const items = events.data?.items ?? [];
@@ -59,10 +61,12 @@ export default function CheckinDesk() {
       const res = await api.checkin(eventId, {
         national_id: nid,
         phone,
-        ...(lookup.in_register ? {} : manual),
+        // Whatever was typed (all optional): fills gaps in the register, never overrides it.
+        ...Object.fromEntries(Object.entries(manual).filter(([, x]) => x.trim() !== "")),
         ...(!lookup.in_register ? loc : {}),
       });
-      setFlash({ tone: "green", text: `✓ ${res.name} checked in${res.in_region ? "" : " (out of region)"}` });
+      const who = res.name || `ID ${maskId(nid)}`;
+      setFlash({ tone: "green", text: `✓ ${who} ${t.chiefs ? "marked present" : "checked in"}${res.in_region ? "" : " (out of region)"}` });
       reset();
     } catch (err) {
       const code = err instanceof ApiError ? err.code : undefined;
@@ -75,7 +79,7 @@ export default function CheckinDesk() {
   const v = lookup?.voter;
   return (
     <>
-      <PageHeader title="Check-in" subtitle="Scan or enter an ID to mark a voter present." />
+      <PageHeader title={t.chiefs ? "Mark chief present" : "Check-in"} subtitle={t.chiefs ? "Enter a chief's ID, take their phone number, mark them present." : "Scan or enter an ID to mark a voter present."} />
       <ErrorNote error={events.error} />
       {!events.data ? (
         <Loading />
@@ -128,7 +132,7 @@ export default function CheckinDesk() {
                   <div className="voter-card">
                     <span className="avatar">{initials(v.name)}</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: 16 }}>{v.name}</div>
+                      <div style={{ fontWeight: 700, fontSize: 16 }}>{v.name || "Name not on record"}</div>
                       <small className="muted">
                         {[`ID ${maskId(v.national_id)}`, v.sex === "F" ? "Female" : v.sex === "M" ? "Male" : "Sex unknown", v.dob && `${v.age} yrs`]
                           .filter(Boolean)
@@ -150,11 +154,12 @@ export default function CheckinDesk() {
                   </div>
                 ) : (
                   <>
-                    <div className="alert amber">Not found in the register — fill in their details.</div>
+                    <div className="alert amber">Not found in the register. Fill in what you can: nothing is required, and if the area is
+                      left blank they are marked out of region.</div>
                     <div className="form-grid">
-                      <div className="full"><Field label="Full name"><input required value={manual.name} onChange={(e) => setManual({ ...manual, name: e.target.value })} /></Field></div>
+                      <div className="full"><Field label="Full name"><input value={manual.name} onChange={(e) => setManual({ ...manual, name: e.target.value })} /></Field></div>
                       <Field label="Sex">
-                        <select required value={manual.sex} onChange={(e) => setManual({ ...manual, sex: e.target.value })}>
+                        <select value={manual.sex} onChange={(e) => setManual({ ...manual, sex: e.target.value })}>
                           <option value="">—</option><option value="F">Female</option><option value="M">Male</option>
                         </select>
                       </Field>
@@ -162,7 +167,25 @@ export default function CheckinDesk() {
                     </div>
                   </>
                 )}
-                <Field label="Phone"><input type="tel" placeholder="+254…" value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
+                {v && (!v.name || (v.sex !== "F" && v.sex !== "M")) && (
+                  <>
+                    <div className="alert amber">On the register, but their {!v.name && (v.sex !== "F" && v.sex !== "M") ? "name and sex are" : !v.name ? "name is" : "sex is"} missing.
+                      Fill in if you can (optional).</div>
+                    <div className="form-grid">
+                      {!v.name && <div className="full"><Field label="Full name"><input value={manual.name} onChange={(e) => setManual({ ...manual, name: e.target.value })} /></Field></div>}
+                      {v.sex !== "F" && v.sex !== "M" && (
+                        <Field label="Sex">
+                          <select value={manual.sex} onChange={(e) => setManual({ ...manual, sex: e.target.value })}>
+                            <option value="">—</option><option value="F">Female</option><option value="M">Male</option>
+                          </select>
+                        </Field>
+                      )}
+                    </div>
+                  </>
+                )}
+                <Field label={t.chiefs ? "Chief's phone number" : "Phone"}>
+                  <input type="tel" placeholder="07… or +254…" required={t.chiefs} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </Field>
                 {v && lookup.in_region === false && (
                   <div className="origin-panel">
                     <strong>Outside this area</strong>
@@ -183,12 +206,12 @@ export default function CheckinDesk() {
                 )}
                 {!v && (
                   <div className="form-grid">
-                    <Field label="County"><input required value={loc.county} onChange={(e) => setLoc({ ...loc, county: e.target.value })} /></Field>
-                    <Field label="Constituency"><input required value={loc.constituency} onChange={(e) => setLoc({ ...loc, constituency: e.target.value })} /></Field>
-                    <div className="full"><Field label="Ward"><input required value={loc.ward} onChange={(e) => setLoc({ ...loc, ward: e.target.value })} /></Field></div>
+                    <Field label="County"><input value={loc.county} onChange={(e) => setLoc({ ...loc, county: e.target.value })} /></Field>
+                    <Field label="Constituency"><input value={loc.constituency} onChange={(e) => setLoc({ ...loc, constituency: e.target.value })} /></Field>
+                    <div className="full"><Field label="Ward"><input value={loc.ward} onChange={(e) => setLoc({ ...loc, ward: e.target.value })} /></Field></div>
                   </div>
                 )}
-                <button className="btn" disabled={busy}>{busy ? "Checking in…" : "Check in"}</button>
+                <button className="btn" disabled={busy}>{busy ? "Saving…" : t.chiefs ? "Mark chief present" : "Check in"}</button>
               </form>
             )}
           </Card>

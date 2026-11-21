@@ -27,6 +27,7 @@ type event struct {
 	OutOfRegion      int        `json:"out_of_region"`
 	Assigned         int        `json:"assigned"`
 	Participants     int        `json:"participants"`
+	FirstCheckinAt   *time.Time `json:"first_checkin_at"` // when the event actually started (nil: no check-ins yet)
 }
 
 const eventSelect = `
@@ -36,13 +37,14 @@ const eventSelect = `
 	       (SELECT count(DISTINCT national_id) FROM checkins c WHERE c.event_id = e.id),
 	       (SELECT count(*) FROM checkins c WHERE c.event_id = e.id AND NOT c.in_region),
 	       (SELECT count(*) FROM event_assignments a WHERE a.event_id = e.id),
-	       (SELECT count(*) FROM event_participants pp WHERE pp.event_id = e.id)
+	       (SELECT count(*) FROM event_participants pp WHERE pp.event_id = e.id),
+	       (SELECT min(checked_in_at) FROM checkins c WHERE c.event_id = e.id)
 	FROM events e`
 
 func scanEvent(row pgx.Row) (event, error) {
 	var e event
 	err := row.Scan(&e.ID, &e.Name, &e.Venue, &e.County, &e.Constituency, &e.Ward, &e.StartsAt, &e.EndsAt,
-		&e.Active, &e.RegionRestricted, &e.ListOnly, &e.Checkins, &e.Unique, &e.OutOfRegion, &e.Assigned, &e.Participants)
+		&e.Active, &e.RegionRestricted, &e.ListOnly, &e.Checkins, &e.Unique, &e.OutOfRegion, &e.Assigned, &e.Participants, &e.FirstCheckinAt)
 	return e, err
 }
 

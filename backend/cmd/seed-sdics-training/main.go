@@ -18,6 +18,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/big"
 	"os"
 	"strings"
 	"time"
@@ -38,6 +39,8 @@ func main() {
 	ownerPassword := flag.String("owner-password", "", "owner password, 8+ characters (required for a new owner)")
 	resetPassword := flag.Bool("reset-password", false, "set -owner-password even if the owner already exists")
 	trainerDomain := flag.String("trainer-domain", "", `also create one field-app trainer per county, "<county>@<domain>", assigned to that county's training`)
+	trainerSuffix := flag.String("trainer-password-suffix", "", `trainer passwords are the county in lowercase plus this suffix (default: 4 random digits)`)
+	resetTrainers := flag.Bool("reset-trainer-passwords", false, "also reset existing trainers to that password and clear their sign-in lockouts")
 	startsAt := flag.String("starts", "2026-12-01T09:00:00+03:00", "placeholder training start (RFC 3339); edit each event's date in the dashboard")
 	flag.Parse()
 	email := strings.ToLower(strings.TrimSpace(*ownerEmail))
@@ -139,7 +142,7 @@ func main() {
 		}
 		log.Printf("  %-16s training event", c)
 		if *trainerDomain != "" {
-			login, pw, err := trainer(ctx, tx, orgID, event, c, *trainerDomain)
+			login, pw, err := trainer(ctx, tx, orgID, event, c, *trainerDomain, *trainerSuffix, *resetTrainers)
 			if err != nil {
 				log.Fatalf("trainer %s: %v", c, err)
 			}
@@ -163,8 +166,8 @@ func main() {
 
 // trainer makes sure the county has its field-app trainer: a member scoped to the county,
 // assigned to the county's training only, without the outreach module. Returns the password
-// only when the account is new (existing trainers keep theirs).
-func trainer(ctx context.Context, tx pgx.Tx, orgID, event, county, domain string) (login, password string, err error) {
+// when the account is new, or when reset (existing trainers otherwise keep theirs).
+func trainer(ctx context.Context, tx pgx.Tx, orgID, event, county, domain, suffix string, reset bool) (login, password string, err error) {
 	// "Elgeyo-Marakwet" → elgeyo-marakwet, "Trans Nzoia" → trans-nzoia
 	login = strings.Trim(strings.Map(func(r rune) rune {
 		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
@@ -181,7 +184,7 @@ func trainer(ctx context.Context, tx pgx.Tx, orgID, event, county, domain string
 	err = tx.QueryRow(ctx, `SELECT id, org_id FROM users WHERE email=$1`, login).Scan(&userID, &userOrg)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		password = newPassword(county)
+		password = easyPassword(county, suffix)
 		hash, herr := auth.HashPassword(password)
 		if herr != nil {
 			return "", "", herr
@@ -197,6 +200,16 @@ func trainer(ctx context.Context, tx pgx.Tx, orgID, event, county, domain string
 		return "", "", err
 	case userOrg == nil || *userOrg != orgID:
 		return "", "", fmt.Errorf("%s already belongs to another organization", login)
+	case reset:
+		password = easyPassword(county, suffix)
+		hash, herr := auth.HashPassword(password)
+		if herr != nil {
+			return "", "", herr
+		}
+		if _, err = tx.Exec(ctx, `UPDATE users SET password_hash=$2, failed_logins=0, locked_until=NULL, active=true WHERE id=$1`,
+			userID, hash); err != nil {
+			return "", "", err
+		}
 	}
 	_, err = tx.Exec(ctx, `
 		INSERT INTO event_assignments (event_id, user_id)
@@ -205,18 +218,22 @@ func trainer(ctx context.Context, tx pgx.Tx, orgID, event, county, domain string
 	return login, password, err
 }
 
-// newPassword: the county name plus 6 random letters/digits (no look-alikes), e.g. Nandi-7KQ4MX.
-func newPassword(county string) string {
-	const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
-	b := make([]byte, 6)
-	if _, err := rand.Read(b); err != nil {
-		log.Fatal(err)
+// easyPassword: the county in lowercase letters plus a suffix (4 random digits when none is
+// given): easy to type on a phone, with no capitals, spaces or dashes.
+func easyPassword(county, suffix string) string {
+	if suffix == "" {
+		n, err := rand.Int(rand.Reader, big.NewInt(9000))
+		if err != nil {
+			log.Fatal(err)
+		}
+		suffix = fmt.Sprint(n.Int64() + 1000)
 	}
-	for i := range b {
-		b[i] = alphabet[int(b[i])%len(alphabet)]
-	}
-	name := strings.ReplaceAll(strings.ReplaceAll(county, " ", ""), "-", "")
-	return name + "-" + string(b)
+	return strings.Map(func(r rune) rune {
+		if r >= 'a' && r <= 'z' {
+			return r
+		}
+		return -1
+	}, strings.ToLower(county)) + suffix
 }
 
 // sdicsCounties: the counties SDICS covers (usajili_location_ref), in official spelling.

@@ -41,8 +41,8 @@ export default function EventsPage() {
                     <tr>
                       <th>{t.event}</th>
                       <th>Area</th>
-                      <th>Starts</th>
-                      <th>Rules</th>
+                      <th>{t.chiefs ? "Held on" : "Starts"}</th>
+                      {!t.chiefs && <th>Rules</th>}
                       <th className="num">{t.chiefs ? "Marked present" : "Check-ins"}</th>
                       <th className="num">{t.chiefs ? "Chiefs" : "Unique"}</th>
                       <th>Status</th>
@@ -56,11 +56,13 @@ export default function EventsPage() {
                           <small className="muted">{e.venue}</small>
                         </td>
                         <td>{area(e.county, e.constituency, e.ward)}</td>
-                        <td>{dateTime(e.starts_at)}</td>
-                        <td className="row gap">
-                          {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
-                          {e.list_only && <Badge tone="blue">List-only</Badge>}
-                        </td>
+                        <td>{t.chiefs ? (e.unique >= 5 && e.first_checkin_at ? dateTime(e.first_checkin_at) : <span className="muted">Not held yet</span>) : dateTime(e.starts_at)}</td>
+                        {!t.chiefs && (
+                          <td className="row gap">
+                            {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
+                            {e.list_only && <Badge tone="blue">List-only</Badge>}
+                          </td>
+                        )}
                         <td className="num">{num(e.checkins)}</td>
                         <td className="num">{num(e.unique)}</td>
                         <td>{e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}</td>

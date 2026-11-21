@@ -47,7 +47,7 @@ def n(k):
 STEPS = [
     ('1_login', 'Sign in',
      f'Open the <b>MachineNova</b> app. Type the email {n(1)} and password {n(2)} your admin gave you. '
-     f'Tap <b>Sign in</b> {n(3)}. First time only: set a 4-digit app PIN.'),
+     f'Tap <b>Sign in</b> {n(3)}. The app opens straight away.'),
     ('2_home', 'Start',
      f'Tap <b>Mark chief present</b> {n(1)} or the <b>+</b> button {n(2)}. '
      'Your county\'s training opens.'),

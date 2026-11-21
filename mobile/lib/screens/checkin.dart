@@ -106,7 +106,9 @@ class _CheckinFlowState extends State<CheckinFlow> {
     final inRegister = _lookup?.voter != null;
     final needsIdentity = !inRegister || _lookup!.voter!.missingIdentity;
     final nid = _id.text.replaceAll(' ', '');
-    final name = _lookup?.voter?.name ?? (_f.name.text.trim().isEmpty ? 'ID $nid' : _f.name.text.trim());
+    final typed = _f.name.text.trim();
+    final known = _lookup?.voter?.name.trim() ?? '';
+    final name = known.isNotEmpty ? known : (typed.isNotEmpty ? typed : 'ID ${nid.length > 3 ? '•••${nid.substring(nid.length - 3)}' : nid}');
     setState(() => _busy = true);
     try {
       final r = await api.checkin(
@@ -210,18 +212,19 @@ class _CheckinFlowState extends State<CheckinFlow> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (v != null) ...[
             VoterCard(voter: v, color: AppColors.teal, soft: AppColors.tealSoft, inRegion: l.inRegion),
-            // Registered, but the register has no name/sex for them: ask the operator.
+            // Registered, but the register has no name/sex for them: fill in if known (optional).
             if (v.missingIdentity) ...[
               const SizedBox(height: 10),
-              const Notice('Registered voter, but their name or sex isn\'t on record. Fill them in.',
+              const Notice('On the register, but their name or sex isn\'t on record. Fill in if you can (optional).',
                   fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.edit_note),
               const SizedBox(height: 10),
-              IdentityInputs(_f),
+              IdentityInputs(_f, required: false),
             ],
           ] else ...[
-            Notice(terms.notFound, fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
+            // A check-in is never refused for missing details; an unknown area counts as out of region.
+            Notice(terms.notFoundOptional, fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.person_search),
             const SizedBox(height: 10),
-            IdentityInputs(_f),
+            IdentityInputs(_f, required: false),
           ],
           const SizedBox(height: 12),
           // Chief training collects every chief's phone number here: required.
@@ -234,7 +237,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
           ),
           // Known person outside the event area: show where they're from, from the records.
           if (v != null && !l.inRegion) ...[const SizedBox(height: 12), OriginPanel(v)],
-          if (v == null) ...[const SizedBox(height: 8), LocationInputs(_f)],
+          if (v == null) ...[const SizedBox(height: 8), LocationInputs(_f, required: false)],
           const SizedBox(height: 16),
           FilledButton(onPressed: _busy ? null : _doCheckin, child: Text(_busy ? 'Saving…' : terms.checkIn)),
         ]),

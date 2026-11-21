@@ -8,18 +8,25 @@
 # transaction read-only and an 8 s statement limit; adds SDICS_DATABASE_URL to
 # /opt/machinenova/.env (backed up first) and restarts the API. Safe to run again.
 #
-# Chief training (bin/seed-sdics-training) also reads the SDICS county list, usajili_location_ref.
-# Chiefs themselves are looked up in the IEBC voter register like everyone else, so SDICS
-# officer records are not readable (earlier grants on them are revoked).
+# Chief training also reads:
+#   - the SDICS county list, usajili_location_ref (bin/seed-sdics-training);
+#   - for the training report: which chiefs SDICS has per county and when each first signed in to
+#     the SDICS app (onboarding). Only these columns: core_officer (id, national_id, role, status,
+#     created_at), core_officerassignedlocation (officer_id, county, created_at), field_officer_title
+#     (officer_id, title), core_auditlog (user_id, action, created_at). No names, phones, PINs, IPs.
 set -euo pipefail
 ENV=/opt/machinenova/.env
 
 grant_county_list() {
   sudo -u postgres psql -d sdics_db -v ON_ERROR_STOP=1 -q <<'SQL'
 GRANT SELECT ON usajili_location_ref TO machinenova_sdics_ro;
-REVOKE ALL ON core_officer, core_officerassignedlocation, field_officer_title, field_officer_sublocation FROM machinenova_sdics_ro;
+REVOKE ALL ON core_officer, core_officerassignedlocation, field_officer_title, field_officer_sublocation, core_auditlog FROM machinenova_sdics_ro;
+GRANT SELECT (id, national_id, role, status, created_at) ON core_officer TO machinenova_sdics_ro;
+GRANT SELECT (officer_id, county, created_at) ON core_officerassignedlocation TO machinenova_sdics_ro;
+GRANT SELECT (officer_id, title) ON field_officer_title TO machinenova_sdics_ro;
+GRANT SELECT (user_id, action, created_at) ON core_auditlog TO machinenova_sdics_ro;
 SQL
-  echo "county list readable; officer records not"
+  echo "county list and training-report columns readable"
 }
 
 if grep -q '^SDICS_DATABASE_URL=' "$ENV"; then

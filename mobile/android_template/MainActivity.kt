@@ -9,7 +9,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 /**
  * Installed by setup.sh (the android/ folder is generated, not committed).
  *
- * - FlutterFragmentActivity: required by local_auth for fingerprint / face unlock.
+ * - FlutterFragmentActivity: works like FlutterActivity; kept so existing builds stay identical.
  * - FLAG_SECURE (release builds): the app shows voter and election data, so Android must not
  *   capture it. The recent-apps preview is blank, and screenshots, screen recording and casting
  *   show black. Debug builds skip it so the app can be demoed and tested on emulators.

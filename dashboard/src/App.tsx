@@ -7,6 +7,7 @@ import Protect from "./components/Protect";
 import { initials } from "./format";
 import Login from "./pages/Login";
 import DashboardPage from "./pages/Dashboard";
+import TrainingReportPage from "./pages/TrainingReport";
 import EventsPage from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import CheckinDesk from "./pages/CheckinDesk";
@@ -67,7 +68,7 @@ export default function App() {
       <Route element={<Shell />}>
         {hasCheckin(me) && (
           <>
-            <Route index element={<DashboardPage />} />
+            <Route index element={me.organization?.vocabulary === "sdics_chiefs" ? <TrainingReportPage /> : <DashboardPage />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="events/:id" element={<EventDetail />} />
             <Route path="checkin" element={<CheckinDesk />} />
@@ -124,7 +125,7 @@ function TabBar({ inOps, me }: { inOps: boolean; me: Me }) {
     : inOps
       ? [["/ops", "Home", "⌂"], ["/ops/stations", "Stations", "⚑"], ...(me.role !== "agent" ? [["/ops/people", "Agents", "☺"] as [string, string, string]] : []),
          ["/ops/turnout", "Turnout", "↗"], ["/account", "Account", "⚙"]]
-      : [["/", "Home", "◧"], ["/events", t.events, "▦"], ...(me.module_mobilization ? [["/mobilization", t.mobilizationTab, "➚"] as [string, string, string]] : []), ["/people", "People", "☰"], ["/account", "Account", "⚙"]];
+      : [["/", t.chiefs ? "Report" : "Home", "◧"], ["/events", t.events, "▦"], ...(me.module_mobilization ? [["/mobilization", t.mobilizationTab, "➚"] as [string, string, string]] : []), ["/people", "People", "☰"], ["/account", "Account", "⚙"]];
   return (
     <nav className="tabbar" aria-label="Sections">
       {tabs.map(([to, label, icon]) => (
@@ -173,7 +174,7 @@ function Shell() {
         )}
         {me.organization && !inOps && hasCheckin(me) && (
           <>
-            {link("/", "Dashboard", "◧", true)}
+            {link("/", t.chiefs ? "Training report" : "Dashboard", "◧", true)}
             {section("Operate")}
             {me.module_events && link("/events", t.events, "▦")}
             {me.module_events && me.role !== "viewer" && link("/checkin", t.checkin, "✓")}

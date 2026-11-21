@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api/client.dart';
-import '../security/app_lock.dart';
+import '../security/inactivity.dart';
 import '../session.dart';
 import '../theme.dart';
 import '../widgets/common.dart';

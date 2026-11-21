@@ -11,7 +11,7 @@ ORANGE = (242, 160, 7)
 PICK = {
     'clerks': {
         '1-sign-in': ('c01_login', ['1', '2', '3'], 300),
-        '2-check-id': ('c11_check_id', ['1', '3'], 0),
+        '2-check-id': ('c11_check_id', ['2', '3'], 360),
         '3-details': ('c12_person_elsewhere', ['2', '3'], 300),
         '4-register': ('c09_confirm', ['2'], 160),
         '5-done': ('c10_success', ['1'], 360),
@@ -23,7 +23,7 @@ PICK = {
         '3-details': ('06_person', ['4'], 360),
         '4-register': ('07_confirm', ['3'], 160),
         '5-done': ('08_success', ['1'], 360),
-        '6-check-id': ('12_check_id', ['1', '4'], 0),
+        '6-check-id': ('12_check_id', ['3', '4'], 360),
         '7-not-your-area': ('12b_check_id_elsewhere', ['3'], 300),
     },
 }
@@ -34,6 +34,8 @@ for who, pick in PICK.items():
         im = Image.open(os.path.join(src, shot + '.png')).convert('RGB')
         d = ImageDraw.Draw(im)
         for k in marks:
+            if not rects[shot].get(k):
+                continue
             l, t, r, b = rects[shot][k]
             d.rounded_rectangle([l - 8, t - 8, r + 8, b + 8], radius=18, outline=ORANGE, width=7)
         im = im.crop((0, crop, im.width, crop + 1200))

@@ -1,4 +1,6 @@
 import { useEffect, type ReactNode } from "react";
+import { isSdicsBrand } from "../brand";
+import { LineChart } from "./LineChart";
 import { Icon, iconFor, type IconName } from "./icons";
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
@@ -72,6 +74,8 @@ export const RegionBadge = ({ inRegion }: { inRegion: boolean }) =>
 export function BarChart({ data, highlight, tone = "teal", height = 160 }: { data: { label: string; value: number }[]; highlight?: number; tone?: "teal" | "amber"; height?: number }) {
   const max = Math.max(1, ...data.map((d) => d.value));
   if (data.length === 0) return <Empty>No activity yet.</Empty>;
+  // SDICS look: smooth lines instead of bars.
+  if (isSdicsBrand()) return <LineChart labels={data.map((d) => d.label)} series={[{ name: "", values: data.map((d) => d.value) }]} height={height + 40} />;
   return (
     <div className="barchart" style={{ height }}>
       {data.map((d, i) => (

@@ -22,7 +22,7 @@ CFG = {
         title='IEBC Clerks', who='IEBC clerks',
         sub1='How to use the SDICS Field app,', sub2='step by step, in simple words.',
         covers='Phone basics · SDICS Field app · Quick reference',
-        footer='IEBC Clerks · Version 3.4 · November 2026', p0_sub='Read this before you start.',
+        footer='IEBC Clerks · Version 3.6 · November 2026', p0_sub='Read this before you start.',
         battery_off='Charge it. Work saved in SDICS Field stays on the phone and is sent when you are back online.',
         pdf_title='SDICS Training Manual — IEBC Clerks',
         pdf_subject='SDICS Field app (IEBC clerks)'),
@@ -30,12 +30,15 @@ CFG = {
         title='Chiefs and Sub-chiefs', who='Chiefs and Sub-chiefs (SDICS Field app officers)',
         sub1='How to use the SDICS Field app,', sub2='step by step, in simple words.',
         covers='Phone basics · SDICS Field app · Quick reference',
-        footer='Chiefs and Sub-chiefs · Version 2.4 · November 2026', p0_sub='Read this before you start.',
+        footer='Chiefs and Sub-chiefs · Version 2.6 · November 2026', p0_sub='Read this before you start.',
         battery_off='Charge it. Your saved work in the SDICS Field app stays on the phone; it is sent when the phone is on and has signal.',
         pdf_title='SDICS Training Manual — Chiefs and Sub-chiefs',
         pdf_subject='SDICS Field app'),
 }[AUD]
 QR = 2                                    # number of the Quick reference part
+# The SDICS administrators: the point of contact for chiefs, sub-chiefs and clerks.
+ADMINS = [('Collins Biwott', '0740 562 760'), ('Collins Kibet', '0728 770 399'), ('Lawrence Imani', '0725 926 141')]
+ADMIN_LINES = '<br/>'.join(f'<b>{n}</b> &nbsp;{t}' for n, t in ADMINS)
 # Lexend: the SDICS Field and Dashboard apps' font (mobile-dashboard/assets/
 # fonts, SIL Open Font License, fonts/OFL.txt). It has no italic, so the
 # "italic" styles (captions, quotes) use the regular weight.
@@ -223,7 +226,7 @@ def word(term, meaning):
     return P(f'<b>{term}</b> — {meaning}', st('w', fontSize=10, leading=13.5, leftIndent=10, spaceAfter=3))
 
 
-F = lambda n: os.path.join(A, 'ann_field_v5', n + '.png')
+F = lambda n: os.path.join(A, 'ann_field_v6', n + '.png')
 I = lambda n: os.path.join(A, 'ann_iebc_v3', n + '.png')
 K2 = lambda n: os.path.join(A, 'ann_checkin_app', n + '.png')
 RAW_I = lambda n: os.path.join(A, 'iebc_shots_v2', n + '.png')
@@ -313,12 +316,15 @@ S += [Spacer(1, 4), P('<b>Words you will see</b>', H3),
               'The yellow boxes and numbers in the pictures are not on your screen: they only show you where to look.'),
       callout('IMPORTANT', 'Voter information is private',
               'You will see names and ID numbers of real people. Do not share them, photograph them, '
-              'or write them down for anyone else. Every search is recorded.')]
+              'or write them down for anyone else. Every search is recorded.'),
+      callout('IMPORTANT', 'Your SDICS administrators',
+              ['Call any of them for a new PIN, a wrong location, items that could not be sent, '
+               'a wrong person marked, or when the app is not working:', ADMIN_LINES])]
 
 
 # ---------------------------------------------------------------- PART 0
 S += [PageBreak()] + section('Part 0', 'Phone basics', CFG['p0_sub'])
-S += [P('<i>Phone model: [PHONE MODEL — to be filled in]. Buttons can be in a slightly different place on your phone.</i>', SMALL),
+S += [P('<i>Phone model: Villaon V25. Buttons can be in a slightly different place on your phone.</i>', SMALL),
       P('0.1 Turn the phone on and off', H2)]
 S += steps([('Find the power button', 'It is on the side of the phone. It is usually the small button on the right.'),
             ('Turn on', 'Press and hold the power button for about 3 seconds, until the screen lights up.'),
@@ -490,11 +496,15 @@ def part_field(n):
     S += [P(f'{n}.3 The Home screen', H2)]
     S.append(shot_steps(F('03_home'), 'Home', [
         ('Check the top bar', 'It shows your initials, your name, your role ("Chief" or "Sub-chief") and your location. The three dots open your <b>Account</b>.'),
-        ('Look at today\'s target', 'The ring shows how many you have registered today. "23 to go" is how many are left to reach the target.'),
+        ('Read Your area', 'Your area is always shown on Home, with nothing to tap: <b>Location</b>, <b>Division</b>, '
+         '<b>Sublocation</b> (sub-chiefs only), then <b>Subcounty</b> last.'),
+        ('Look at today\'s target', 'The ring shows how many you have registered today out of your target of <b>25</b>. '
+         '"8 to go" is how many are left to reach it.'),
         ('Use the quick actions', 'Big buttons for the things you do most.'),
         ('Use the bottom tabs', '<b>Home, Roll, Check ID, Statistics.</b> Tap one to move.')],
-        items=[('1', 'Account (three dots)'), ('2', 'Today\'s target'), ('3', 'Open the roll'), ('4', 'Check an ID'),
-               ('5', 'Daily total'), ('6', 'Correct figure'), ('7', 'Bottom tabs')]))
+        items=[('1', 'Account (three dots)'), ('8', 'Your area'), ('2', 'Today\'s target'), ('3', 'Open the roll'), ('4', 'Check an ID'),
+               ('7', 'Bottom tabs')],
+        extra=[P('Scroll down on Home for two more buttons: <b>Daily total</b> and <b>Correct figure</b>.', SMALL)]))
 
     S += [P(f'{n}.4 Sub-chiefs', H2),
           P('A <b>sub-chief</b> uses the same app, signs in the same way and has the same buttons as a chief. '
@@ -504,7 +514,7 @@ def part_field(n):
     S += steps([('Your role says Sub-chief', 'At the top, next to your name, and in your Account.'),
                 ('You see only your sub-location', 'The roll, the search and the numbers on Home cover only the people of '
                  '<b>your sub-location</b> (for example KAPKUT EAST), not the whole location. Your sub-location is shown after '
-                 'your location in the top bar and in your Account.'),
+                 'your location in the top bar, in <b>Your area</b> on Home and in your Account.'),
                 ('Everything else is the same', 'Mark people as registered, work offline, check IDs, send a daily total and '
                  'correct figures exactly as this part explains.')])
     S += [callout('NOTE', 'Wrong sub-location?', 'If the sub-location in your Account is not where you work, call your administrator. '
@@ -533,9 +543,13 @@ def part_field(n):
         ('Tap the person', 'Tap their name in the list. Or tap "Show all matches" to see everyone who matches.')], start=3,
         items=[('1', 'Search box'), ('2', 'The person'), ('3', 'Show all matches')]))
     S.append(shot_steps(F('06_person'), 'Step 5–6: the person\'s details', [
-        ('Check the details', 'Compare the name, ID, father and clan with the person in front of you. The ID shows only the last 3 digits.'),
+        ('Check the details', 'They are listed in this order: <b>ID No.</b> (only the last 3 digits), <b>Father</b>, <b>Clan</b>, '
+         '<b>Family</b>, <b>Age</b>, <b>Village</b>, <b>Sublocation</b>, then <b>Location</b> written from the smallest place to the '
+         'biggest, for example "Tartar - Nandi Hills - Nandi East - Nandi" (location - division - subcounty - county). '
+         'Compare them with the person in front of you.'),
         ('Tap Mark as registered', 'The green button at the bottom.')], start=5,
-        items=[('1', 'Name'), ('2', 'NOT REGISTERED'), ('3', 'ID number (last 3 digits)'), ('4', 'Mark as registered'), ('5', 'Back arrow')]))
+        items=[('1', 'Name'), ('2', 'NOT REGISTERED'), ('3', 'ID No. (last 3 digits)'), ('6', 'Family'), ('7', 'Age'),
+               ('8', 'Location: smallest place first'), ('4', 'Mark as registered'), ('5', 'Back arrow')]))
     S.append(shot_steps(F('07_confirm'), 'Step 7: confirm', [
         ('Tap Register', 'The box asks "Mark as registered?". It says the person will be recorded as registered by you, now. '
          'Tap <b>Register</b> if it is correct. Tap <b>Back</b> if it is the wrong person.')], start=7,
@@ -568,13 +582,15 @@ def part_field(n):
     S.append(shot_steps(F('12_check_id'), 'Check an ID', [
         ('Tap Check ID', 'At the bottom of the screen.'),
         ('Type the ID number', 'In "National ID number". Kenyan ID numbers have 4 to 9 digits.'),
-        ('Tap Check', 'You see <b>Registered</b> or <b>Not registered</b>, with the name and place. Check ID finds anyone in Kenya.'),
+        ('Tap Check', 'You see <b>Registered</b> or <b>Not registered</b>, the name and the full details in the same order as on the roll '
+         '(ID No., Father, Clan, Family, Age, Village, Sublocation, Location). Check ID finds anyone in Kenya. Scroll down for the button.'),
         ('Open and register', 'If the person is not registered and lives in your location, tap <b>Open and register</b>.')],
-        items=[('1', 'ID number box'), ('2', 'Check'), ('3', 'The answer'), ('4', 'Open and register')],
+        items=[('3', 'The answer and the details'), ('4', 'Open and register')],
         extra=[P('"No one with ID … was found." means the number is wrong. '
                  'Without signal, the answer comes from the roll saved on your phone.', SMALL)]))
     S.append(shot_steps(F('12b_check_id_elsewhere'), 'Someone from another location', [
-        ('Read the message', '<b>Not in your area.</b> It says where the person lives and which area you can register in. '
+        ('Read the details and the message', 'You see the person\'s full details, wherever they live. Below them: '
+         '<b>Not in your area.</b> It says where the person lives and which area you can register in. '
          'You cannot register them: there is no Open and register button.'),
         ('Send them on', 'Their own chief or an IEBC clerk can register them.')],
         items=[('1', 'Name'), ('2', 'Where they live'), ('3', 'Why you can\'t register them')]))
@@ -670,8 +686,9 @@ def part_field_clerks(n):
 
     S += [P(f'{n}.3 The Home screen', H2)]
     S.append(shot_steps(G('c02_home'), 'Home', [
-        ('Check the top bar', 'Your name and <b>Clerk</b>. Under it: the location assigned to you.'),
-        ('Look at today\'s target', 'The ring shows how many you have registered today.'),
+        ('Check the top bar', 'Your name and <b>Clerk</b>. Under it: the location assigned to you. '
+         '<b>Your area</b> on Home shows it in full: Location, Division, then Subcounty.'),
+        ('Look at today\'s target', 'The ring shows how many you have registered today out of your target of <b>25</b>.'),
         ('Use the bottom tabs', '<b>Home, Roll, Check ID, Statistics.</b> Tap one to move.')],
         items=[('1', 'Clerk'), ('2', 'Your location'), ('3', 'Today\'s target'), ('4', 'Bottom tabs')]))
     S += [callout('TIP', 'Going back',
@@ -691,7 +708,9 @@ def part_field_clerks(n):
         ('Tap the person', 'Tap their name in the list.')], start=2,
         items=[('1', 'Search box'), ('2', 'The person')]))
     S.append(shot_steps(G('c08_person'), 'Step 4–5: the person\'s details', [
-        ('Check the details', 'Compare the name, ID, father and clan with the person in front of you. The ID shows only the last 3 digits.'),
+        ('Check the details', 'In this order: <b>ID No.</b> (last 3 digits), <b>Father</b>, <b>Clan</b>, <b>Family</b>, <b>Age</b>, '
+         '<b>Village</b>, <b>Sublocation</b>, then <b>Location</b> from the smallest place to the biggest '
+         '("Tartar - Nandi Hills - Nandi East - Nandi"). Compare them with the person in front of you.'),
         ('Tap Mark as registered', 'The green button at the bottom.')], start=4,
         items=[('1', 'Name'), ('2', 'NOT REGISTERED'), ('3', 'Mark as registered')]))
     S.append(shot_steps(G('c09_confirm'), 'Step 6: confirm', [
@@ -709,9 +728,10 @@ def part_field_clerks(n):
     S.append(shot_steps(G('c11_check_id'), 'Check an ID', [
         ('Tap Check ID', 'At the bottom of the screen.'),
         ('Type the ID number', 'Kenyan ID numbers have 4 to 9 digits. Tap <b>Check</b>.'),
-        ('Read the answer', '<b>Registered</b> or <b>Not registered</b>, with the name and where they live.'),
+        ('Read the answer', '<b>Registered</b> or <b>Not registered</b>, with the name and full details (ID No., Father, Clan, '
+         'Family, Age, Village, Sublocation, Location). Scroll down for the button.'),
         ('Tap Open and register', 'Only when they are <b>not registered</b>. Their details open.')],
-        items=[('1', 'ID number box'), ('2', 'The answer'), ('3', 'Open and register')],
+        items=[('2', 'The answer and the details'), ('3', 'Open and register')],
         extra=[P('"No one with ID … was found." means the number is wrong or not in the records.', SMALL)]))
     S.append(shot_steps(G('c12_person_elsewhere'), 'Register someone from another location', [
         ('Check the details', 'The location shows where they live.'),
@@ -925,12 +945,11 @@ def quickref_clerks(n):
         'Don\'t sign out while items are waiting to send.'])]
     S += [Spacer(1, 6), P('Who to call', H2),
           table(['Who', 'When', 'Phone number'], [
-              ['Your administrator', 'Forgotten PIN, "This PIN is no longer valid"', '[to be filled in]'],
-              ['SDICS help desk', 'SDICS Field not working, role does not say Clerk', '[to be filled in]'],
-              ['Your supervisor', 'Items that could not be sent, wrong person marked', '[to be filled in]'],
-              ['IEBC help', 'Questions about voter registration itself', '[to be filled in]'],
+              ['Your SDICS administrators', 'Forgotten PIN, "This PIN is no longer valid", SDICS Field not working, role does not say Clerk', ADMIN_LINES],
+              ['Your supervisor', 'Items that could not be sent, wrong person marked', 'Write it here:<br/>____________________'],
+              ['IEBC', 'Questions about voter registration itself', 'Your nearest IEBC office'],
               ],
-              [0.27, 0.48, 0.25]),
+              [0.24, 0.42, 0.34]),
           Spacer(1, 10),
           P('My name: ________________________ &nbsp;&nbsp; My supervisor: ________________________', BODY)]
 
@@ -952,7 +971,7 @@ def quickref_chiefs(n):
         ['Sub-chief', 'Same app and buttons; you see only your sub-location'],
         ['1-page guide', 'Sign-in screen → "How to use SDICS Field" → <b>Chiefs</b> (opens in the app)'],
         ['Sign out', 'Only when told to. Your PIN stays the same. Never with items waiting to send.']], [0.32, 0.68])]
-    S += [Spacer(1, 12), P("Do's and Don'ts", H2), dos_donts([
+    S += [Spacer(1, 4), P("Do's and Don'ts", H2), dos_donts([
         'Check the name, ID and father\'s name before you mark someone.',
         'Keep the phone charged, dry and with you.',
         'Let offline items send before the end of the day.',
@@ -961,14 +980,12 @@ def quickref_chiefs(n):
         'Don\'t mark a person who has not registered with IEBC.',
         'Don\'t photograph or share voter names or ID numbers.',
         'Don\'t sign out while items are waiting to send.'])]
-    S += [Spacer(1, 12), P('Who to call', H2),
+    S += [Spacer(1, 4), P('Who to call', H2),
           table(['Who', 'When', 'Phone number'], [
-              ['Your administrator', 'Forgotten PIN, "This PIN is no longer valid", items that could not be sent, wrong person marked, wrong sub-location, rejected daily total', '[to be filled in]'],
-              ['SDICS help desk', 'App not working, no location assigned', '[to be filled in]'],
-              ['IEBC help', 'Questions about voter registration itself', '[to be filled in]']], [0.25, 0.5, 0.25]),
-          Spacer(1, 10),
-          P('My name: ______________________________ &nbsp;&nbsp; My location: ______________________________', BODY),
-          P('My administrator: ________________________ &nbsp;&nbsp; Their phone: ____________________________', BODY)]
+              ['Your SDICS administrators', 'Forgotten or ended PIN, wrong (sub-)location, items not sent, wrong person marked, rejected daily total, app problems', ADMIN_LINES],
+              ['IEBC', 'Questions about voter registration itself', 'Your nearest IEBC office']], [0.24, 0.42, 0.34]),
+          Spacer(1, 6),
+          P('My name: ______________________ &nbsp;&nbsp; My location: ______________________', BODY)]
 
 
 def guide_page():

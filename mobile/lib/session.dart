@@ -6,9 +6,9 @@ import 'offline/prefetch.dart';
 import 'offline/store.dart';
 import 'offline/sync.dart';
 import 'offline/vault.dart';
-import 'security/app_lock.dart';
+import 'security/inactivity.dart';
 
-/// Holds the signed-in user; the app rebuilds between sign-in, PIN, lock and the shell when it changes.
+/// Holds the signed-in user; the app rebuilds between sign-in and the shell when it changes.
 class Session extends ChangeNotifier {
   Me? me;
   bool restoring = true;
@@ -56,11 +56,14 @@ class Session extends ChangeNotifier {
         }
       }
     }
-    // Locked on every launch; erased if unused past the policy limit.
-    if (me != null && await appLock.onSessionStart(restored: true) != null) {
-      restoring = false;
-      notifyListeners();
-      return;
+    // Erased if unused past the policy limit; otherwise this launch counts as use.
+    if (me != null) {
+      if (await inactivity.expired()) {
+        await wipe(WipeReason.inactivity);
+        return;
+      }
+      await inactivity.dropOldPin();
+      await inactivity.markUsed();
     }
     restoring = false;
     notifyListeners();
@@ -78,7 +81,7 @@ class Session extends ChangeNotifier {
     }
     await _activate(m);
     wiped = null;
-    await appLock.onSessionStart(restored: false); // asks for a new PIN
+    await inactivity.markUsed();
     notifyListeners();
     outbox.flush();
     prefetchForOffline();
@@ -87,7 +90,7 @@ class Session extends ChangeNotifier {
   /// Queued records stay on the phone and sync the next time this user signs in.
   Future<void> signOut() async {
     await api.logout();
-    await appLock.reset();
+    await inactivity.clear();
     me = null;
     api.userId = null;
     outbox.currentUser = null;
@@ -100,7 +103,7 @@ class Session extends ChangeNotifier {
     outbox.resetAfterWipe();
     ledger.resetAfterWipe();
     responseCache.resetAfterWipe();
-    await appLock.reset();
+    await inactivity.clear();
     me = null;
     api.userId = null;
     outbox.currentUser = null;
@@ -111,7 +114,7 @@ class Session extends ChangeNotifier {
 }
 
 final session = Session();
-final appLock = AppLock(PinStore(vault.keyStore), onWipe: session.wipe);
+final inactivity = Inactivity(vault.keyStore);
 
 /// Thrown when someone other than a field agent signs in to the field app.
 class NotFieldAgent implements Exception {

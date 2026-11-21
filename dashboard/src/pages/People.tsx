@@ -75,7 +75,7 @@ export default function PeoplePage() {
                     <td>
                       <div className="person">
                         <span className={`avatar ${tab === "mobilized" ? "amber" : ""}`}>{initials(p.name)}</span>
-                        <div><div style={{ fontWeight: 600 }}>{p.name}</div><small className="muted">ID {maskId(p.national_id)}</small></div>
+                        <div><div style={{ fontWeight: 600 }}>{p.name || "Name not on record"}</div><small className="muted">ID {maskId(p.national_id)}</small></div>
                       </div>
                     </td>
                     {t.chiefs && <td>{p.phone ?? "—"}</td>}

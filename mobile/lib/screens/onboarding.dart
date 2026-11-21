@@ -47,7 +47,7 @@ const _pages = <_Page>[
   ),
   _Page(
     'Works offline, stays secure',
-    'No signal? Keep working — records sync when you\'re back online. A PIN and encryption protect everything on the phone.',
+    'No signal? Keep working — records sync when you\'re back online. Encryption protects everything on the phone.',
     'assets/onboarding/secure.png',
   ),
 ];

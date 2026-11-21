@@ -210,15 +210,6 @@ class ApiClient {
 
   Future<void> logout() => _saveToken(null);
 
-  /// Confirms the signed-in user's password with the server (used to reset a forgotten PIN).
-  Future<void> confirmPassword(String login, String password) async {
-    final r = await _req('POST', '/api/auth/login', body: {'login': login, 'password': password, 'remember': true});
-    if (r['user']?['id'] != userId) {
-      throw ApiException(403, 'That password belongs to a different account', null, const {});
-    }
-    await _saveToken(r['token']);
-  }
-
   Future<Me> me() async {
     final r = await _req('GET', '/api/me');
     await _saveMe(r);

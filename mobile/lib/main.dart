@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'offline/prefetch.dart';
 import 'offline/sync.dart';
-import 'screens/lock_screen.dart';
 import 'screens/login.dart';
 import 'screens/onboarding.dart';
 import 'screens/splash.dart';
-import 'security/app_lock.dart';
 import 'screens/shell.dart';
 import 'session.dart';
 import 'theme.dart';
@@ -42,9 +40,8 @@ class _CheckinAppState extends State<CheckinApp> with WidgetsBindingObserver {
   /// Back in the foreground (often back in coverage): push queued records, refresh offline data.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) appLock.onBackground();
     if (state == AppLifecycleState.resumed && session.me != null) {
-      appLock.onForeground(); // re-locks after LockPolicy.lockAfter in the background
+      inactivity.markUsed(); // counts as use for the inactivity wipe
       outbox.flush();
       prefetchForOffline();
     }
@@ -57,22 +54,14 @@ class _CheckinAppState extends State<CheckinApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       home: ListenableBuilder(
-        listenable: Listenable.merge([session, appLock]),
+        listenable: session,
         builder: (context, _) {
           if (session.restoring || _onboarded == null) return const SplashScreen();
           if (session.me == null) {
             if (_onboarded == false) return OnboardingScreen(onDone: () => setState(() => _onboarded = true));
             return const LoginScreen();
           }
-          // Nothing with data is built until the PIN is set or entered.
-          switch (appLock.state) {
-            case AppLockState.needsPin:
-              return const SetPinScreen();
-            case AppLockState.locked:
-              return const LockScreen();
-            case AppLockState.open:
-              return const Shell();
-          }
+          return const Shell();
         },
       ),
     );

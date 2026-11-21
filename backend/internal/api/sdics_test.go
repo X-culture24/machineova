@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/machinenova/checkin/backend/internal/auth"
 	"reflect"
 	"testing"
 )
@@ -44,5 +45,22 @@ func TestPhoneMissing(t *testing.T) {
 	}
 	if phoneMissing(vocabSDICSChiefs, &ph) || phoneMissing(vocabStandard, nil) {
 		t.Fatal("a phone satisfies onboarding; campaigns don't need one")
+	}
+}
+
+func TestPasswordMatchesForgivesOuterWhitespaceOnly(t *testing.T) {
+	hash, err := auth.HashPassword("baringo-482731")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, ok := range []string{"baringo-482731", "baringo-482731 ", " baringo-482731\n", "\tbaringo-482731"} {
+		if !passwordMatches(hash, ok) {
+			t.Errorf("%q should sign in", ok)
+		}
+	}
+	for _, bad := range []string{"Baringo-482731", "baringo-48273", "baringo 482731", "", "   "} {
+		if passwordMatches(hash, bad) {
+			t.Errorf("%q must not sign in", bad)
+		}
 	}
 }

@@ -164,7 +164,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
                             final p = _rows![i];
                             return ListTile(
                               leading: Avatar(p.name, color: color),
-                              title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              title: Text(p.name.isEmpty ? 'Name not on record' : p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                               subtitle: Text(
                                   terms.chiefs
                                       ? '${p.phone ?? 'No phone'} · ${p.ward}\nID ${maskId(p.nationalId)}'

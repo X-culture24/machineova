@@ -55,6 +55,8 @@ class Terms {
   String get uniquePeople => _p('Unique voters', 'Chiefs present');
   String get notFound => _p('Not found in the register. Fill in their details.',
       'Not found in the IEBC register. Fill in their details.');
+  String get notFoundOptional => _p('Not found in the register. Fill in what you can; nothing is required.',
+      'Not found in the IEBC register. Fill in what you can; nothing is required. Without an area they are marked out of region.');
   String get fieldRole => _p('Field Agent', 'SDICS Trainer');
   String get startHint => _p('Nothing yet today. Tap + to check in or mobilize.',
       'Nothing yet today. Tap + to mark a chief present.');

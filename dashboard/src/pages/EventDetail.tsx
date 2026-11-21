@@ -44,7 +44,7 @@ export default function EventDetail() {
     <>
       <PageHeader
         title={e.name}
-        subtitle={`${area(e.venue, e.county, e.constituency, e.ward)} · ${dateTime(e.starts_at)}`}
+        subtitle={`${area(e.venue, e.county, e.constituency, e.ward)} · ${t.chiefs ? (e.unique >= 5 && e.first_checkin_at ? `Held ${dateTime(e.first_checkin_at)}` : "Not held yet") : dateTime(e.starts_at)}`}
         actions={
           <>
             {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}

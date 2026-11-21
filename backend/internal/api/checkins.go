@@ -302,7 +302,10 @@ func (in *personInput) homeArgs() []any {
 }
 
 // resolve fills blanks from the register and validates the result.
-func (s *Server) resolvePerson(ctx context.Context, in *personInput) (string, error) {
+// resolvePerson completes the person from the registers. With strict (mobilization: a voter
+// registration record), name, sex and area are required. Check-ins are not strict: the person is
+// present, so missing details never refuse the check-in (an unknown area counts as out of region).
+func (s *Server) resolvePerson(ctx context.Context, in *personInput, strict bool) (string, error) {
 	in.NationalID = normalizeID(in.NationalID)
 	if in.NationalID == "" {
 		return "national_id is required", nil
@@ -336,8 +339,12 @@ func (s *Server) resolvePerson(ctx context.Context, in *personInput) (string, er
 		}
 	}
 	in.Sex = strings.ToUpper(strings.TrimSpace(in.Sex))
-	if in.Name == "" || (in.Sex != "F" && in.Sex != "M") || in.County == "" || in.Constituency == "" || in.Ward == "" {
+	in.Name = strings.TrimSpace(in.Name)
+	if strict && (in.Name == "" || (in.Sex != "F" && in.Sex != "M") || in.County == "" || in.Constituency == "" || in.Ward == "") {
 		return "name, sex (F/M), county, constituency and ward are required for voters not in the register", nil
+	}
+	if in.Sex != "F" && in.Sex != "M" {
+		in.Sex = "" // unknown: stored as NULL
 	}
 	if in.DOB != nil && *in.DOB == "" {
 		in.DOB = nil
@@ -391,7 +398,7 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 		writeErrCode(w, http.StatusBadRequest, "phone_required", "Enter the chief's phone number")
 		return
 	}
-	if msg, err := s.resolvePerson(r.Context(), &in.personInput); err != nil {
+	if msg, err := s.resolvePerson(r.Context(), &in.personInput, false); err != nil {
 		s.internal(w, r, err)
 		return
 	} else if msg != "" {
@@ -421,7 +428,7 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,($13::timestamptz AT TIME ZONE 'Africa/Nairobi')::date,
 		        $14,$15,$16,$17,$18)
 		RETURNING id, checked_in_at`,
-		append([]any{p.OrgID, e.ID, in.NationalID, in.Name, in.Sex, in.DOB, emptyNil(in.Phone), in.County, in.Constituency, in.Ward,
+		append([]any{p.OrgID, e.ID, in.NationalID, in.Name, emptyNil(&in.Sex), in.DOB, emptyNil(in.Phone), in.County, in.Constituency, in.Ward,
 			inRegion, p.UserID, recordedAt(r)}, in.homeArgs()...)...).Scan(&id, &at)
 	if isUniqueViolation(err) {
 		writeErrCode(w, http.StatusConflict, statusAlreadyCheckedIn, "Already checked in today")
@@ -461,7 +468,7 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 	q := r.URL.Query()
 	args := []any{p.OrgID, p.SeesAll(), p.UserID, nilIfEmpty(q.Get("event_id")), likePattern(q.Get("q"))}
 	rows, err := s.db.Query(r.Context(), `
-		SELECT c.id, c.national_id, c.name, c.sex, c.phone, c.county, c.constituency, c.ward, c.in_region,
+		SELECT c.id, c.national_id, c.name, COALESCE(c.sex, ''), c.phone, c.county, c.constituency, c.ward, c.in_region,
 		       c.home_county, c.home_location, c.checked_in_at, u.name, e.id, e.name
 		FROM checkins c JOIN users u ON u.id = c.checked_in_by JOIN events e ON e.id = c.event_id
 		WHERE c.org_id = $1 AND ($2 OR c.checked_in_by = $3)
