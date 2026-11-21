@@ -58,6 +58,16 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	// Dashboard accounts also need an emailed code (login_otp.go).
+	need, email, org, err := s.needsOTP(r.Context(), id)
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	if need {
+		s.startOTP(w, r, id, org, email)
+		return
+	}
 	tokens := s.tokens
 	if in.Remember {
 		tokens.TTL = rememberTTL

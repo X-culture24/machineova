@@ -40,6 +40,7 @@ export interface EventItem {
   out_of_region: number;
   assigned: number;
   participants: number;
+  first_checkin_at: string | null; // when it actually started (first check-in)
 }
 
 export interface Drive {
@@ -289,7 +290,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    if (res.status === 401 && path !== "/api/auth/login") onUnauthorized();
+    if (res.status === 401 && !path.startsWith("/api/auth/login")) onUnauthorized();
     throw new ApiError(res.status, data.error ?? res.statusText, data.code, data);
   }
   return data as T;
@@ -313,14 +314,22 @@ export type PersonInput = {
   ward?: string;
 };
 
+export type LoginResult = { token: string; expires_at: string; user: Me };
+export type OtpChallenge = { otp_required: true; otp_token: string; sent_to: string; expires_in: number };
+
 export const api = {
+  /** A dashboard account gets an emailed-code challenge instead of a token
+   *  (backend login_otp.go); finish with verifyOtp. */
   login: (login: string, password: string) =>
-    request<{ token: string; expires_at: string; user: Me }>("POST", "/api/auth/login", { login, password }),
+    request<LoginResult | OtpChallenge>("POST", "/api/auth/login", { login, password }),
+  verifyOtp: (otp_token: string, code: string) =>
+    request<LoginResult>("POST", "/api/auth/login/verify-otp", { otp_token, code }),
   me: () => request<Me>("GET", "/api/me"),
   changePassword: (current_password: string, new_password: string) =>
     request<void>("POST", "/api/auth/change-password", { current_password, new_password }),
 
   dashboard: () => request<Dashboard>("GET", "/api/dashboard"),
+  trainingReport: () => request<TrainingReport>("GET", "/api/training/report"),
 
   events: (activeOnly = false) =>
     request<{ summary: { total: number; active: number; closed: number; checkins: number }; items: EventItem[] }>(
@@ -461,4 +470,32 @@ export interface RegisterCounty {
   name: string;
   stations: number;
   constituencies: { name: string; stations: number; wards: { name: string; stations: number }[] }[];
+}
+
+/** SDICS chiefs training: one row per county training (GET /api/training/report). */
+export interface TrainingRow {
+  event_id: string;
+  name: string;
+  county: string;
+  held_on: string | null; // YYYY-MM-DD of the first check-in; null = not held yet
+  first_at: string | null;
+  last_at: string | null;
+  present: number;
+  phones: number;
+  out_region: number;
+  female: number;
+  male: number;
+  // SDICS figures (null when SDICS can't be read)
+  sdics_chiefs: number | null;
+  with_account: number | null;
+  signed_in: number | null;
+  first_signin_day: number | null;
+}
+
+export interface TrainingReport {
+  trainings: TrainingRow[];
+  days: { day: string; total: number; hours: { hour: number; count: number }[] }[];
+  sdics: boolean;
+  onboarding: { day: string; county: string; count: number }[];
+  generated_at: string;
 }

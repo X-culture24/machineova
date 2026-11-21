@@ -31,6 +31,17 @@ func FromEnv() *Mailer {
 		pass: os.Getenv("SMTP_PASSWORD"), from: from}
 }
 
+// New is a mailer with explicit settings (port default 587).
+func New(host, port, user, pass, from string) *Mailer {
+	if port == "" {
+		port = "587"
+	}
+	if from == "" {
+		from = user
+	}
+	return &Mailer{host: host, port: port, user: user, pass: pass, from: from}
+}
+
 // Configured reports whether real email is sent (otherwise messages go to the log).
 func (m *Mailer) Configured() bool { return m != nil && m.host != "" }
 

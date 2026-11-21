@@ -67,6 +67,7 @@ func (s *Server) Handler() http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 	mux.HandleFunc("POST /api/auth/login", s.limitIP(ruleLogin, s.login))
+	mux.HandleFunc("POST /api/auth/login/verify-otp", s.limitIP(ruleLogin, s.verifyOTP))
 	mux.HandleFunc("POST /api/auth/forgot", s.limitIP(ruleForgot, s.forgotPassword))
 	mux.HandleFunc("POST /api/auth/redeem", s.limitIP(ruleRedeem, s.redeemLink))
 
@@ -82,6 +83,7 @@ func (s *Server) Handler() http.Handler {
 	a("POST /api/auth/change-password", s.changePassword)
 
 	a("GET /api/dashboard", s.dashboard)
+	a("GET /api/training/report", s.trainingReport)
 	a("GET /api/home", s.home)
 
 	a("GET /api/events", s.listEvents)

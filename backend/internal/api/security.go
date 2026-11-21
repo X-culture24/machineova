@@ -51,6 +51,9 @@ func (r *statusRecorder) Write(b []byte) (int, error) {
 
 // audit appends one entry. Request bodies are never logged (they carry voter data).
 func (s *Server) audit(ctx context.Context, orgID, userID, actor, action, path string, status int, ip string) {
+	if s.db == nil { // unit tests without a database
+		return
+	}
 	_, err := s.db.Exec(ctx, `
 		INSERT INTO audit_log (org_id, user_id, actor, action, path, status, ip)
 		VALUES (NULLIF($1,'')::uuid, NULLIF($2,'')::uuid, $3, $4, $5, $6, $7)`,
@@ -182,7 +185,7 @@ func (s *Server) checkLogin(ctx context.Context, login, password, ip string) (st
 		return "", http.StatusTooManyRequests, "account_locked",
 			fmt.Sprintf("Too many failed sign-ins. Try again in %d minute%s, or reset your password.", mins, plural(mins))
 	}
-	if hash == nil || !auth.CheckPassword(*hash, password) {
+	if hash == nil || !passwordMatches(*hash, password) {
 		failed++
 		if !s.limitsOff && failed >= maxFailedLogins {
 			_, err = s.db.Exec(ctx, `UPDATE users SET failed_logins = 0, locked_until = now() + $2::interval WHERE id = $1`,
@@ -441,4 +444,15 @@ func (s *Server) appInfo(w http.ResponseWriter, r *http.Request, p *Principal) {
 		}
 	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+// passwordMatches checks the password as typed, then without surrounding spaces or line breaks:
+// copying a password from a message or PDF on a phone often brings an invisible space along.
+// Only the outer whitespace is forgiven; the password itself must match exactly.
+func passwordMatches(hash, password string) bool {
+	if auth.CheckPassword(hash, password) {
+		return true
+	}
+	trimmed := strings.TrimSpace(password)
+	return trimmed != password && trimmed != "" && auth.CheckPassword(hash, trimmed)
 }

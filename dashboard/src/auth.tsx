@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, setUnauthorizedHandler, token, type Me } from "./api";
+import { api, setUnauthorizedHandler, token, type LoginResult, type Me, type OtpChallenge } from "./api";
 
 interface AuthState {
   me: Me | null;
   loading: boolean;
-  signIn: (login: string, password: string) => Promise<Me>;
+  /** The user, or a challenge when the account needs an emailed code. */
+  signIn: (login: string, password: string) => Promise<Me | OtpChallenge>;
+  verifyOtp: (otpToken: string, code: string) => Promise<Me>;
   signOut: () => void;
 }
 
@@ -29,14 +31,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, [signOut]);
 
-  const signIn = useCallback(async (login: string, password: string) => {
-    const res = await api.login(login, password);
+  const start = useCallback((res: LoginResult) => {
     token.set(res.token);
     setMe(res.user);
     return res.user;
   }, []);
 
-  return <AuthContext.Provider value={{ me, loading, signIn, signOut }}>{children}</AuthContext.Provider>;
+  const signIn = useCallback(async (login: string, password: string) => {
+    const res = await api.login(login, password);
+    if ("otp_required" in res) return res;
+    return start(res);
+  }, [start]);
+
+  const verifyOtp = useCallback(async (otpToken: string, code: string) => start(await api.verifyOtp(otpToken, code)), [start]);
+
+  return <AuthContext.Provider value={{ me, loading, signIn, verifyOtp, signOut }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
