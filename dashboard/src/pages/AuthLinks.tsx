@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import { isSdicsBrand } from "../brand";
+import BrandMark from "../components/BrandMark";
 import { Field } from "../components/ui";
 
 /** "Forgot password?" — emails a single-use reset link (same answer whether or not the account exists). */
@@ -27,7 +28,7 @@ export function ForgotPage() {
   return (
     <div className="login">
       <form className="card stack" onSubmit={submit}>
-        <div className="brand"><span className="brand-mark" style={{ color: "#fff" }}>{isSdicsBrand() ? "SD" : "✓"}</span> {isSdicsBrand() ? "SDICS Checkin" : "Checkin"}</div>
+        <div className="brand"><BrandMark text="✓" /> {isSdicsBrand() ? "SDICS Checkin" : "Checkin"}</div>
         <h2 style={{ margin: 0 }}>Reset your password</h2>
         {done ? (
           <div className="alert green">{done}</div>
@@ -78,7 +79,7 @@ export function SetPasswordPage({ mode }: { mode: "reset" | "accept" }) {
   return (
     <div className="login">
       <form className="card stack" onSubmit={submit}>
-        <div className="brand"><span className="brand-mark" style={{ color: "#fff" }}>{isSdicsBrand() ? "SD" : "✓"}</span> {isSdicsBrand() ? "SDICS Checkin" : "Checkin"}</div>
+        <div className="brand"><BrandMark text="✓" /> {isSdicsBrand() ? "SDICS Checkin" : "Checkin"}</div>
         <h2 style={{ margin: 0 }}>{mode === "accept" ? "Welcome — set your password" : "Choose a new password"}</h2>
         {done ? (
           <>

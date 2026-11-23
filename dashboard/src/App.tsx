@@ -30,7 +30,8 @@ import OpsPeople from "./ops/People";
 import StationsPage from "./ops/Stations";
 import { ReplayPage, ResultsPage, TurnoutPage } from "./ops/Monitor";
 import { useTerms } from "./terms";
-import { applyBrand, isSdicsBrand, sdicsHost } from "./brand";
+import { applyBrand, sdicsHost } from "./brand";
+import BrandMark from "./components/BrandMark";
 import { ReportsPage, SettingsPage } from "./ops/Workspace";
 
 const checkinRoles = new Set(["owner", "admin", "member", "viewer"]);
@@ -160,7 +161,7 @@ function Shell() {
       <Protect who={me.email} />
       <nav className="sidebar" aria-label="Main">
         <div className="brand">
-          <span className="brand-mark">{isSdicsBrand() ? "SD" : me.organization ? initials(me.organization.name) : "M"}</span>
+          <BrandMark text={me.organization ? initials(me.organization.name) : "M"} />
           <span>
             {me.organization?.name ?? "MachineNova"}
             <small className="brand-sub">{me.organization ? me.scope_label + (me.organization.boundary.county ? " · bounded" : "") : "Platform console"}</small>

@@ -522,18 +522,28 @@ html.privacy-blur .shell > :not(.privacy-shield):not(.watermark) {
 [data-brand="sdics"] .kpi-value { font-weight: 700; letter-spacing: -.02em; }
 [data-brand="sdics"] .page-header h1 { font-size: 24px; }
 
-/* Sign-in: SDICS navy with a green glow, flag stripe across the top, white card. */
+/* Sign-in: as sdics.tech — the Kenya flag-and-map photo under a navy overlay, a white card with the
+   coat of arms, "SDICS" in government navy and a navy button (light in both themes, like sdics.tech). */
 [data-brand="sdics"] .login {
   position: relative;
-  background:
-    radial-gradient(70% 60% at 85% 10%, rgb(0 208 132 / 22%) 0%, transparent 60%),
-    radial-gradient(60% 50% at 10% 95%, rgb(0 135 90 / 30%) 0%, transparent 60%),
-    linear-gradient(160deg, #0f1419 0%, #1a2332 100%);
+  background: linear-gradient(rgb(15 35 80 / 72%), rgb(15 35 80 / 72%)), url("/sdics-background.jpeg") center / cover no-repeat;
 }
-[data-brand="sdics"] .login::before {
-  content: ""; position: absolute; inset: 0 0 auto; height: 6px;
-  background: linear-gradient(90deg, #000 0 33%, #bb0000 33% 66%, #006600 66%);
+[data-brand="sdics"] .login .card {
+  --text: #111827; --muted: #6b7280; --surface: #ffffff; --surface-2: #f8fafc; --border: #d5dae1;
+  --red: #bb0000; --red-soft: #fbe6e6; --teal: #1b3a6b; --teal-strong: #142c52;
+  background: rgb(255 255 255 / 97%); color: var(--text);
 }
+[data-brand="sdics"] .login .card input { background: #fff; color: #111827; border-color: #c9d0da; }
+[data-brand="sdics"] .login .card input:focus { border-color: #1b3a6b; box-shadow: 0 0 0 3px rgb(27 58 107 / 15%); }
+[data-brand="sdics"] .login .btn:not(.ghost) { background: #1b3a6b; color: #fff; }
+[data-brand="sdics"] .login .btn:not(.ghost):hover { background: #142c52; }
+.sd-login-head { text-align: center; margin-bottom: 8px; }
+.sd-login-head img { width: 80px; height: 80px; border-radius: 14px; object-fit: cover; display: block; margin: 0 auto 12px; }
+.sd-login-title { font-size: 30px; font-weight: 800; color: #1b3a6b; letter-spacing: 1px; line-height: 1.1; }
+.sd-login-sub { font-size: 13px; color: #6b7280; margin-top: 4px; }
+/* The SDICS logo in place of the letter mark (sidebar, link pages). No watermarks in the SDICS look. */
+[data-brand="sdics"] img.brand-logo { background: #fff; object-fit: cover; padding: 0; box-shadow: none; display: block; }
+[data-brand="sdics"] .kpi-watermark { display: none; }
 [data-brand="sdics"] .login .card { border: 0; border-radius: 18px; box-shadow: 0 24px 60px -20px rgb(0 0 0 / 55%); }
 [data-brand="sdics"] .login .brand { font-size: 18px; }
 [data-brand="sdics"] .login .brand-mark { width: 40px; height: 40px; border-radius: 11px; font-size: 14px; }

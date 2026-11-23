@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
  *  - printing the app prints a notice instead of data (report exports open their own window);
  *  - a faint watermark with the signed-in user and time makes any leaked image traceable.
  */
+import { isSdicsBrand } from "../brand";
+
 export default function Protect({ who }: { who: string }) {
   const [hidden, setHidden] = useState(false);
   const [now, setNow] = useState(() => new Date());
@@ -46,11 +48,13 @@ export default function Protect({ who }: { who: string }) {
   const stamp = `${who} · ${now.toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`;
   return (
     <>
-      <div className="watermark" aria-hidden>
-        {Array.from({ length: 24 }, (_, i) => (
-          <span key={i}>{stamp}</span>
-        ))}
-      </div>
+      {!isSdicsBrand() && (
+        <div className="watermark" aria-hidden>
+          {Array.from({ length: 24 }, (_, i) => (
+            <span key={i}>{stamp}</span>
+          ))}
+        </div>
+      )}
       {hidden && (
         <div className="privacy-shield" role="status">
           <strong>Voter data hidden</strong>

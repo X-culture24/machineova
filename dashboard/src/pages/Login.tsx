@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Field } from "../components/ui";
 import { isSdicsBrand } from "../brand";
+import BrandMark from "../components/BrandMark";
 import type { OtpChallenge } from "../api";
 
 export default function Login() {
@@ -45,13 +46,14 @@ export default function Login() {
     <div className="login">
       <form className="card stack" onSubmit={submit}>
         {sdics ? (
-          <div className="brand">
-            <span className="brand-mark">SD</span>
-            <span>SDICS Checkin<small className="brand-sub">Chiefs training · Republic of Kenya</small></span>
+          <div className="sd-login-head">
+            <img src="/sdics-logo.jpeg" alt="SDICS" />
+            <div className="sd-login-title">SDICS</div>
+            <div className="sd-login-sub">Checkin · Chiefs training · Republic of Kenya</div>
           </div>
         ) : (
           <div className="brand">
-            <span className="brand-mark" style={{ color: "#fff" }}>✓</span> Checkin
+            <BrandMark text="✓" /> Checkin
           </div>
         )}
         <p className="muted" style={{ margin: 0 }}>{sdics ? "Sign in with the account your SDICS admin gave you." : "Sign in to your organization."}</p>
