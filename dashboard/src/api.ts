@@ -331,6 +331,14 @@ export const api = {
   dashboard: () => request<Dashboard>("GET", "/api/dashboard"),
   trainingReport: () => request<TrainingReport>("GET", "/api/training/report"),
 
+  issues: (f: { event_id?: string; category?: string; status?: string } = {}) =>
+    request<{ items: Issue[] }>("GET", `/api/issues${qs(f)}`),
+  createIssue: (b: IssueInput) => request<Issue>("POST", "/api/issues", b),
+  updateIssue: (id: string, b: IssueInput) => request<Issue>("PATCH", `/api/issues/${id}`, b),
+  issueChief: (eventId: string, nationalId: string) =>
+    request<{ name: string; phone: string; location: string }>("GET", `/api/issues/chief${qs({ event_id: eventId, national_id: nationalId })}`),
+  issuesReport: () => request<IssuesReport>("GET", "/api/issues/report"),
+
   events: (activeOnly = false) =>
     request<{ summary: { total: number; active: number; closed: number; checkins: number }; items: EventItem[] }>(
       "GET",
@@ -498,4 +506,61 @@ export interface TrainingReport {
   sdics: boolean;
   onboarding: { day: string; county: string; count: number }[];
   generated_at: string;
+}
+
+
+// ---- Training issues (problems met in the field) ----
+export type IssueCategory = "internet" | "device" | "location" | "account" | "app" | "other";
+export const issueCategoryLabel: Record<IssueCategory, string> = {
+  internet: "Device internet connection",
+  device: "Device malfunction",
+  location: "Chief location issue",
+  account: "Sign-in / PIN / account",
+  app: "App error",
+  other: "Other",
+};
+export interface IssueInput {
+  event_id: string | null;
+  category: IssueCategory | "";
+  chief_name: string;
+  national_id: string;
+  phone: string;
+  location: string;
+  description: string;
+  action_taken: string;
+  status: "open" | "resolved";
+}
+export interface Issue extends Omit<IssueInput, "category"> {
+  id: string;
+  category: IssueCategory;
+  event_name: string | null;
+  event_county: string | null;
+  reported_by: string;
+  reported_at: string;
+  resolved_at: string | null;
+}
+export interface IssueTraining {
+  event_id: string;
+  name: string;
+  venue: string;
+  county: string;
+  starts_at: string;
+  active: boolean;
+  held_on: string | null;
+  first_at: string | null;
+  last_at: string | null;
+  present: number;
+  phones: number;
+  out_region: number;
+  issues: number;
+  open: number;
+  by_category: Partial<Record<IssueCategory, number>>;
+}
+export interface IssuesReport {
+  organization: string;
+  generated_at: string;
+  trainings: IssueTraining[];
+  issues: Issue[];
+  by_category: Partial<Record<IssueCategory, number>>;
+  open: number;
 }

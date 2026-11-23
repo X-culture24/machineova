@@ -19,6 +19,7 @@ import AccountPage from "./pages/Account";
 import ActivityPage from "./pages/Activity";
 import RegistrationPage from "./pages/Registration";
 import FieldAppPage from "./pages/FieldApp";
+import IssuesPage from "./pages/Issues";
 import { ForgotPage, SetPasswordPage } from "./pages/AuthLinks";
 import PlatformOrgs, { EmailTemplates, NewOrgWizard, PlatformOrgDetail } from "./pages/PlatformOrgs";
 import PlatformStations from "./pages/PlatformStations";
@@ -112,6 +113,7 @@ export default function App() {
         )}
         <Route path="account" element={<AccountPage />} />
         {me.organization && <Route path="app" element={<FieldAppPage />} />}
+        {me.organization && <Route path="issues" element={<IssuesPage />} />}
         {(isManager(me) || me.platform_admin) && <Route path="activity" element={<ActivityPage />} />}
         <Route path="*" element={<Navigate to={home} replace />} />
       </Route>
@@ -166,6 +168,7 @@ function Shell() {
       { to: "/", label: t.chiefs ? "Training report" : "Dashboard", icon: "chart", end: true },
       ...(me.module_events ? [{ to: "/events", label: t.events, icon: "calendar" as const }] : []),
       ...(me.module_events && me.role !== "viewer" ? [{ to: "/checkin", label: t.checkin, icon: "check" as const }] : []),
+      { to: "/issues", label: "Issues", icon: "alert" },
       ...(me.module_mobilization ? [{ to: "/mobilization", label: t.mobilization, icon: "megaphone" as const }] : []),
       { to: "/people", label: "People reached", icon: "people" },
       ...(!t.chiefs ? [{ to: "/registration", label: "Registration analysis", icon: "ballot" as const }] : []),
@@ -208,6 +211,7 @@ function Shell() {
             {section("Operate")}
             {me.module_events && link("/events", t.events, "▦")}
             {me.module_events && me.role !== "viewer" && link("/checkin", t.checkin, "✓")}
+            {link("/issues", "Field issues", "!")}
             {me.module_mobilization && link("/mobilization", t.mobilization, "➚")}
             {section("People")}
             {link("/people", "People reached", "☰")}

@@ -689,3 +689,16 @@ html.privacy-blur .sd-root > .sd-shell { filter: blur(14px); transition: filter 
 [data-brand="sdics"] .login .card { border: 1px solid var(--border); border-radius: 20px; padding-top: 32px; box-shadow: 0 20px 50px rgb(0 0 0 / 40%);
   background: linear-gradient(90deg, #000 0 33.4%, #bb0000 33.4% 66.7%, #006600 66.7%) top / 100% 4px no-repeat, var(--surface); }
 [data-brand="sdics"] .login .btn:not(.ghost):not(.secondary) { background: var(--sd-accent); color: var(--sd-on-accent); }
+
+/* Field issues (pages/Issues.tsx) */
+.issue-cats { display: flex; flex-wrap: wrap; gap: 8px; }
+.issue-cat { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer; }
+.issue-cat:hover { border-color: var(--teal); }
+.issue-cat.on { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 600; }
+[data-brand="sdics"][data-theme="dark"] .issue-cat.on { background: var(--sd-accent); border-color: var(--sd-accent); color: #0f1419; }
+.issue-list { display: grid; gap: 10px; }
+.issue-item { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); justify-items: start; }
+.issue-item > .row { width: 100%; }
+.issue-chief { font-weight: 600; font-size: 13px; }
+.issue-text { margin: 0; white-space: pre-wrap; }
+textarea { font: inherit; }

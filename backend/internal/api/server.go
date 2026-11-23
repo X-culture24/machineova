@@ -84,6 +84,11 @@ func (s *Server) Handler() http.Handler {
 
 	a("GET /api/dashboard", s.dashboard)
 	a("GET /api/training/report", s.trainingReport)
+	a("GET /api/issues", s.listIssues)
+	a("POST /api/issues", s.createIssue)
+	a("PATCH /api/issues/{id}", s.updateIssue)
+	a("GET /api/issues/chief", s.issueChief)
+	a("GET /api/issues/report", s.issuesReport)
 	a("GET /api/home", s.home)
 
 	a("GET /api/events", s.listEvents)
