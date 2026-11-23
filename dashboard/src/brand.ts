@@ -14,11 +14,36 @@ const FAVICON = {
 /** Switches the page between the SDICS and the standard look (tokens in styles.css). */
 export function applyBrand(sdics: boolean) {
   const root = document.documentElement;
-  if (sdics) root.dataset.brand = "sdics";
-  else delete root.dataset.brand;
+  if (sdics) {
+    root.dataset.brand = "sdics";
+    root.dataset.theme = sdTheme();
+  } else {
+    delete root.dataset.brand;
+    delete root.dataset.theme;
+  }
   document.title = sdics ? "SDICS Checkin" : "Checkin";
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
   if (icon) icon.href = sdics ? FAVICON.sdics : FAVICON.standard;
 }
 
 export const isSdicsBrand = (): boolean => document.documentElement.dataset.brand === "sdics";
+
+// Light / dark, as the other SDICS dashboards: dark unless the viewer chose light (kept on this
+// device). Only in the SDICS look; the standard look follows the device setting.
+const THEME_KEY = "sdics-theme";
+export type SdTheme = "dark" | "light";
+export function sdTheme(): SdTheme {
+  try {
+    return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+}
+export function setSdTheme(t: SdTheme) {
+  try {
+    localStorage.setItem(THEME_KEY, t);
+  } catch {
+    /* private window: this visit only */
+  }
+  document.documentElement.dataset.theme = t;
+}

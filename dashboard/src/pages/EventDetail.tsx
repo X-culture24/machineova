@@ -9,6 +9,7 @@ import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
 import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
+import { isSdicsBrand } from "../brand";
 
 export default function EventDetail() {
   const { id = "" } = useParams();
@@ -133,7 +134,8 @@ export default function EventDetail() {
         </Card>
       </div>
 
-      <CoveragePanel group={{ event_id: e.id }} />
+      {/* Registered-voter coverage isn't part of the SDICS chiefs check-ins. */}
+      {!isSdicsBrand() && <CoveragePanel group={{ event_id: e.id }} />}
       <Card title="Who checked in" extra={<small className="muted">latest first</small>}>
         {!list.data ? (
           <Loading />

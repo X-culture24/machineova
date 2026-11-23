@@ -522,26 +522,7 @@ html.privacy-blur .shell > :not(.privacy-shield):not(.watermark) {
 [data-brand="sdics"] .kpi-value { font-weight: 700; letter-spacing: -.02em; }
 [data-brand="sdics"] .page-header h1 { font-size: 24px; }
 
-/* Sign-in: as sdics.tech — the Kenya flag-and-map photo under a navy overlay, a white card with the
-   coat of arms, "SDICS" in government navy and a navy button (light in both themes, like sdics.tech). */
-[data-brand="sdics"] .login {
-  position: relative;
-  background: linear-gradient(rgb(15 35 80 / 72%), rgb(15 35 80 / 72%)), url("/sdics-background.jpeg") center / cover no-repeat;
-}
-[data-brand="sdics"] .login .card {
-  --text: #111827; --muted: #6b7280; --surface: #ffffff; --surface-2: #f8fafc; --border: #d5dae1;
-  --red: #bb0000; --red-soft: #fbe6e6; --teal: #1b3a6b; --teal-strong: #142c52;
-  background: rgb(255 255 255 / 97%); color: var(--text);
-}
-[data-brand="sdics"] .login .card input { background: #fff; color: #111827; border-color: #c9d0da; }
-[data-brand="sdics"] .login .card input:focus { border-color: #1b3a6b; box-shadow: 0 0 0 3px rgb(27 58 107 / 15%); }
-[data-brand="sdics"] .login .btn:not(.ghost) { background: #1b3a6b; color: #fff; }
-[data-brand="sdics"] .login .btn:not(.ghost):hover { background: #142c52; }
-.sd-login-head { text-align: center; margin-bottom: 8px; }
-.sd-login-head img { width: 80px; height: 80px; border-radius: 14px; object-fit: cover; display: block; margin: 0 auto 12px; }
-.sd-login-title { font-size: 30px; font-weight: 800; color: #1b3a6b; letter-spacing: 1px; line-height: 1.1; }
-.sd-login-sub { font-size: 13px; color: #6b7280; margin-top: 4px; }
-/* The SDICS logo in place of the letter mark (sidebar, link pages). No watermarks in the SDICS look. */
+/* The SDICS logo in place of the letter mark (link pages). No watermarks in the SDICS look. */
 [data-brand="sdics"] img.brand-logo { background: #fff; object-fit: cover; padding: 0; box-shadow: none; display: block; }
 [data-brand="sdics"] .kpi-watermark { display: none; }
 [data-brand="sdics"] .login .card { border: 0; border-radius: 18px; box-shadow: 0 24px 60px -20px rgb(0 0 0 / 55%); }
@@ -571,3 +552,140 @@ html.privacy-blur .shell > :not(.privacy-shield):not(.watermark) {
 .lc-tip { position: absolute; top: 4px; transform: translateX(-50%); pointer-events: none; background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 6px 18px rgb(0 0 0 / 12%); display: flex; flex-direction: column; gap: 2px; white-space: nowrap; z-index: 2; }
 .lc-tip strong { font-size: 12px; }
+
+
+/* ================================================================================================
+   SDICS look, as the other SDICS dashboards (analytics.sdics.tech, rri.sdics.tech): dark by default
+   with a light/dark switch (brand.ts), a header with the coat of arms and the sections as tabs,
+   and their split sign-in page.
+   ============================================================================================== */
+:root[data-brand="sdics"] { --sd-accent: #00875a; --sd-on-accent: #ffffff; --sd-topbar: #ffffff; --sd-status: #00875a; }
+:root[data-brand="sdics"][data-theme="dark"] {
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --surface-2: #22293a;
+  --border: #2a3444;
+  --text: #ffffff;
+  --muted: #8b95a5;
+  --teal: #00a86b;
+  --teal-strong: #00d084;
+  --teal-soft: #10372b;
+  --amber: #ffa500;
+  --amber-soft: #3a2c10;
+  --red: #ff5a5a;
+  --red-soft: #3b1a1a;
+  --green: #00d084;
+  --green-soft: #10372b;
+  --blue: #8fb4ff;
+  --blue-soft: #1d2a40;
+  --sidebar: #0d1117;
+  --sd-head: #0f1419;
+  --series-1: #00a86b; --series-2: #d97706; --series-3: #5b8def;
+  --sd-accent: #00d084; --sd-on-accent: #0f1419; --sd-topbar: #0f1419; --sd-status: #00d084;
+  color-scheme: dark;
+}
+:root[data-brand="sdics"][data-theme="light"] { color-scheme: light; }
+
+/* Header + tabs */
+.sd-shell { min-height: 100%; display: flex; flex-direction: column; }
+.sd-top { position: sticky; top: 0; z-index: 50; background: var(--sd-topbar); border-bottom: 1px solid var(--border); }
+.sd-top-row { display: flex; align-items: center; gap: 14px; padding: 12px 24px 6px; }
+.sd-top-logo { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #fff; flex-shrink: 0; }
+.sd-top-text { min-width: 0; }
+.sd-top-title { font-weight: 700; font-size: 17px; line-height: 1.25; color: var(--text); }
+.sd-top-sub { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-top-status { font-size: 13.5px; font-weight: 700; color: var(--sd-status); }
+.sd-top-right { margin-left: auto; display: flex; align-items: center; gap: 12px; position: relative; }
+.sd-icon-btn { width: 38px; height: 38px; border-radius: 50%; border: 0; background: none; color: var(--text); display: grid; place-items: center; cursor: pointer; }
+.sd-icon-btn:hover { background: rgb(127 127 127 / 14%); }
+.sd-avatar { width: 34px; height: 34px; border-radius: 50%; border: 0; background: #ff5a36; color: #fff; font: 700 13px/1 inherit; cursor: pointer; }
+.sd-menu { position: absolute; right: 0; top: 46px; z-index: 60; min-width: 230px; padding: 8px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: 0 14px 34px rgb(0 0 0 / 30%); }
+.sd-menu .who { font-weight: 600; padding: 6px 8px 0; color: var(--text); }
+.sd-menu small { display: block; padding: 0 8px 8px; color: var(--muted); border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+.sd-menu a, .sd-menu button { display: block; width: 100%; text-align: left; padding: 8px; border-radius: 6px; border: 0; background: none; color: var(--text); font: inherit; cursor: pointer; }
+.sd-menu a:hover, .sd-menu button:hover { background: var(--surface-2); }
+.sd-tabs { display: flex; gap: 2px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
+.sd-tabs::-webkit-scrollbar { display: none; }
+.sd-tab { display: flex; align-items: center; gap: 8px; padding: 10px 14px 11px; white-space: nowrap; color: var(--muted); font-weight: 500; border-bottom: 3px solid transparent; }
+.sd-tab:hover { color: var(--text); }
+.sd-tab.active { color: var(--text); font-weight: 600; border-bottom-color: var(--sd-accent); }
+.sd-main { flex: 1; width: 100%; max-width: 1480px; margin: 0 auto; padding: 24px 24px 48px; min-width: 0; }
+html.privacy-blur .sd-root > .sd-shell { filter: blur(14px); transition: filter .12s ease; }
+@media print {
+  .sd-root > .sd-shell { display: none !important; }
+  .sd-root .print-notice { display: block !important; padding: 40px; font-size: 18px; }
+}
+@media (max-width: 900px) {
+  .sd-top-row { padding: 10px 14px 4px; }
+  .sd-top-sub, .sd-top-status { display: none; }
+  .sd-tabs { padding: 0 4px; }
+  .sd-tab { padding: 10px 10px 11px; }
+  .sd-main { padding: 16px; }
+}
+
+/* Sign-in (pages/Login.tsx) */
+.sd-login { min-height: 100%; display: grid; grid-template-columns: 1.1fr 1fr; background: var(--bg); }
+.sd-login-brand { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+  padding: 48px 56px 0; color: #fff; background: linear-gradient(145deg, #0b3d2e 0%, #0f1f1c 45%, #0f1419 100%); }
+:root[data-theme="light"] .sd-login-brand { background: linear-gradient(145deg, #00875a 0%, #006644 100%); }
+.sd-ring { position: absolute; border-radius: 50%; border: 1px solid rgb(255 255 255 / 8%); pointer-events: none; }
+.sd-ring-1 { width: 520px; height: 520px; right: -220px; top: -160px; }
+.sd-ring-2 { width: 360px; height: 360px; right: -120px; top: -60px; }
+.sd-login-org { position: relative; display: flex; align-items: center; gap: 16px; font-size: 15px; font-weight: 500; }
+.sd-coat { width: 64px; height: 64px; border-radius: 50%; background: #fff; padding: 5px; object-fit: contain; box-shadow: 0 4px 18px rgb(0 0 0 / 25%); }
+.sd-kicker { font-size: 12px; letter-spacing: 2px; opacity: .85; }
+.sd-login-pitch { position: relative; max-width: 540px; }
+.sd-login-pitch h1 { font-size: clamp(38px, 3.6vw, 50px); font-weight: 700; line-height: 1.1; letter-spacing: 1px; color: #fff; }
+.sd-tagline { margin: 12px 0 0; font-size: 17px; line-height: 1.6; opacity: .9; }
+.sd-features { margin-top: 32px; display: grid; gap: 18px; }
+.sd-feature { display: flex; gap: 16px; align-items: flex-start; }
+.sd-feature-icon { width: 40px; height: 40px; flex-shrink: 0; border-radius: 8px; display: grid; place-items: center;
+  background: rgb(255 255 255 / 12%); border: 1px solid rgb(255 255 255 / 18%); }
+.sd-feature b { display: block; font-size: 15px; }
+.sd-feature span { font-size: 13.5px; opacity: .85; }
+.sd-login-foot { position: relative; margin: 0 -56px; }
+.sd-login-foot > div:first-child { padding: 0 56px 16px; font-size: 16px; font-weight: 500; opacity: .9; }
+.sd-flag { display: flex; height: 6px; }
+.sd-flag i { flex: 1; }
+.sd-flag i:nth-child(1) { background: #000; }
+.sd-flag i:nth-child(2) { background: #bb0000; }
+.sd-flag i:nth-child(3) { background: #006600; }
+.sd-flag-thin { height: 4px; }
+.sd-login-side { position: relative; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+.sd-theme-corner { position: absolute; top: 16px; right: 16px; }
+.sd-login-card { width: 100%; max-width: 420px; overflow: hidden; border-radius: 20px; background: var(--surface);
+  border: 1px solid var(--border); box-shadow: 0 20px 50px rgb(0 0 0 / 40%); }
+:root[data-theme="light"] .sd-login-card { box-shadow: 0 20px 50px rgb(15 20 25 / 12%); }
+.sd-login-body { padding: 32px; gap: 18px; }
+.sd-login-body h2 { font-size: 24px; font-weight: 700; color: var(--text); }
+.sd-login-body .sub { margin: 4px 0 0; color: var(--muted); font-size: 14.5px; }
+.sd-login-mobile-head { display: none; }
+.sd-field { position: relative; display: flex; align-items: center; height: 56px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); }
+.sd-field:hover { border-color: var(--muted); }
+.sd-field:focus-within { border-color: var(--sd-accent); box-shadow: inset 0 0 0 1px var(--sd-accent); }
+.sd-field label { position: absolute; top: -9px; left: 10px; padding: 0 4px; font-size: 12px; line-height: 16px; color: var(--muted); background: var(--surface); }
+.sd-field:focus-within label { color: var(--sd-accent); }
+.sd-field svg { flex-shrink: 0; }
+.sd-field input { flex: 1; min-width: 0; height: 100%; padding: 0 10px; border: 0; outline: 0; box-shadow: none; background: transparent; color: var(--text); font: inherit; font-size: 15px; }
+.sd-eye { display: grid; padding: 4px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.sd-submit { width: 100%; height: 50px; border: 0; border-radius: 8px; background: var(--sd-accent); color: var(--sd-on-accent);
+  font: inherit; font-size: 15.5px; font-weight: 700; letter-spacing: .5px; cursor: pointer; }
+.sd-submit:disabled { opacity: .6; cursor: default; }
+.sd-note { display: flex; gap: 8px; align-items: flex-start; color: var(--muted); font-size: 12.5px; }
+.sd-note svg { flex-shrink: 0; margin-top: 1px; }
+@media (max-width: 900px) {
+  .sd-login { grid-template-columns: 1fr; }
+  .sd-login-brand { display: none; }
+  .sd-login-side { padding: 64px 16px 32px; }
+  .sd-login-body { padding: 24px; }
+  .sd-login-mobile-head { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .sd-login-mobile-head strong { font-size: 22px; letter-spacing: 1px; color: var(--sd-accent); }
+}
+
+/* Link pages (forgot / set password): the same dark green panel and card. */
+[data-brand="sdics"] .login { background: linear-gradient(145deg, #0b3d2e 0%, #0f1f1c 45%, #0f1419 100%); }
+[data-brand="sdics"] .login::before { display: none; }
+[data-brand="sdics"] .login .card { border: 1px solid var(--border); border-radius: 20px; padding-top: 32px; box-shadow: 0 20px 50px rgb(0 0 0 / 40%);
+  background: linear-gradient(90deg, #000 0 33.4%, #bb0000 33.4% 66.7%, #006600 66.7%) top / 100% 4px no-repeat, var(--surface); }
+[data-brand="sdics"] .login .btn:not(.ghost):not(.secondary) { background: var(--sd-accent); color: var(--sd-on-accent); }

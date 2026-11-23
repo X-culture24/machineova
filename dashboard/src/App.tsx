@@ -30,7 +30,8 @@ import OpsPeople from "./ops/People";
 import StationsPage from "./ops/Stations";
 import { ReplayPage, ResultsPage, TurnoutPage } from "./ops/Monitor";
 import { useTerms } from "./terms";
-import { applyBrand, sdicsHost } from "./brand";
+import { applyBrand, isSdicsBrand, sdicsHost } from "./brand";
+import SdicsShell, { type SdTab } from "./components/SdicsShell";
 import BrandMark from "./components/BrandMark";
 import { ReportsPage, SettingsPage } from "./ops/Workspace";
 
@@ -155,6 +156,34 @@ function Shell() {
     </NavLink>
   );
   const section = (label: string) => <div className="nav-section">{label}</div>;
+  const inactive = me.organization && !me.organization.active && (
+    <div className="alert red">This organization is inactive. Field actions are disabled — contact the platform administrator.</div>
+  );
+
+  // The SDICS look: the other SDICS dashboards' header and tabs instead of the sidebar.
+  if (isSdicsBrand() && me.organization && !inOps && hasCheckin(me)) {
+    const tabs: SdTab[] = [
+      { to: "/", label: t.chiefs ? "Training report" : "Dashboard", icon: "chart", end: true },
+      ...(me.module_events ? [{ to: "/events", label: t.events, icon: "calendar" as const }] : []),
+      ...(me.module_events && me.role !== "viewer" ? [{ to: "/checkin", label: t.checkin, icon: "check" as const }] : []),
+      ...(me.module_mobilization ? [{ to: "/mobilization", label: t.mobilization, icon: "megaphone" as const }] : []),
+      { to: "/people", label: "People reached", icon: "people" },
+      ...(!t.chiefs ? [{ to: "/registration", label: "Registration analysis", icon: "ballot" as const }] : []),
+      ...(isManager(me) ? [{ to: "/team", label: "Team", icon: "shield" as const }] : []),
+      { to: "/app", label: "Field app", icon: "id" },
+      ...(isManager(me) ? [{ to: "/activity", label: "Activity log", icon: "clock" as const }] : []),
+    ];
+    return (
+      <div className="sd-root">
+        <Protect who={me.email} />
+        <SdicsShell me={me} tabs={tabs} onSignOut={signOut}
+          roleText={`${roleLabel[me.role] ?? me.role} · ${me.scope_label}`}>
+          {inactive}
+          <Outlet />
+        </SdicsShell>
+      </div>
+    );
+  }
 
   return (
     <div className="shell">
@@ -241,9 +270,7 @@ function Shell() {
       </nav>
       <TabBar inOps={inOps} me={me} />
       <main className="main">
-        {me.organization && !me.organization.active && (
-          <div className="alert red">This organization is inactive. Field actions are disabled — contact the platform administrator.</div>
-        )}
+        {inactive}
         <Outlet />
       </main>
     </div>

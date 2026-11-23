@@ -9,6 +9,7 @@ import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
 import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
+import { isSdicsBrand } from "../brand";
 
 const paceLabel: Record<Pace["status"], [string, "green" | "teal" | "red" | "blue"]> = {
   ahead: ["Ahead of target", "green"],
@@ -94,7 +95,8 @@ export default function DriveDetail() {
           )}
         </Card>
       </div>
-      <CoveragePanel group={{ drive_id: d.id }} />
+      {/* Registered-voter coverage isn't part of the SDICS chiefs check-ins. */}
+      {!isSdicsBrand() && <CoveragePanel group={{ drive_id: d.id }} />}
       <Card title={t.registeredList}>
         {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>{t.noneRegistered}</Empty> : (
           <div className="table-wrap">
