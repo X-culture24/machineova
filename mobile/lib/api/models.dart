@@ -276,3 +276,38 @@ class MobilizationInsights {
         topMobilizers = [for (final m in j['top_mobilizers'] as List) NameCount.fromJson(m)],
         paceStatus = (j['pace'] as Map?)?['status'];
 }
+
+
+// ---- Field issues (problems met at the trainings) ----
+const issueCategories = <String, String>{
+  'internet': 'Device internet connection',
+  'device': 'Device malfunction',
+  'location': 'Chief location issue',
+  'account': 'Sign-in / PIN / account',
+  'app': 'App error',
+  'other': 'Other',
+};
+
+class Issue {
+  final String id, category, chiefName, nationalId, phone, location, description, actionTaken, status, reportedBy;
+  final String? eventId, eventName;
+  final DateTime reportedAt;
+
+  Issue.fromJson(Map<String, dynamic> j)
+      : id = j['id'],
+        eventId = _s(j['event_id']),
+        eventName = _s(j['event_name']),
+        category = j['category'] ?? 'other',
+        chiefName = j['chief_name'] ?? '',
+        nationalId = j['national_id'] ?? '',
+        phone = j['phone'] ?? '',
+        location = j['location'] ?? '',
+        description = j['description'] ?? '',
+        actionTaken = j['action_taken'] ?? '',
+        status = j['status'] ?? 'open',
+        reportedBy = j['reported_by'] ?? '',
+        reportedAt = DateTime.parse(j['reported_at']).toLocal();
+
+  String get categoryLabel => issueCategories[category] ?? category;
+  bool get open => status == 'open';
+}

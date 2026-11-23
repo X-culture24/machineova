@@ -6,6 +6,7 @@ import '../session.dart';
 import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import 'issues.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onStart;
@@ -168,13 +169,13 @@ class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final me = session.me!;
-    Widget tile(String title, String sub, IconData icon, Color color, Color soft, bool enabled) => Expanded(
+    Widget tile(String title, String sub, IconData icon, Color color, Color soft, bool enabled, {VoidCallback? onTap}) => Expanded(
           child: Material(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: enabled ? onStart : null,
+              onTap: enabled ? (onTap ?? onStart) : null,
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration:
@@ -193,16 +194,28 @@ class _QuickActions extends StatelessWidget {
             ),
           ),
         );
-    return Row(children: [
-      tile(terms.checkIn, terms.checkInTile, Icons.how_to_reg, AppColors.teal, AppColors.tealSoft,
-          me.canOperate && me.moduleEvents),
-      if (terms.chiefs)
-        ...[]
-      else ...[
+    // Field issues: any training's problems, with no signal too (the outbox sends them later).
+    final issues = tile('Record a problem', 'Device, internet, chief location…', Icons.report_problem_outlined,
+        AppColors.red, AppColors.redSoft, true,
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const IssuesScreen())));
+    if (terms.chiefs) {
+      return Row(children: [
+        tile(terms.checkIn, terms.checkInTile, Icons.how_to_reg, AppColors.teal, AppColors.tealSoft,
+            me.canOperate && me.moduleEvents),
+        const SizedBox(width: 12),
+        issues,
+      ]);
+    }
+    return Column(children: [
+      Row(children: [
+        tile(terms.checkIn, terms.checkInTile, Icons.how_to_reg, AppColors.teal, AppColors.tealSoft,
+            me.canOperate && me.moduleEvents),
         const SizedBox(width: 12),
         tile(terms.mobilize, terms.mobilizeTile, Icons.campaign, AppColors.amber, AppColors.amberSoft,
             me.canOperate && me.moduleMobilization),
-      ],
+      ]),
+      const SizedBox(height: 12),
+      Row(children: [issues]),
     ]);
   }
 }

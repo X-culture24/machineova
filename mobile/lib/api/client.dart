@@ -228,6 +228,27 @@ class ApiClient {
     return [for (final e in r['items'] as List) EventItem.fromJson(e)];
   }
 
+  // ---- field issues ----
+  Future<List<Issue>> issues({String? eventId}) async {
+    final r = await get('/api/issues', query: {'event_id': eventId});
+    return [for (final i in r['items'] as List) Issue.fromJson(i)];
+  }
+
+  /// Sent now, or kept in the outbox until there is signal (a problem is often no internet).
+  Future<SendResult> reportIssue(Map<String, dynamic> body, {required String label}) =>
+      send('POST', '/api/issues', body, label: label, scope: 'issues');
+
+  /// The chief's details from their check-in at that training; null when not checked in there.
+  Future<Map<String, dynamic>?> issueChief(String eventId, String nationalId) async {
+    try {
+      return Map<String, dynamic>.from(
+          await _req('GET', '/api/issues/chief', query: {'event_id': eventId, 'national_id': nationalId}));
+    } on ApiException catch (e) {
+      if (e.status == 404) return null;
+      rethrow;
+    }
+  }
+
   /// Register lookups need the server; callers handle the network error by going offline-mode.
   Future<Lookup> checkinLookup(String eventId, String nationalId) async => Lookup.fromJson(
       await _req('GET', '/api/checkins/lookup', query: {'event_id': eventId, 'national_id': nationalId}));
