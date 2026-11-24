@@ -66,7 +66,7 @@ export default function CheckinDesk() {
         ...(!lookup.in_register ? loc : {}),
       });
       const who = res.name || `ID ${maskId(nid)}`;
-      setFlash({ tone: "green", text: `✓ ${who} ${t.chiefs ? "marked present" : "checked in"}${res.in_region ? "" : " (out of region)"}` });
+      setFlash({ tone: "green", text: `✓ ${who} checked in${res.in_region ? "" : " (out of region)"}` });
       reset();
     } catch (err) {
       const code = err instanceof ApiError ? err.code : undefined;
@@ -79,7 +79,7 @@ export default function CheckinDesk() {
   const v = lookup?.voter;
   return (
     <>
-      <PageHeader title={t.chiefs ? "Mark chief present" : "Check-in"} subtitle={t.chiefs ? "Enter a chief's ID, take their phone number, mark them present." : "Scan or enter an ID to mark a voter present."} />
+      <PageHeader title={t.checkin} subtitle={t.chiefs ? "Enter the member’s ID and phone number to check them in." : "Scan or enter an ID to mark a voter present."} />
       <ErrorNote error={events.error} />
       {!events.data ? (
         <Loading />
@@ -183,7 +183,7 @@ export default function CheckinDesk() {
                     </div>
                   </>
                 )}
-                <Field label={t.chiefs ? "Chief's phone number" : "Phone"}>
+                <Field label={t.chiefs ? "Member’s phone number" : "Phone"}>
                   <input type="tel" placeholder="07…, 01… or +254…" required={t.chiefs} value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Field>
                 {v && lookup.in_region === false && (
@@ -211,7 +211,7 @@ export default function CheckinDesk() {
                     <div className="full"><Field label="Ward"><input value={loc.ward} onChange={(e) => setLoc({ ...loc, ward: e.target.value })} /></Field></div>
                   </div>
                 )}
-                <button className="btn" disabled={busy}>{busy ? "Saving…" : t.chiefs ? "Mark chief present" : "Check in"}</button>
+                <button className="btn" disabled={busy}>{busy ? "Saving…" : t.chiefs ? t.checkin : "Check in"}</button>
               </form>
             )}
           </Card>

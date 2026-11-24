@@ -21,7 +21,7 @@ export default function DashboardPage() {
       <PageHeader
         title={`${greeting()}, ${me?.organization?.name ?? me?.name}`}
         subtitle={t.homeSubtitle}
-        actions={me?.role !== "viewer" && me?.module_events && <Link className="btn" to="/checkin">{t.chiefs ? "Mark chief present" : "Open check-in"}</Link>}
+        actions={me?.role !== "viewer" && me?.module_events && <Link className="btn" to="/checkin">{t.chiefs ? t.checkin : "Open check-in"}</Link>}
       />
       <ErrorNote error={error} />
       {loading && !data && <Loading />}

@@ -78,7 +78,7 @@ export default function Login() {
   if (sdics) {
     // As the other SDICS dashboards (analytics, RRI): the brand panel on the left, the sign-in card on the right.
     const features: [Parameters<typeof Icon>[0]["name"], string, string][] = [
-      ["check", "Mark chiefs present", "Check in by ID number at each event."],
+      ["check", "Check in member", "Check in by ID number at each event."],
       ["calendar", "Events by area", "See attendance for each event."],
       ["chart", "Event report", "Who attended, with their phone numbers, ready to export."],
     ];

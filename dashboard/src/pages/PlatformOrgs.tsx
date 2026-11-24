@@ -165,7 +165,7 @@ export function NewOrgWizard() {
             <Field label="Wording">
               <select className="input" value={f.vocabulary} onChange={set("vocabulary")}>
                 <option value="standard">Campaign: voters, mobilize, check in</option>
-                <option value="sdics_chiefs">SDICS chiefs: chiefs, onboard, mark chief present</option>
+                <option value="sdics_chiefs">SDICS chiefs: chiefs, onboard, check in member</option>
               </select>
             </Field>
           </div>

@@ -1,5 +1,5 @@
 // The words the dashboard uses, per organization. Campaigns say voters, mobilization and check-in;
-// SDICS chief training says chiefs, onboarding (collecting phone numbers) and "mark chief present".
+// SDICS chief training says chiefs, onboarding (collecting phone numbers) and "check in member".
 import { useAuth } from "./auth";
 
 const standard = {
@@ -59,9 +59,9 @@ const sdicsChiefs: Terms = {
   events: "Events",
   totalEvents: "Total events",
   recentEvents: "Recent events",
-  checkin: "Mark chief present",
+  checkin: "Check in member",
   checkins: "Chiefs present",
-  checkInPeople: "Mark chief present",
+  checkInPeople: "Check in member",
   peopleSubtitle: "Search and export event attendance.",
   event: "Event",
 };
