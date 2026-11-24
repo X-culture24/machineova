@@ -23,7 +23,18 @@ function showSection(id: string, smooth = true) {
 export default function EventDetail() {
   const { id = "" } = useParams();
   const [params, setParams] = useSearchParams();
-  const section = params.get("section") === "stations" || params.get("view") === "stations" ? "stations" : "attendance";
+  const [section, setSection] = useState<"attendance" | "stations">(
+    params.get("section") === "stations" || params.get("view") === "stations" ? "stations" : "attendance",
+  );
+  const selectSection = (next: "attendance" | "stations") => {
+    setSection(next);
+    setParams((current) => {
+      current.delete("view");
+      if (next === "stations") current.set("section", "stations");
+      else current.delete("section");
+      return current;
+    });
+  };
   const { me } = useAuth();
   const t = useTerms();
   const manager = isManager(me);
@@ -99,9 +110,9 @@ export default function EventDetail() {
 
       <div className="tabs event-detail-tabs" role="tablist" aria-label="Event details">
         <button type="button" role="tab" aria-selected={section === "attendance"} className={section === "attendance" ? "on" : ""}
-          onClick={() => setParams((current) => { current.delete("section"); current.delete("view"); return current; })}>Attendance &amp; insights</button>
+          onClick={() => selectSection("attendance")}>Attendance &amp; insights</button>
         <button type="button" role="tab" aria-selected={section === "stations"} className={section === "stations" ? "on" : ""}
-          onClick={() => setParams((current) => { current.set("section", "stations"); current.delete("view"); return current; })}>
+          onClick={() => selectSection("stations")}>
           Polling stations · {e.coverage_level === "national" ? "National" : area(e.county, e.constituency, e.ward)}
         </button>
       </div>
@@ -112,7 +123,7 @@ export default function EventDetail() {
         </div>
       ) : <>
       <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }}
-        onShowStations={() => setParams((current) => { current.set("section", "stations"); return current; })} />
+        onShowStations={() => selectSection("stations")} />
 
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
         <div id="hourly-arrivals" className="insight-target" tabIndex={-1}>
