@@ -80,7 +80,7 @@ export default function Login() {
     const features: [Parameters<typeof Icon>[0]["name"], string, string][] = [
       ["check", "Mark chiefs present", "Check in by ID number at each event."],
       ["calendar", "Events by area", "See attendance for each event."],
-      ["chart", "Training report", "Who attended, with their phone numbers, ready to export."],
+      ["chart", "Event report", "Who attended, with their phone numbers, ready to export."],
     ];
     return (
       <div className="sd-login">

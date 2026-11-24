@@ -129,7 +129,7 @@ function TabBar({ inOps, me }: { inOps: boolean; me: Me }) {
     : inOps
       ? [["/ops", "Home", "⌂"], ["/ops/stations", "Stations", "⚑"], ...(me.role !== "agent" ? [["/ops/people", "Agents", "☺"] as [string, string, string]] : []),
          ["/ops/turnout", "Turnout", "↗"], ["/account", "Account", "⚙"]]
-      : [["/", t.chiefs ? "Report" : "Home", "◧"], ["/events", t.events, "▦"], ...(me.module_mobilization ? [["/mobilization", t.mobilizationTab, "➚"] as [string, string, string]] : []), ["/people", "People", "☰"], ["/account", "Account", "⚙"]];
+      : [...(!t.chiefs ? [["/", "Home", "◧"] as [string, string, string]] : []), ["/events", t.events, "▦"], ...(me.module_mobilization ? [["/mobilization", t.mobilizationTab, "➚"] as [string, string, string]] : []), ["/people", "People", "☰"], ["/account", "Account", "⚙"], ...(t.chiefs ? [["/", "Event report", "◧"] as [string, string, string]] : [])];
   return (
     <nav className="tabbar" aria-label="Sections">
       {tabs.map(([to, label, icon]) => (
@@ -165,7 +165,7 @@ function Shell() {
   // The SDICS look: the other SDICS dashboards' header and tabs instead of the sidebar.
   if (isSdicsBrand() && me.organization && !inOps && hasCheckin(me)) {
     const tabs: SdTab[] = [
-      { to: "/", label: t.chiefs ? "Training report" : "Dashboard", icon: "chart", end: true },
+      ...(!t.chiefs ? [{ to: "/", label: "Dashboard", icon: "chart" as const, end: true }] : []),
       ...(me.module_events ? [{ to: "/events", label: t.events, icon: "calendar" as const }] : []),
       ...(me.module_events && me.role !== "viewer" ? [{ to: "/checkin", label: t.checkin, icon: "check" as const }] : []),
       { to: "/issues", label: "Issues", icon: "alert" },
@@ -175,6 +175,7 @@ function Shell() {
       ...(isManager(me) ? [{ to: "/team", label: "Team", icon: "shield" as const }] : []),
       { to: "/app", label: "Field app", icon: "id" },
       ...(isManager(me) ? [{ to: "/activity", label: "Activity log", icon: "clock" as const }] : []),
+      ...(t.chiefs ? [{ to: "/", label: "Event report", icon: "chart" as const, end: true }] : []),
     ];
     return (
       <div className="sd-root">
@@ -207,7 +208,7 @@ function Shell() {
         )}
         {me.organization && !inOps && hasCheckin(me) && (
           <>
-            {link("/", t.chiefs ? "Training report" : "Dashboard", "◧", true)}
+            {!t.chiefs && link("/", "Dashboard", "◧", true)}
             {section("Operate")}
             {me.module_events && link("/events", t.events, "▦")}
             {me.module_events && me.role !== "viewer" && link("/checkin", t.checkin, "✓")}
@@ -220,6 +221,7 @@ function Shell() {
             {section("Workspace")}
             {link("/app", "Field app", "▯")}
             {isManager(me) && link("/activity", "Activity log", "≣")}
+            {t.chiefs && link("/", "Event report", "◧", true)}
           </>
         )}
         {me.organization && inOps && hasOps(me) && (

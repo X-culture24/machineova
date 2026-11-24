@@ -49,7 +49,7 @@ export default function TrainingReportPage() {
   return (
     <>
       <PageHeader
-        title="Chiefs training report"
+        title="Event report"
         subtitle="SDICS app training for chiefs and sub-chiefs: who was present at each county training, on the day it was held."
       />
       <ErrorNote error={error} />
