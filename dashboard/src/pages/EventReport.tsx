@@ -58,7 +58,7 @@ export default function EventReportPage() {
                       <td className="num">{num(event.checkins)}</td>
                       <td className="num">{num(event.unique)}</td>
                       <td className="num">{num(event.out_of_region)}</td>
-                      <td><Link to={`/events/${event.id}?view=stations`}>Polling-station turnout</Link></td>
+                      <td><Link to={`/events/${event.id}?section=stations`}>Polling-station turnout</Link></td>
                     </tr>
                   ))}
                 </tbody>
