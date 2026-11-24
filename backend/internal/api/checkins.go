@@ -443,21 +443,22 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 }
 
 type personRecord struct {
-	ID           string    `json:"id"`
-	NationalID   string    `json:"national_id"`
-	Name         string    `json:"name"`
-	Sex          string    `json:"sex"`
-	Phone        *string   `json:"phone"`
-	County       string    `json:"county"`
-	Constituency string    `json:"constituency"`
-	Ward         string    `json:"ward"`
-	InRegion     *bool     `json:"in_region,omitempty"`
-	HomeCounty   *string   `json:"home_county,omitempty"`
-	HomeLocation *string   `json:"home_location,omitempty"`
-	At           time.Time `json:"at"`
-	By           string    `json:"by"`
-	GroupID      string    `json:"group_id"`
-	GroupName    string    `json:"group_name"`
+	ID                  string    `json:"id"`
+	SelectedParticipant *bool     `json:"selected_participant,omitempty"`
+	NationalID          string    `json:"national_id"`
+	Name                string    `json:"name"`
+	Sex                 string    `json:"sex"`
+	Phone               *string   `json:"phone"`
+	County              string    `json:"county"`
+	Constituency        string    `json:"constituency"`
+	Ward                string    `json:"ward"`
+	InRegion            *bool     `json:"in_region,omitempty"`
+	HomeCounty          *string   `json:"home_county,omitempty"`
+	HomeLocation        *string   `json:"home_location,omitempty"`
+	At                  time.Time `json:"at"`
+	By                  string    `json:"by"`
+	GroupID             string    `json:"group_id"`
+	GroupName           string    `json:"group_name"`
 }
 
 // listCheckins powers People › Check-ins. Members see only their own records.
@@ -475,15 +476,30 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 	}
 	search := strings.TrimSpace(q.Get("q"))
 	phone := phoneSearch(search)
-	args := []any{p.OrgID, p.SeesAll(), p.UserID, nilIfEmpty(q.Get("event_id")), likePattern(search), limit, phone}
+	var selected *bool
+	switch q.Get("participants") {
+	case "selected":
+		value := true
+		selected = &value
+	case "general":
+		value := false
+		selected = &value
+	case "":
+	default:
+		writeErr(w, http.StatusBadRequest, "invalid participant filter")
+		return
+	}
+	args := []any{p.OrgID, p.SeesAll(), p.UserID, nilIfEmpty(q.Get("event_id")), likePattern(search), limit, phone, selected}
 	rows, err := s.db.Query(r.Context(), `
 		SELECT c.id, c.national_id, c.name, COALESCE(c.sex, ''), c.phone, c.county, c.constituency, c.ward, c.in_region,
-		       c.home_county, c.home_location, c.checked_in_at, u.name, e.id, e.name
+		       c.home_county, c.home_location, c.checked_in_at, u.name, e.id, e.name, pp.national_id IS NOT NULL
 		FROM checkins c JOIN users u ON u.id = c.checked_in_by JOIN events e ON e.id = c.event_id
+		LEFT JOIN event_participants pp ON pp.event_id = c.event_id AND pp.national_id = c.national_id
 		WHERE c.org_id = $1 AND ($2 OR c.checked_in_by = $3)
 		  AND ($4::uuid IS NULL OR c.event_id = $4::uuid)
 		  AND ($5::text IS NULL OR c.name ILIKE $5 OR c.national_id LIKE $5
 		       OR ($7::text IS NOT NULL AND regexp_replace(COALESCE(c.phone,''), '[^0-9]', '', 'g') LIKE $7))
+		  AND ($8::boolean IS NULL OR (pp.national_id IS NOT NULL) = $8)
 		ORDER BY c.checked_in_at DESC, c.id DESC LIMIT $6`, args...)
 	if err != nil {
 		if isInvalidUUID(err) {
@@ -497,7 +513,7 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		var pr personRecord
 		var inRegion bool
 		err := row.Scan(&pr.ID, &pr.NationalID, &pr.Name, &pr.Sex, &pr.Phone, &pr.County, &pr.Constituency, &pr.Ward,
-			&inRegion, &pr.HomeCounty, &pr.HomeLocation, &pr.At, &pr.By, &pr.GroupID, &pr.GroupName)
+			&inRegion, &pr.HomeCounty, &pr.HomeLocation, &pr.At, &pr.By, &pr.GroupID, &pr.GroupName, &pr.SelectedParticipant)
 		pr.InRegion = &inRegion
 		return pr, err
 	})

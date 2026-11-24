@@ -1,3 +1,4 @@
+import SearchInput, { matchesSearch } from "../components/SearchInput";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ApiError, api, homeLine, type Lookup } from "../api";
@@ -17,6 +18,8 @@ export default function CheckinDesk() {
   const eventId = params.get("event") ?? (items.length === 1 ? items[0]!.id : "");
   const event = items.find((e) => e.id === eventId);
 
+  const [eventQuery, setEventQuery] = useState("");
+  const matchingEvents = items.filter((e) => e.id === eventId || matchesSearch(eventQuery, e.name, e.venue, e.county, e.constituency, e.ward));
   const [nid, setNid] = useState("");
   const [lookup, setLookup] = useState<Lookup | null>(null);
   const [busy, setBusy] = useState(false);
@@ -90,19 +93,22 @@ export default function CheckinDesk() {
           <Card title="Find a voter">
             <div className="stack">
               {items.length > 1 ? (
-                <Field label="Event">
-                  <select value={eventId} onChange={(e) => setParams(e.target.value ? { event: e.target.value } : {})}>
-                    <option value="">Select your event…</option>
-                    {items.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
-                  </select>
-                </Field>
+                <>
+                  <SearchInput label="Search active events" value={eventQuery} onChange={setEventQuery} />
+                  <Field label="Event">
+                    <select value={eventId} onChange={(e) => setParams(e.target.value ? { event: e.target.value } : {})}>
+                      <option value="">Select your event…</option>
+                      {matchingEvents.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+                    </select>
+                  </Field>
+                </>
               ) : (
                 <div className="alert teal">Selected event: <strong>{event?.name}</strong></div>
               )}
               {event && (
                 <div className="row gap">
                   {event.region_restricted && <Badge tone="amber">Region-restricted · {area(event.county, event.constituency, event.ward)}</Badge>}
-                  {event.list_only && <Badge tone="blue">List-only</Badge>}
+                  <Badge tone={event.list_only ? "blue" : "grey"}>{event.list_only ? "Selected participants only" : "General participants"}</Badge>
                 </div>
               )}
               <form onSubmit={doLookup} className="stack">

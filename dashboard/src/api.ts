@@ -170,7 +170,10 @@ export interface Lookup {
   previous?: Prior | null;
 }
 
+export type ParticipantFilter = "" | "selected" | "general";
+
 export interface PersonRecord {
+  selected_participant?: boolean;
   id: string;
   national_id: string;
   name: string;
@@ -337,7 +340,7 @@ export const api = {
   dashboard: () => request<Dashboard>("GET", "/api/dashboard"),
   trainingReport: () => request<TrainingReport>("GET", "/api/training/report"),
 
-  issues: (f: { event_id?: string; category?: string; status?: string } = {}) =>
+  issues: (f: { event_id?: string; category?: string; status?: string; q?: string } = {}) =>
     request<{ items: Issue[] }>("GET", `/api/issues${qs(f)}`),
   createIssue: (b: IssueInput) => request<Issue>("POST", "/api/issues", b),
   updateIssue: (id: string, b: IssueInput) => request<Issue>("PATCH", `/api/issues/${id}`, b),
@@ -357,6 +360,7 @@ export const api = {
   updateEvent: (id: string, body: Partial<EventItem>) => request<EventItem>("PATCH", `/api/events/${id}`, body),
   setEventAssignments: (id: string, user_ids: string[]) =>
     request<{ assigned: number }>("PUT", `/api/events/${id}/assignments`, { user_ids }),
+  eventParticipants: (id: string) => request<string[]>("GET", `/api/events/${id}/participants`),
   setEventParticipants: (id: string, national_ids: string[]) =>
     request<{ participants: number }>("PUT", `/api/events/${id}/participants`, { national_ids }),
 
@@ -364,7 +368,7 @@ export const api = {
     request<Lookup>("GET", `/api/checkins/lookup${qs({ event_id, national_id })}`),
   checkin: (event_id: string, p: PersonInput) =>
     request<{ id: string; in_region: boolean; name: string }>("POST", "/api/checkins", { event_id, ...p }),
-  checkins: (params: { event_id?: string; q?: string; export?: string } = {}) =>
+  checkins: (params: { event_id?: string; q?: string; participants?: ParticipantFilter; export?: string } = {}) =>
     request<PersonRecord[]>("GET", `/api/checkins${qs(params)}`),
 
   drives: (activeOnly = false) =>

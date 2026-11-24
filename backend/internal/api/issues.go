@@ -111,6 +111,9 @@ func (s *Server) listIssues(w http.ResponseWriter, r *http.Request, p *Principal
 	if v := r.URL.Query().Get("status"); v == "open" || v == "resolved" {
 		add(` AND i.status = ?`, v)
 	}
+	if pattern := likePattern(r.URL.Query().Get("q")); pattern != nil {
+		add(` AND concat_ws(' ', i.chief_name, i.national_id, i.phone, i.location, i.description, i.action_taken, e.name) ILIKE ?`, pattern)
+	}
 	rows, err := s.db.Query(r.Context(), q+` ORDER BY i.reported_at DESC LIMIT 2000`, args...)
 	if err != nil {
 		s.internal(w, r, err)

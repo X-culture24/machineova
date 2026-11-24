@@ -1,3 +1,4 @@
+import SearchInput, { matchesSearch } from "../components/SearchInput";
 import { useState, type FormEvent } from "react";
 import { api, type Member, type Role } from "../api";
 import { useAuth } from "../auth";
@@ -12,6 +13,7 @@ const checkinRoles = new Set<Role>(["owner", "admin", "member", "viewer"]);
 export default function TeamPage() {
   const { me } = useAuth();
   const { data, error, reload } = useAsync(api.team, []);
+  const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -26,12 +28,13 @@ export default function TeamPage() {
       <PageHeader title="Team" subtitle="Roles decide what each person can see and change." actions={<button className="btn" onClick={() => setAdding(true)}>+ Add member</button>} />
       <ErrorNote error={error ?? err} />
       <Card>
+        <div className="toolbar"><SearchInput label="Search team members" value={query} onChange={setQuery} /></div>
         {!data ? <Loading /> : (
           <div className="table-wrap">
             <table>
               <thead><tr><th>Name</th><th>Role</th><th>Events</th><th>Mobilization</th><th>Status</th></tr></thead>
               <tbody>
-                {data.filter((m) => checkinRoles.has(m.role)).map((m) => (
+                {data.filter((m) => checkinRoles.has(m.role) && matchesSearch(query, m.name, m.email, m.phone, m.role)).map((m) => (
                   <tr key={m.id}>
                     <td>
                       <div className="person">

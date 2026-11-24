@@ -1,6 +1,8 @@
+import SearchInput, { matchesSearch } from "../components/SearchInput";
+import ParticipantTypeFilter from "../components/ParticipantFilter";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api, type CoverageLevel } from "../api";
+import { api, type CoverageLevel, type ParticipantFilter } from "../api";
 import { isManager, useAuth } from "../auth";
 import { AssignModal } from "../components/AssignModal";
 import { Badge, BarChart, Card, Empty, ErrorNote, Kpi, Loading, Modal, PageHeader, RegionBadge, Toggle } from "../components/ui";
@@ -21,7 +23,8 @@ export default function EventDetail() {
   const insights = useAsync(() => api.checkinInsights(id), [id]);
   const [query, setQuery] = useState("");
   const search = useDebounced(query);
-  const list = useAsync(() => api.checkins({ event_id: id, q: search }), [id, search]);
+  const [participants, setParticipants] = useState<ParticipantFilter>("");
+  const list = useAsync(() => api.checkins({ event_id: id, q: search, participants }), [id, search, participants]);
   const [coverageVersion, refreshCoverage] = useState(0);
   const [modal, setModal] = useState<"assign" | "participants" | null>(null);
   const [actionErr, setActionErr] = useState<string | null>(null);
@@ -55,7 +58,7 @@ export default function EventDetail() {
         actions={
           <>
             {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
-            {e.list_only && <Badge tone="blue">Participants only</Badge>}
+            <Badge tone={e.list_only ? "blue" : "grey"}>{e.list_only ? "Selected participants only" : "General participants"}</Badge>
             {e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}
             {e.active && me?.role !== "viewer" && <Link className="btn" to={`/checkin?event=${e.id}`}>{t.checkInPeople}</Link>}
             <button className="btn secondary" onClick={reloadAll}>Refresh</button>
@@ -128,8 +131,8 @@ export default function EventDetail() {
               <span>Admission</span>
               <select disabled={!manager} value={e.list_only ? "participants" : "general"}
                 onChange={(v) => void update({ list_only: v.target.value === "participants" })}>
-                <option value="general">General meeting</option>
-                <option value="participants">Participants only</option>
+                <option value="general">General participants</option>
+                <option value="participants">Selected participants only</option>
               </select>
             </label>
             <label className="field">
@@ -142,12 +145,10 @@ export default function EventDetail() {
                 <option value="ward" disabled={!e.county || !e.constituency || !e.ward}>Ward</option>
               </select>
             </label>
-            {e.list_only && (
-              <div className="row spread">
-                <span>{num(e.participants)} approved participants</span>
-                {manager && <button className="btn small secondary" onClick={() => setModal("participants")}>Upload list</button>}
-              </div>
-            )}
+            <div className="row spread">
+              <span>{num(e.participants)} selected participants on the event list</span>
+              {manager && <button className="btn small secondary" onClick={() => setModal("participants")}>Manage list</button>}
+            </div>
             {manager && (
               <button className={`btn ${e.active ? "danger" : ""}`} onClick={() => update({ active: !e.active })}>
                 {e.active ? "Close event" : "Reopen event"}
@@ -159,10 +160,10 @@ export default function EventDetail() {
 
       <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }} />
       <EventStationCoverage key={`stations-${id}-${coverageVersion}`} eventId={e.id} />
-      <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} query={query} />}>
+      <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} query={query} participants={participants} />}>
         <div className="toolbar">
-          <input className="input" aria-label="Search check-ins" placeholder="Search name, ID or phone…" value={query}
-            onChange={(e) => setQuery(e.target.value)} />
+          <SearchInput label="Search name, ID or phone" value={query} onChange={setQuery} />
+          <ParticipantTypeFilter value={participants} onChange={setParticipants} />
         </div>
         <ErrorNote error={list.error} />
         {list.loading ? (
@@ -173,7 +174,7 @@ export default function EventDetail() {
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Name</th><th>ID number</th><th>Phone</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
+                <tr><th>Name</th><th>ID number</th><th>Phone</th><th>Participant type</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
               </thead>
               <tbody>
                 {list.data.map((c) => (
@@ -181,6 +182,7 @@ export default function EventDetail() {
                     <td>{c.name}</td>
                     <td className="id-masked">{maskId(c.national_id)}</td>
                     <td>{c.phone ?? "—"}</td>
+                    <td>{c.selected_participant ? "Selected" : "General"}</td>
                     <td>{area(c.constituency, c.ward)}</td>
                     <td>{c.by}</td>
                     <td>{time(c.at)}</td>
@@ -212,6 +214,7 @@ export default function EventDetail() {
           onSaved={() => {
             setModal(null);
             detail.reload();
+            list.reload();
           }}
         />
       )}
@@ -220,28 +223,47 @@ export default function EventDetail() {
 }
 
 function ParticipantsModal({ eventId, onClose, onSaved }: { eventId: string; onClose: () => void; onSaved: () => void }) {
-  const [text, setText] = useState("");
+  const roster = useAsync(() => api.eventParticipants(eventId), [eventId]);
+  const [draft, setText] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [busy, setBusy] = useState(false);
+  const text = draft ?? roster.data?.join("\n") ?? "";
   const [error, setError] = useState<string | null>(null);
   const ids = text.split(/[\n,;\t]+/).map((s) => s.replace(/\s+/g, "")).filter(Boolean);
 
-  async function readFile(file: File) {
-    setText(await file.text());
+  const matches = ids.filter((id) => matchesSearch(query, id));
+
+  async function save() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.setEventParticipants(eventId, ids);
+      onSaved();
+    } catch (err) {
+      setError((err as Error).message);
+      setBusy(false);
+    }
   }
 
   return (
-    <Modal title="Participant list" onClose={onClose}>
-      <ErrorNote error={error} />
+    <Modal title="Selected participant list" onClose={onClose}>
+      <ErrorNote error={error ?? roster.error} />
       <p className="muted" style={{ marginTop: 0 }}>
         Paste ID numbers (one per line or comma-separated) or choose a CSV. This replaces the current list.
       </p>
-      <input type="file" accept=".csv,.txt" onChange={(e) => e.target.files?.[0] && readFile(e.target.files[0])} />
-      <textarea className="input" rows={8} style={{ marginTop: 10 }} value={text} onChange={(e) => setText(e.target.value)} />
+      {roster.loading && <Loading />}
+      <input type="file" accept=".csv,.txt" disabled={!roster.data || busy}
+        onChange={(e) => { const file = e.target.files?.[0]; if (file) void file.text().then(setText, (err: Error) => setError(err.message)); }} />
+      <textarea className="input" rows={8} style={{ marginTop: 10 }} value={text} disabled={!roster.data || busy} onChange={(e) => setText(e.target.value)} />
+      <SearchInput label="Search participant IDs" value={query} onChange={setQuery} />
+      {query.trim() && <p className="muted">{matches.length ? matches.slice(0, 20).join(", ") + (matches.length > 20 ? ` and ${matches.length - 20} more` : "") : "No IDs match."}</p>}
       <div className="modal-actions">
         <span className="muted" style={{ marginRight: "auto" }}>{ids.length} IDs</span>
         <button className="btn secondary" onClick={onClose}>Cancel</button>
         <button
           className="btn"
-          onClick={() => api.setEventParticipants(eventId, ids).then(onSaved, (e: Error) => setError(e.message))}
+          disabled={!roster.data || draft === null || busy}
+          onClick={() => void save()}
         >
           Save list
         </button>

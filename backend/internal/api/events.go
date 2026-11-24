@@ -340,7 +340,37 @@ func (s *Server) replaceAssignments(w http.ResponseWriter, r *http.Request, p *P
 	writeJSON(w, http.StatusOK, map[string]int64{"assigned": tag.RowsAffected()})
 }
 
-// setEventParticipants replaces the approved participant list for list-only events.
+func (s *Server) listEventParticipants(w http.ResponseWriter, r *http.Request, p *Principal) {
+	if !requireManager(w, p) {
+		return
+	}
+	e, err := s.loadEvent(r.Context(), p, r.PathValue("id"))
+	if errors.Is(err, errNotFound) {
+		writeErr(w, http.StatusNotFound, "event not found")
+		return
+	}
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	rows, err := s.db.Query(r.Context(), `SELECT national_id FROM event_participants WHERE event_id = $1 ORDER BY national_id`, e.ID)
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	ids, err := collect(rows, func(row pgx.Row) (string, error) {
+		var id string
+		err := row.Scan(&id)
+		return id, err
+	})
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, ids)
+}
+
+// setEventParticipants replaces the selected participant list.
 func (s *Server) setEventParticipants(w http.ResponseWriter, r *http.Request, p *Principal) {
 	if !requireManager(w, p) {
 		return

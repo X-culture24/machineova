@@ -1,3 +1,5 @@
+import { useState } from "react";
+import SearchInput, { matchesSearch } from "../components/SearchInput";
 // SDICS chiefs training report: how many chiefs were present at each county training, on the day
 // it was actually held, and (when SDICS can be read) how many were onboarded to the SDICS app.
 import { Link } from "react-router-dom";
@@ -18,11 +20,14 @@ const hourLabel = (h: number) => `${String(h).padStart(2, "0")}:00`;
 
 export default function TrainingReportPage() {
   const { data, error, loading } = useAsync(api.trainingReport, []);
+  const [query, setQuery] = useState("");
   if (loading && !data) return <Loading />;
   if (!data) return <ErrorNote error={error} />;
 
   const held = data.trainings.filter((t) => t.held_on && t.present >= 5); // a stray test check-in isn't a training
-  const notHeld = data.trainings.filter((t) => !held.includes(t));
+  const matches = (t: TrainingRow) => matchesSearch(query, t.name, t.county);
+  const visibleHeld = held.filter(matches);
+  const notHeld = data.trainings.filter((t) => !held.includes(t) && matches(t));
   const present = held.reduce((a, t) => a + t.present, 0);
   const phones = held.reduce((a, t) => a + t.phones, 0);
   const signed = held.reduce((a, t) => a + (t.signed_in ?? 0), 0);
@@ -78,26 +83,27 @@ export default function TrainingReportPage() {
       </div>
 
       <Card title="By county" extra={data.sdics ? <small className="muted">Bars: chiefs present of the chiefs SDICS has in the county</small> : undefined}>
-        {held.length === 0 ? <Empty>No county training has been held yet.</Empty> : (
+        <div className="toolbar"><SearchInput label="Search events or counties" value={query} onChange={setQuery} /></div>
+        {visibleHeld.length === 0 ? <Empty>{query ? "No held events match." : "No county training has been held yet."}</Empty> : (
           <div className="table-wrap">
             <table className="cards">
               <thead>
                 <tr>
-                  <th>County</th><th>Held on</th><th className="num">Chiefs present</th>
+                  <th>Event</th><th>Held on</th><th className="num">Chiefs present</th>
                   {data.sdics && <th style={{ width: "26%" }}>Of SDICS chiefs in the county</th>}
                   {data.sdics && <th style={{ width: "22%" }}>Onboarded to SDICS app</th>}
                   <th className="num">Phones</th><th className="num">Out of region</th>
                 </tr>
               </thead>
               <tbody>
-                {held.map((t) => <CountyRow key={t.event_id} t={t} sdics={data.sdics} />)}
+                {visibleHeld.map((t) => <CountyRow key={t.event_id} t={t} sdics={data.sdics} />)}
               </tbody>
             </table>
           </div>
         )}
         {notHeld.length > 0 && (
           <p className="muted" style={{ margin: "14px 0 0" }}>
-            <strong>Not held yet:</strong> {notHeld.map((t) => t.county + (t.present ? ` (${t.present} test check-in${t.present === 1 ? "" : "s"})` : "")).join(", ")}.
+            <strong>Not held yet:</strong> {notHeld.map((t) => (t.name || t.county) + (t.present ? ` (${t.present} test check-in${t.present === 1 ? "" : "s"})` : "")).join(", ")}.
           </p>
         )}
       </Card>
@@ -114,7 +120,9 @@ function CountyRow({ t, sdics }: { t: TrainingRow; sdics: boolean }) {
   const of = t.sdics_chiefs ?? 0;
   return (
     <tr>
-      <td data-label="County"><Link to={`/events/${t.event_id}`} style={{ fontWeight: 600 }}>{t.county}</Link></td>
+      <td data-label="Event"><Link to={`/events/${t.event_id}`} style={{ fontWeight: 600 }}>{t.name || t.county}</Link>
+        {t.name && t.county && t.name !== t.county && <><br /><small className="muted">{t.county}</small></>}
+      </td>
       <td data-label="Held on">{dayLabel(t.held_on!, true)}<br /><small className="muted">{clock(t.first_at)}–{clock(t.last_at)}</small></td>
       <td data-label="Chiefs present" className="num"><strong>{num(t.present)}</strong></td>
       {sdics && (

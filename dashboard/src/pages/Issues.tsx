@@ -1,9 +1,10 @@
+import SearchInput from "../components/SearchInput";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, issueCategoryLabel, type Issue, type IssueCategory, type IssueInput } from "../api";
 import { useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Field, Loading, PageHeader } from "../components/ui";
 import { openIssuesReport } from "../components/issuesReportPdf";
-import { useAsync } from "../useAsync";
+import { useAsync, useDebounced } from "../useAsync";
 
 // Field issues: the team types each problem met at a training as it happens (device internet,
 // device malfunction, a chief's location, sign-in, the app, …), with the chief concerned; the
@@ -19,7 +20,9 @@ export default function IssuesPage() {
   const { me } = useAuth();
   const events = useAsync(() => api.events(), []);
   const [filter, setFilter] = useState<{ event_id?: string; category?: string; status?: string }>({});
-  const list = useAsync(() => api.issues(filter), [filter.event_id, filter.category, filter.status]);
+  const [query, setQuery] = useState("");
+  const search = useDebounced(query);
+  const list = useAsync(() => api.issues({ ...filter, q: search }), [filter.event_id, filter.category, filter.status, search]);
   const [f, setF] = useState<IssueInput>(blank());
   const [editing, setEditing] = useState<Issue | null>(null);
   const [busy, setBusy] = useState(false);
@@ -166,6 +169,7 @@ export default function IssuesPage() {
         )}
         <Card title={`Recorded problems${items.length ? ` · ${items.length}` : ""}${open ? ` · ${open} open` : ""}`}>
           <div className="row gap" style={{ flexWrap: "wrap", marginBottom: 12 }}>
+            <SearchInput label="Search issues by name, ID, phone or text" value={query} onChange={setQuery} />
             <select className="input" style={{ width: "auto", minWidth: 150 }} value={filter.event_id ?? ""} onChange={(e) => setFilter({ ...filter, event_id: e.target.value || undefined })}>
               <option value="">All trainings</option>
               {trainings.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -181,7 +185,7 @@ export default function IssuesPage() {
             </select>
           </div>
           <ErrorNote error={list.error} />
-          {list.loading && !list.data ? <Loading /> : items.length === 0 ? <Empty>No problems recorded{filter.event_id || filter.category || filter.status ? " for this filter" : " yet"}.</Empty> : (
+          {list.loading && !list.data ? <Loading /> : items.length === 0 ? <Empty>No problems recorded{filter.event_id || filter.category || filter.status || search ? " for this filter" : " yet"}.</Empty> : (
             <div className="issue-list">
               {items.map((i) => (
                 <div key={i.id} className="issue-item">

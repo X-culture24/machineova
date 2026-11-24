@@ -96,6 +96,7 @@ func (s *Server) Handler() http.Handler {
 	a("GET /api/events/{id}", s.getEvent)
 	a("PATCH /api/events/{id}", s.updateEvent)
 	a("PUT /api/events/{id}/assignments", s.setEventAssignments)
+	a("GET /api/events/{id}/participants", s.listEventParticipants)
 	a("PUT /api/events/{id}/participants", s.setEventParticipants)
 
 	a("GET /api/checkins/lookup", s.checkinLookup)

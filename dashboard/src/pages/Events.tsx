@@ -1,3 +1,4 @@
+import SearchInput, { matchesSearch } from "../components/SearchInput";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, type CoverageLevel } from "../api";
@@ -12,6 +13,11 @@ export default function EventsPage() {
   const t = useTerms();
   const nav = useNavigate();
   const { data, error, loading, reload } = useAsync(() => api.events(), []);
+  const [query, setQuery] = useState("");
+  const [admission, setAdmission] = useState("");
+  const items = (data?.items ?? []).filter((e) =>
+    (!admission || e.list_only === (admission === "selected")) && matchesSearch(query, e.name, e.venue, e.county, e.constituency, e.ward),
+  );
   const [creating, setCreating] = useState(false);
 
   return (
@@ -32,7 +38,15 @@ export default function EventsPage() {
             <Kpi label={t.chiefs ? "Chiefs present" : "Total check-ins"} value={num(data.summary.checkins)} tone="teal" />
           </div>
           <Card>
-            {data.items.length === 0 ? (
+            <div className="toolbar">
+              <SearchInput label="Search events or areas" value={query} onChange={setQuery} />
+              <select className="input" aria-label="Event admission" value={admission} onChange={(e) => setAdmission(e.target.value)}>
+                <option value="">All events</option>
+                <option value="selected">Selected participants only</option>
+                <option value="general">General participants</option>
+              </select>
+            </div>
+            {data.items.length > 0 && items.length === 0 ? <Empty>No events match.</Empty> : items.length === 0 ? (
               <Empty>No events yet{isManager(me) ? " — create the first one." : ". Ask an admin to assign you."}</Empty>
             ) : (
               <div className="table-wrap">
@@ -49,7 +63,7 @@ export default function EventsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.items.map((e) => (
+                    {items.map((e) => (
                       <tr key={e.id} className="clickable" onClick={() => nav(`/events/${e.id}`)}>
                         <td>
                           <div style={{ fontWeight: 600 }}>{e.name}</div>
@@ -58,7 +72,7 @@ export default function EventsPage() {
                         <td>{area(e.county, e.constituency, e.ward)}</td>
                         <td>{dateTime(e.starts_at)}</td>
                         <td>
-                          {e.list_only ? "Participants only" : "General meeting"}
+                          {e.list_only ? "Selected participants only" : "General participants"}
                           {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
                         </td>
                         <td className="num">{num(e.checkins)}</td>
@@ -158,8 +172,8 @@ function NewEventModal({ onClose, onCreated }: { onClose: () => void; onCreated:
             <Toggle label="Region-restricted — warn on out-of-region voters" checked={f.region_restricted} onChange={(v) => setF({ ...f, region_restricted: v })} />
             <Field label="Admission">
               <select value={f.list_only ? "participants" : "general"} onChange={(e) => setF({ ...f, list_only: e.target.value === "participants" })}>
-                <option value="general">General meeting</option>
-                <option value="participants">Participants only</option>
+                <option value="general">General participants</option>
+                <option value="participants">Selected participants only</option>
               </select>
             </Field>
           </div>
