@@ -784,12 +784,15 @@ func (s *Server) registryRegions(w http.ResponseWriter, r *http.Request, p *Prin
 		s.internal(w, r, err)
 		return
 	}
-	sc := p.userScope().orElse(b)
+	s.writeRegistryRegions(w, r, p.userScope().orElse(b), "polling_stations")
+}
+
+func (s *Server) writeRegistryRegions(w http.ResponseWriter, r *http.Request, sc scope, source string) {
 	// ?stations=0 leaves out the station list: a nationwide tree is ~30,000 stations,
 	// and filters only need county › constituency › ward.
 	withStations := r.URL.Query().Get("stations") != "0"
 	rows, err := s.db.Query(r.Context(), `
-		SELECT county, constituency, ward, code, name FROM polling_stations
+		SELECT county, constituency, ward, code, name FROM `+source+`
 		WHERE ($1::text IS NULL OR county = $1) AND ($2::text IS NULL OR constituency = $2) AND ($3::text IS NULL OR ward = $3)
 		ORDER BY county, constituency, ward, name`, sc.County, sc.Constituency, sc.Ward)
 	if err != nil {

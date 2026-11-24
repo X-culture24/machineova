@@ -184,7 +184,7 @@ export default function CheckinDesk() {
                   </>
                 )}
                 <Field label={t.chiefs ? "Chief's phone number" : "Phone"}>
-                  <input type="tel" placeholder="07… or +254…" required={t.chiefs} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <input type="tel" placeholder="07…, 01… or +254…" required={t.chiefs} value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Field>
                 {v && lookup.in_region === false && (
                   <div className="origin-panel">

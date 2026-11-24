@@ -23,7 +23,13 @@ export interface Me {
   scope_label: string;
 }
 
+export type CoverageLevel = "national" | "county" | "constituency" | "ward";
+export type EventGeography = { name: string; constituencies: { name: string; wards: { name: string; stations: { code: string; name: string }[] }[] }[] };
+export type EventStation = { code: string; name: string; county: string; constituency: string; ward: string; registered: number; reached: number };
+
 export interface EventItem {
+  coverage_level: CoverageLevel | null;
+  polling_station_code: string | null;
   id: string;
   name: string;
   venue: string;
@@ -345,6 +351,8 @@ export const api = {
       `/api/events${qs({ active: activeOnly ? "true" : undefined })}`,
     ),
   event: (id: string) => request<{ event: EventItem; assigned_users: Member[] }>("GET", `/api/events/${id}`),
+  eventGeography: () => request<{ counties: EventGeography[] }>("GET", "/api/events/geography"),
+  eventStationCoverage: (id: string) => request<EventStation[]>("GET", `/api/events/${id}/station-coverage`),
   createEvent: (body: Partial<EventItem>) => request<EventItem>("POST", "/api/events", body),
   updateEvent: (id: string, body: Partial<EventItem>) => request<EventItem>("PATCH", `/api/events/${id}`, body),
   setEventAssignments: (id: string, user_ids: string[]) =>
@@ -356,7 +364,7 @@ export const api = {
     request<Lookup>("GET", `/api/checkins/lookup${qs({ event_id, national_id })}`),
   checkin: (event_id: string, p: PersonInput) =>
     request<{ id: string; in_region: boolean; name: string }>("POST", "/api/checkins", { event_id, ...p }),
-  checkins: (params: { event_id?: string; q?: string } = {}) =>
+  checkins: (params: { event_id?: string; q?: string; export?: string } = {}) =>
     request<PersonRecord[]>("GET", `/api/checkins${qs(params)}`),
 
   drives: (activeOnly = false) =>

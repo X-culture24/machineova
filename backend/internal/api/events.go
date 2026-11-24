@@ -17,6 +17,8 @@ type event struct {
 	County           *string    `json:"county"`
 	Constituency     *string    `json:"constituency"`
 	Ward             *string    `json:"ward"`
+	CoverageLevel    *string    `json:"coverage_level"`
+	PollingStation   *string    `json:"polling_station_code"`
 	StartsAt         time.Time  `json:"starts_at"`
 	EndsAt           *time.Time `json:"ends_at"`
 	Active           bool       `json:"active"`
@@ -31,7 +33,7 @@ type event struct {
 }
 
 const eventSelect = `
-	SELECT e.id, e.name, e.venue, e.county, e.constituency, e.ward, e.starts_at, e.ends_at,
+	SELECT e.id, e.name, e.venue, e.county, e.constituency, e.ward, e.coverage_level, e.polling_station_code, e.starts_at, e.ends_at,
 	       e.active, e.region_restricted, e.list_only,
 	       (SELECT count(*) FROM checkins c WHERE c.event_id = e.id),
 	       (SELECT count(DISTINCT national_id) FROM checkins c WHERE c.event_id = e.id),
@@ -43,7 +45,7 @@ const eventSelect = `
 
 func scanEvent(row pgx.Row) (event, error) {
 	var e event
-	err := row.Scan(&e.ID, &e.Name, &e.Venue, &e.County, &e.Constituency, &e.Ward, &e.StartsAt, &e.EndsAt,
+	err := row.Scan(&e.ID, &e.Name, &e.Venue, &e.County, &e.Constituency, &e.Ward, &e.CoverageLevel, &e.PollingStation, &e.StartsAt, &e.EndsAt,
 		&e.Active, &e.RegionRestricted, &e.ListOnly, &e.Checkins, &e.Unique, &e.OutOfRegion, &e.Assigned, &e.Participants, &e.FirstCheckinAt)
 	return e, err
 }
@@ -106,11 +108,46 @@ type eventInput struct {
 	County           *string    `json:"county"`
 	Constituency     *string    `json:"constituency"`
 	Ward             *string    `json:"ward"`
+	CoverageLevel    *string    `json:"coverage_level"`
+	PollingStation   *string    `json:"polling_station_code"`
 	StartsAt         *time.Time `json:"starts_at"`
 	EndsAt           *time.Time `json:"ends_at"`
 	Active           *bool      `json:"active"`
 	RegionRestricted *bool      `json:"region_restricted"`
 	ListOnly         *bool      `json:"list_only"`
+}
+
+func (s *Server) eventGeography(w http.ResponseWriter, r *http.Request, p *Principal) {
+	if !requireManager(w, p) {
+		return
+	}
+	source, err := s.eventRollSource(r.Context())
+	if err != nil {
+		s.internal(w, r, err)
+		return
+	}
+	s.writeRegistryRegions(w, r, scope{}, source)
+}
+
+func coverageLevelError(level, county, constituency, ward *string) string {
+	switch str(level) {
+	case "", "national":
+	case "county":
+		if emptyNil(county) == nil {
+			return "select a county for coverage"
+		}
+	case "constituency":
+		if emptyNil(county) == nil || emptyNil(constituency) == nil {
+			return "select a constituency for coverage"
+		}
+	case "ward":
+		if emptyNil(county) == nil || emptyNil(constituency) == nil || emptyNil(ward) == nil {
+			return "select a ward for coverage"
+		}
+	default:
+		return "invalid coverage level"
+	}
+	return ""
 }
 
 func (s *Server) createEvent(w http.ResponseWriter, r *http.Request, p *Principal) {
@@ -125,12 +162,32 @@ func (s *Server) createEvent(w http.ResponseWriter, r *http.Request, p *Principa
 		writeErr(w, http.StatusBadRequest, "name and starts_at are required")
 		return
 	}
+	if code := emptyNil(in.PollingStation); code != nil {
+		source := "polling_stations"
+		if strings.HasPrefix(*code, "sdics-") {
+			source = "sdics_station_roll"
+		}
+		err := s.db.QueryRow(r.Context(), `SELECT county, constituency, ward FROM `+source+` WHERE code = $1`, *code).
+			Scan(&in.County, &in.Constituency, &in.Ward)
+		if errors.Is(err, pgx.ErrNoRows) {
+			writeErr(w, http.StatusBadRequest, "unknown polling station")
+			return
+		}
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+	}
+	if msg := coverageLevelError(in.CoverageLevel, in.County, in.Constituency, in.Ward); msg != "" {
+		writeErr(w, http.StatusBadRequest, msg)
+		return
+	}
 	var id string
 	err := s.db.QueryRow(r.Context(), `
-		INSERT INTO events (org_id, name, venue, county, constituency, ward, starts_at, ends_at, region_restricted, list_only)
-		VALUES ($1,$2,COALESCE($3,''),$4,$5,$6,$7,$8,COALESCE($9,false),COALESCE($10,false)) RETURNING id`,
+		INSERT INTO events (org_id, name, venue, county, constituency, ward, starts_at, ends_at, region_restricted, list_only, polling_station_code, coverage_level)
+		VALUES ($1,$2,COALESCE($3,''),$4,$5,$6,$7,$8,COALESCE($9,false),COALESCE($10,false),$11,$12) RETURNING id`,
 		p.OrgID, strings.TrimSpace(*in.Name), in.Venue, emptyNil(in.County), emptyNil(in.Constituency), emptyNil(in.Ward),
-		in.StartsAt, in.EndsAt, in.RegionRestricted, in.ListOnly).Scan(&id)
+		in.StartsAt, in.EndsAt, in.RegionRestricted, in.ListOnly, emptyNil(in.PollingStation), in.CoverageLevel).Scan(&id)
 	if err != nil {
 		s.internal(w, r, err)
 		return
@@ -179,16 +236,44 @@ func (s *Server) updateEvent(w http.ResponseWriter, r *http.Request, p *Principa
 	if !readJSON(w, r, &in) {
 		return
 	}
+	if in.CoverageLevel != nil {
+		current, err := s.loadEvent(r.Context(), p, r.PathValue("id"))
+		if errors.Is(err, errNotFound) {
+			writeErr(w, http.StatusNotFound, "event not found")
+			return
+		}
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		if in.County == nil {
+			in.County = current.County
+		}
+		if in.Constituency == nil {
+			in.Constituency = current.Constituency
+		}
+		if in.Ward == nil {
+			in.Ward = current.Ward
+		}
+		if msg := coverageLevelError(in.CoverageLevel, in.County, in.Constituency, in.Ward); msg != "" || *in.CoverageLevel == "" {
+			if msg == "" {
+				msg = "select a coverage level"
+			}
+			writeErr(w, http.StatusBadRequest, msg)
+			return
+		}
+	}
 	tag, err := s.db.Exec(r.Context(), `
 		UPDATE events SET
 			name = COALESCE($3, name), venue = COALESCE($4, venue),
 			county = COALESCE($5, county), constituency = COALESCE($6, constituency), ward = COALESCE($7, ward),
 			starts_at = COALESCE($8, starts_at), ends_at = COALESCE($9, ends_at),
 			active = COALESCE($10, active),
-			region_restricted = COALESCE($11, region_restricted), list_only = COALESCE($12, list_only)
+			region_restricted = COALESCE($11, region_restricted), list_only = COALESCE($12, list_only),
+			coverage_level = COALESCE($13, coverage_level)
 		WHERE id = $1 AND org_id = $2`,
 		r.PathValue("id"), p.OrgID, in.Name, in.Venue, in.County, in.Constituency, in.Ward,
-		in.StartsAt, in.EndsAt, in.Active, in.RegionRestricted, in.ListOnly)
+		in.StartsAt, in.EndsAt, in.Active, in.RegionRestricted, in.ListOnly, in.CoverageLevel)
 	if err != nil && !isInvalidUUID(err) {
 		s.internal(w, r, err)
 		return

@@ -55,7 +55,8 @@ func (s *Server) coverage(w http.ResponseWriter, r *http.Request, p *Principal) 
 			s.internal(w, r, err)
 			return
 		}
-		county, constituency, ward, table, group = e.County, e.Constituency, e.Ward, "checkins", "event_id"
+		county, constituency, ward = e.coverageArea()
+		table, group = "checkins", "event_id"
 	} else if id := q.Get("drive_id"); id != "" {
 		d, err := s.loadDrive(r.Context(), p, id)
 		if errors.Is(err, errNotFound) {
@@ -94,53 +95,87 @@ func (s *Server) coverage(w http.ResponseWriter, r *http.Request, p *Principal) 
 		 AND place_key(` + prefix + `ward) = coalesce(place_key($3), place_key(` + prefix + `ward))`
 	}
 
-	// Registered voters per area (from the polling-station register built from the voter register).
-	regRows, err := s.db.Query(r.Context(), `
-		SELECT `+stationCol+`, sum(registered_voters)::int FROM polling_stations WHERE`+scopeSQL("")+`
-		GROUP BY 1`, county, constituency, ward)
-	if err != nil {
-		s.internal(w, r, err)
-		return
-	}
 	rows := map[string]*coverageRow{}
-	for regRows.Next() {
-		var c coverageRow
-		if err := regRows.Scan(&c.Area, &c.Registered); err != nil {
-			regRows.Close()
+	var rollNotRegistered *int
+	if table == "checkins" {
+		stations, notRegistered, err := s.eventCoverageStations(r.Context(), groupID, p.OrgID, county, constituency, ward)
+		if err != nil {
 			s.internal(w, r, err)
 			return
 		}
-		rows[c.Area] = &c
-	}
-	regRows.Close()
+		rollNotRegistered = notRegistered
+		for _, st := range stations {
+			area := st.County
+			switch level {
+			case "constituency":
+				area = st.Constituency
+			case "ward":
+				area = st.Ward
+			case "polling_center":
+				area = st.Name
+			}
+			c := rows[area]
+			if c == nil {
+				c = &coverageRow{Area: area}
+				rows[area] = c
+			}
+			c.Registered += st.Registered
+			c.Reached += st.Reached
+		}
+	} else {
+		// Registered voters per area (from the polling-station register built from the voter register).
+		regRows, err := s.db.Query(r.Context(), `
+			SELECT `+stationCol+`, sum(registered_voters)::int FROM polling_stations WHERE`+scopeSQL("")+`
+			GROUP BY 1`, county, constituency, ward)
+		if err != nil {
+			s.internal(w, r, err)
+			return
+		}
+		for regRows.Next() {
+			var c coverageRow
+			if err := regRows.Scan(&c.Area, &c.Registered); err != nil {
+				regRows.Close()
+				s.internal(w, r, err)
+				return
+			}
+			rows[c.Area] = &c
+		}
+		if err := regRows.Err(); err != nil {
+			s.internal(w, r, err)
+			return
+		}
 
-	// People reached who are registered voters in the area, by their registration area.
-	regCol := map[string]string{"county": "county", "constituency": "constituency", "ward": "ward", "polling_center": "polling_center"}[level]
-	reachRows, err := s.db.Query(r.Context(), `
-		SELECT v.`+regCol+`, count(DISTINCT x.national_id)::int
-		FROM `+table+` x JOIN register_voters v ON v.national_id = x.national_id
-		WHERE x.`+group+`::text = $4 AND x.org_id = $5 AND`+scopeSQL("v.")+`
-		GROUP BY 1`, county, constituency, ward, groupID, p.OrgID)
-	if err != nil {
-		s.internal(w, r, err)
-		return
-	}
-	for reachRows.Next() {
-		var area string
-		var n int
-		if err := reachRows.Scan(&area, &n); err != nil {
-			reachRows.Close()
+		// People reached who are registered voters in the area, by their registration area.
+		regCol := map[string]string{"county": "county", "constituency": "constituency", "ward": "ward", "polling_center": "polling_center"}[level]
+		reachRows, err := s.db.Query(r.Context(), `
+			SELECT v.`+regCol+`, count(DISTINCT x.national_id)::int
+			FROM `+table+` x JOIN register_voters v ON v.national_id = x.national_id
+			WHERE x.`+group+`::text = $4 AND x.org_id = $5 AND`+scopeSQL("v.")+`
+			GROUP BY 1`, county, constituency, ward, groupID, p.OrgID)
+		if err != nil {
 			s.internal(w, r, err)
 			return
 		}
-		c := rows[area]
-		if c == nil {
-			c = &coverageRow{Area: area}
-			rows[area] = c
+		for reachRows.Next() {
+			var area string
+			var n int
+			if err := reachRows.Scan(&area, &n); err != nil {
+				reachRows.Close()
+				s.internal(w, r, err)
+				return
+			}
+			c := rows[area]
+			if c == nil {
+				c = &coverageRow{Area: area}
+				rows[area] = c
+			}
+			c.Reached = n
 		}
-		c.Reached = n
+		if err := reachRows.Err(); err != nil {
+			s.internal(w, r, err)
+			return
+		}
 	}
-	reachRows.Close()
 
 	var out struct {
 		Level         string        `json:"level"`
@@ -195,7 +230,7 @@ func (s *Server) coverage(w http.ResponseWriter, r *http.Request, p *Principal) 
 
 	// Who was reached: not-registered count, gender mix and the most common age band.
 	var topAge *string
-	err = s.db.QueryRow(r.Context(), `
+	err := s.db.QueryRow(r.Context(), `
 		WITH people AS (
 			SELECT DISTINCT ON (national_id) national_id, sex, dob FROM `+table+`
 			WHERE `+group+`::text = $1 AND org_id = $2)
@@ -210,6 +245,9 @@ func (s *Server) coverage(w http.ResponseWriter, r *http.Request, p *Principal) 
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		s.internal(w, r, err)
 		return
+	}
+	if rollNotRegistered != nil {
+		out.NotRegistered = *rollNotRegistered
 	}
 	out.TopAgeGroup = topAge
 	writeJSON(w, http.StatusOK, out)

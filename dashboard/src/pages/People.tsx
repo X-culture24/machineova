@@ -1,21 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { isManager, useAuth } from "../auth";
+import AttendanceExport from "../components/AttendanceExport";
 import { api, type PersonRecord } from "../api";
 import { Card, Empty, ErrorNote, Loading, PageHeader, RegionBadge } from "../components/ui";
 import { area, dateTime, initials } from "../format";
-import { useAsync } from "../useAsync";
+import { useAsync, useDebounced } from "../useAsync";
 import { useTerms } from "../terms";
 import { maskId } from "../mask";
 
 type Tab = "checkins" | "mobilized";
-
-function useDebounced<T>(value: T, ms = 300) {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms);
-    return () => clearTimeout(t);
-  }, [value, ms]);
-  return v;
-}
 
 function downloadCsv(rows: PersonRecord[], tab: Tab) {
   const header = ["name", "national_id", "sex", "phone", "county", "constituency", "ward", tab === "checkins" ? "event" : "drive", "by", "at"];
@@ -31,6 +24,7 @@ function downloadCsv(rows: PersonRecord[], tab: Tab) {
 
 export default function PeoplePage() {
   const t = useTerms();
+  const { me } = useAuth();
   const [tab, setTab] = useState<Tab>("checkins");
   const [group, setGroup] = useState("");
   const [q, setQ] = useState("");
@@ -48,7 +42,9 @@ export default function PeoplePage() {
       <PageHeader
         title="People reached"
         subtitle={t.peopleSubtitle}
-        actions={list.data && list.data.length > 0 && <button className="btn secondary" onClick={() => downloadCsv(list.data!, tab)}>Export CSV</button>}
+        actions={tab === "checkins" && isManager(me)
+          ? <AttendanceExport key={group} eventId={group || undefined} query={q} />
+          : list.data && list.data.length > 0 && <button className="btn secondary" onClick={() => downloadCsv(list.data!, tab)}>Export CSV</button>}
       />
       <div className="toolbar">
         <div className="tabs" role="tablist">
@@ -59,7 +55,7 @@ export default function PeoplePage() {
           <option value="">{tab === "checkins" ? `All ${t.events.toLowerCase()}` : t.chiefs ? "All counties" : "All drives"}</option>
           {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
-        <input className="input" placeholder="Search name or ID number…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="input" aria-label="Search people" placeholder={tab === "checkins" ? "Search name, ID or phone…" : "Search name or ID number…"} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <ErrorNote error={list.error} />
       <Card>

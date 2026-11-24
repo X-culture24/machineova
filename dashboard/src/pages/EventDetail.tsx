@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../api";
+import { api, type CoverageLevel } from "../api";
 import { isManager, useAuth } from "../auth";
 import { AssignModal } from "../components/AssignModal";
 import { Badge, BarChart, Card, Empty, ErrorNote, Kpi, Loading, Modal, PageHeader, RegionBadge, Toggle } from "../components/ui";
 import { area, dateTime, hourLabel, num, pct, time } from "../format";
-import { useAsync } from "../useAsync";
+import { useAsync, useDebounced } from "../useAsync";
 import { maskId } from "../mask";
 import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
-import { isSdicsBrand } from "../brand";
+import EventStationCoverage from "../components/EventStationCoverage";
+import AttendanceExport from "../components/AttendanceExport";
 
 export default function EventDetail() {
   const { id = "" } = useParams();
@@ -18,7 +19,10 @@ export default function EventDetail() {
   const manager = isManager(me);
   const detail = useAsync(() => api.event(id), [id]);
   const insights = useAsync(() => api.checkinInsights(id), [id]);
-  const list = useAsync(() => api.checkins({ event_id: id }), [id]);
+  const [query, setQuery] = useState("");
+  const search = useDebounced(query);
+  const list = useAsync(() => api.checkins({ event_id: id, q: search }), [id, search]);
+  const [coverageVersion, refreshCoverage] = useState(0);
   const [modal, setModal] = useState<"assign" | "participants" | null>(null);
   const [actionErr, setActionErr] = useState<string | null>(null);
 
@@ -29,12 +33,14 @@ export default function EventDetail() {
     detail.reload();
     insights.reload();
     list.reload();
+    refreshCoverage((v) => v + 1);
   };
   const update = async (body: Parameters<typeof api.updateEvent>[1]) => {
     try {
       setActionErr(null);
       await api.updateEvent(e.id, body);
       detail.reload();
+      if (body.coverage_level) refreshCoverage((v) => v + 1);
     } catch (err) {
       setActionErr((err as Error).message);
     }
@@ -45,11 +51,11 @@ export default function EventDetail() {
     <>
       <PageHeader
         title={e.name}
-        subtitle={`${area(e.venue, e.county, e.constituency, e.ward)} · ${t.chiefs ? (e.unique >= 5 && e.first_checkin_at ? `Held ${dateTime(e.first_checkin_at)}` : "Not held yet") : dateTime(e.starts_at)}`}
+        subtitle={`${area(e.venue, e.polling_station_code, e.county, e.constituency, e.ward)} · ${dateTime(e.starts_at)}`}
         actions={
           <>
             {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
-            {e.list_only && <Badge tone="blue">List-only</Badge>}
+            {e.list_only && <Badge tone="blue">Participants only</Badge>}
             {e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}
             {e.active && me?.role !== "viewer" && <Link className="btn" to={`/checkin?event=${e.id}`}>{t.checkInPeople}</Link>}
             <button className="btn secondary" onClick={reloadAll}>Refresh</button>
@@ -118,7 +124,24 @@ export default function EventDetail() {
         <Card title="Event rules">
           <div className="stack">
             <Toggle label="Region-restricted" checked={e.region_restricted} onChange={(v) => manager && update({ region_restricted: v })} />
-            <Toggle label="List-only" checked={e.list_only} onChange={(v) => manager && update({ list_only: v })} />
+            <label className="field">
+              <span>Admission</span>
+              <select disabled={!manager} value={e.list_only ? "participants" : "general"}
+                onChange={(v) => void update({ list_only: v.target.value === "participants" })}>
+                <option value="general">General meeting</option>
+                <option value="participants">Participants only</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>Vying level</span>
+              <select disabled={!manager} value={e.coverage_level ?? (e.ward ? "ward" : e.constituency ? "constituency" : e.county ? "county" : "national")}
+                onChange={(v) => void update({ coverage_level: v.target.value as CoverageLevel })}>
+                <option value="national">National</option>
+                <option value="county" disabled={!e.county}>County</option>
+                <option value="constituency" disabled={!e.county || !e.constituency}>Constituency</option>
+                <option value="ward" disabled={!e.county || !e.constituency || !e.ward}>Ward</option>
+              </select>
+            </label>
             {e.list_only && (
               <div className="row spread">
                 <span>{num(e.participants)} approved participants</span>
@@ -134,24 +157,30 @@ export default function EventDetail() {
         </Card>
       </div>
 
-      {/* Registered-voter coverage isn't part of the SDICS chiefs check-ins. */}
-      {!isSdicsBrand() && <CoveragePanel group={{ event_id: e.id }} />}
-      <Card title="Who checked in" extra={<small className="muted">latest first</small>}>
-        {!list.data ? (
+      <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }} />
+      <EventStationCoverage key={`stations-${id}-${coverageVersion}`} eventId={e.id} />
+      <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} query={query} />}>
+        <div className="toolbar">
+          <input className="input" aria-label="Search check-ins" placeholder="Search name, ID or phone…" value={query}
+            onChange={(e) => setQuery(e.target.value)} />
+        </div>
+        <ErrorNote error={list.error} />
+        {list.loading ? (
           <Loading />
-        ) : list.data.length === 0 ? (
-          <Empty>No check-ins yet.</Empty>
+        ) : !list.data?.length ? (
+          <Empty>No matching check-ins.</Empty>
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Name</th><th>ID number</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
+                <tr><th>Name</th><th>ID number</th><th>Phone</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
               </thead>
               <tbody>
                 {list.data.map((c) => (
                   <tr key={c.id}>
                     <td>{c.name}</td>
                     <td className="id-masked">{maskId(c.national_id)}</td>
+                    <td>{c.phone ?? "—"}</td>
                     <td>{area(c.constituency, c.ward)}</td>
                     <td>{c.by}</td>
                     <td>{time(c.at)}</td>

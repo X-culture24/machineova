@@ -55,15 +55,15 @@ const sdicsChiefs: Terms = {
   topMobilizers: "Top trainers",
   assignMobilizers: "Assign trainers",
   topRegions: "Onboarding by county",
-  homeSubtitle: "Chiefs marked present at the county trainings, with their phone numbers.",
-  events: "Trainings",
-  totalEvents: "County trainings",
-  recentEvents: "Trainings",
+  homeSubtitle: "Attendance and onboarding across your events.",
+  events: "Events",
+  totalEvents: "Total events",
+  recentEvents: "Recent events",
   checkin: "Mark chief present",
   checkins: "Chiefs present",
   checkInPeople: "Mark chief present",
-  peopleSubtitle: "Every chief marked present at a training, with the phone number collected. Filter by training; export to CSV.",
-  event: "Training",
+  peopleSubtitle: "Search and export event attendance.",
+  event: "Event",
 };
 
 export function useTerms(): Terms {

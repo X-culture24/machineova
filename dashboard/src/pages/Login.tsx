@@ -78,8 +78,8 @@ export default function Login() {
   if (sdics) {
     // As the other SDICS dashboards (analytics, RRI): the brand panel on the left, the sign-in card on the right.
     const features: [Parameters<typeof Icon>[0]["name"], string, string][] = [
-      ["check", "Mark chiefs present", "Check in by ID number at each county training."],
-      ["calendar", "Trainings by county", "Attendance per training, day by day."],
+      ["check", "Mark chiefs present", "Check in by ID number at each event."],
+      ["calendar", "Events by area", "See attendance for each event."],
       ["chart", "Training report", "Who attended, with their phone numbers, ready to export."],
     ];
     return (
@@ -96,7 +96,7 @@ export default function Login() {
           </div>
           <div className="sd-login-pitch">
             <h1>SDICS CHECKIN</h1>
-            <p className="sd-tagline">Check-ins for the SDICS chiefs trainings — who attended, where and when, in one dashboard.</p>
+            <p className="sd-tagline">Track attendance at SDICS events.</p>
             <div className="sd-features">
               {features.map(([icon, title, text]) => (
                 <div key={title} className="sd-feature">

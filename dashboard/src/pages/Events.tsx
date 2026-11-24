@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../api";
+import { api, type CoverageLevel } from "../api";
 import { isManager, useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader, Toggle } from "../components/ui";
 import { area, dateTime, num } from "../format";
@@ -18,15 +18,15 @@ export default function EventsPage() {
     <>
       <PageHeader
         title={t.events}
-        subtitle={t.chiefs ? "One training per county. Open a training to see the chiefs marked present." : "Every event your organization runs check-in for."}
-        actions={isManager(me) && <button className="btn" onClick={() => setCreating(true)}>{t.chiefs ? "+ New training" : "+ New event"}</button>}
+        subtitle="Every event your organization runs check-in for."
+        actions={isManager(me) && <button className="btn" onClick={() => setCreating(true)}>+ New event</button>}
       />
       <ErrorNote error={error} />
       {loading && !data && <Loading />}
       {data && (
         <>
           <div className="grid kpis">
-            <Kpi label={t.chiefs ? "Trainings" : "Total events"} value={num(data.summary.total)} />
+            <Kpi label="Total events" value={num(data.summary.total)} />
             <Kpi label="Active now" value={num(data.summary.active)} tone="teal" />
             <Kpi label="Closed" value={num(data.summary.closed)} />
             <Kpi label={t.chiefs ? "Chiefs present" : "Total check-ins"} value={num(data.summary.checkins)} tone="teal" />
@@ -41,8 +41,8 @@ export default function EventsPage() {
                     <tr>
                       <th>{t.event}</th>
                       <th>Area</th>
-                      <th>{t.chiefs ? "Held on" : "Starts"}</th>
-                      {!t.chiefs && <th>Rules</th>}
+                      <th>Starts</th>
+                      <th>Admission</th>
                       <th className="num">{t.chiefs ? "Marked present" : "Check-ins"}</th>
                       <th className="num">{t.chiefs ? "Chiefs" : "Unique"}</th>
                       <th>Status</th>
@@ -56,13 +56,11 @@ export default function EventsPage() {
                           <small className="muted">{e.venue}</small>
                         </td>
                         <td>{area(e.county, e.constituency, e.ward)}</td>
-                        <td>{t.chiefs ? (e.unique >= 5 && e.first_checkin_at ? dateTime(e.first_checkin_at) : <span className="muted">Not held yet</span>) : dateTime(e.starts_at)}</td>
-                        {!t.chiefs && (
-                          <td className="row gap">
-                            {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
-                            {e.list_only && <Badge tone="blue">List-only</Badge>}
-                          </td>
-                        )}
+                        <td>{dateTime(e.starts_at)}</td>
+                        <td>
+                          {e.list_only ? "Participants only" : "General meeting"}
+                          {e.region_restricted && <Badge tone="amber">Region-restricted</Badge>}
+                        </td>
                         <td className="num">{num(e.checkins)}</td>
                         <td className="num">{num(e.unique)}</td>
                         <td>{e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}</td>
@@ -90,7 +88,12 @@ export default function EventsPage() {
 }
 
 function NewEventModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
-  const [f, setF] = useState({ name: "", venue: "", county: "", constituency: "", ward: "", starts_at: "", region_restricted: false, list_only: false });
+  const [f, setF] = useState({ name: "", venue: "", county: "", constituency: "", ward: "", polling_station_code: "", coverage_level: "national" as CoverageLevel, starts_at: "", region_restricted: false, list_only: false });
+  const geography = useAsync(() => api.eventGeography(), []);
+  const counties = geography.data?.counties ?? [];
+  const county = counties.find((c) => c.name === f.county);
+  const constituency = county?.constituencies.find((c) => c.name === f.constituency);
+  const ward = constituency?.wards.find((w) => w.name === f.ward);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
@@ -114,13 +117,51 @@ function NewEventModal({ onClose, onCreated }: { onClose: () => void; onCreated:
         <div className="form-grid">
           <div className="full"><Field label="Event name"><input required value={f.name} onChange={set("name")} /></Field></div>
           <div className="full"><Field label="Venue"><input value={f.venue} onChange={set("venue")} /></Field></div>
-          <Field label="County"><input value={f.county} onChange={set("county")} /></Field>
-          <Field label="Constituency"><input value={f.constituency} onChange={set("constituency")} /></Field>
-          <Field label="Ward" hint="Leave area fields blank for no restriction."><input value={f.ward} onChange={set("ward")} /></Field>
+          <ErrorNote error={geography.error} />
+          <Field label="Vying level">
+            <select value={f.coverage_level} onChange={(e) => setF({ ...f, coverage_level: e.target.value as CoverageLevel })}>
+              <option value="national">National</option>
+              <option value="county">County</option>
+              <option value="constituency">Constituency</option>
+              <option value="ward">Ward</option>
+            </select>
+          </Field>
+          <Field label="County">
+            <select disabled={geography.loading} required={f.coverage_level !== "national" || f.region_restricted} value={f.county}
+              onChange={(e) => setF({ ...f, county: e.target.value, constituency: "", ward: "", polling_station_code: "" })}>
+              <option value="">{geography.loading ? "Loading counties…" : "Select county"}</option>
+              {counties.map((c) => <option key={c.name}>{c.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Constituency">
+            <select disabled={!county} required={["constituency", "ward"].includes(f.coverage_level)} value={f.constituency}
+              onChange={(e) => setF({ ...f, constituency: e.target.value, ward: "", polling_station_code: "" })}>
+              <option value="">Select constituency</option>
+              {county?.constituencies.map((c) => <option key={c.name}>{c.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Ward">
+            <select disabled={!constituency} required={f.coverage_level === "ward"} value={f.ward}
+              onChange={(e) => setF({ ...f, ward: e.target.value, polling_station_code: "" })}>
+              <option value="">Select ward</option>
+              {constituency?.wards.map((w) => <option key={w.name}>{w.name}</option>)}
+            </select>
+          </Field>
+          <Field label="Venue polling station">
+            <select disabled={!ward} value={f.polling_station_code} onChange={set("polling_station_code")}>
+              <option value="">Select station (optional)</option>
+              {ward?.stations?.map((s) => <option key={s.code} value={s.code}>{s.name} ({s.code})</option>)}
+            </select>
+          </Field>
           <Field label="Starts"><input type="datetime-local" required value={f.starts_at} onChange={set("starts_at")} /></Field>
           <div className="full stack">
             <Toggle label="Region-restricted — warn on out-of-region voters" checked={f.region_restricted} onChange={(v) => setF({ ...f, region_restricted: v })} />
-            <Toggle label="List-only — only approved participant IDs can check in" checked={f.list_only} onChange={(v) => setF({ ...f, list_only: v })} />
+            <Field label="Admission">
+              <select value={f.list_only ? "participants" : "general"} onChange={(e) => setF({ ...f, list_only: e.target.value === "participants" })}>
+                <option value="general">General meeting</option>
+                <option value="participants">Participants only</option>
+              </select>
+            </Field>
           </div>
         </div>
         <div className="modal-actions">

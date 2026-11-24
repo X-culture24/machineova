@@ -466,15 +466,25 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		return
 	}
 	q := r.URL.Query()
-	args := []any{p.OrgID, p.SeesAll(), p.UserID, nilIfEmpty(q.Get("event_id")), likePattern(q.Get("q"))}
+	limit := any(limitParam(q.Get("limit")))
+	if q.Get("export") == "true" {
+		if !requireManager(w, p) {
+			return
+		}
+		limit = nil
+	}
+	search := strings.TrimSpace(q.Get("q"))
+	phone := phoneSearch(search)
+	args := []any{p.OrgID, p.SeesAll(), p.UserID, nilIfEmpty(q.Get("event_id")), likePattern(search), limit, phone}
 	rows, err := s.db.Query(r.Context(), `
 		SELECT c.id, c.national_id, c.name, COALESCE(c.sex, ''), c.phone, c.county, c.constituency, c.ward, c.in_region,
 		       c.home_county, c.home_location, c.checked_in_at, u.name, e.id, e.name
 		FROM checkins c JOIN users u ON u.id = c.checked_in_by JOIN events e ON e.id = c.event_id
 		WHERE c.org_id = $1 AND ($2 OR c.checked_in_by = $3)
 		  AND ($4::uuid IS NULL OR c.event_id = $4::uuid)
-		  AND ($5::text IS NULL OR c.name ILIKE $5 OR c.national_id LIKE $5)
-		ORDER BY c.checked_in_at DESC LIMIT $6`, append(args, limitParam(q.Get("limit")))...)
+		  AND ($5::text IS NULL OR c.name ILIKE $5 OR c.national_id LIKE $5
+		       OR ($7::text IS NOT NULL AND regexp_replace(COALESCE(c.phone,''), '[^0-9]', '', 'g') LIKE $7))
+		ORDER BY c.checked_in_at DESC, c.id DESC LIMIT $6`, args...)
 	if err != nil {
 		if isInvalidUUID(err) {
 			writeErr(w, http.StatusBadRequest, "invalid event_id")
@@ -496,6 +506,27 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		return
 	}
 	writeJSON(w, http.StatusOK, out)
+}
+
+func phoneSearch(s string) *string {
+	var digits strings.Builder
+	for _, ch := range s {
+		switch {
+		case ch >= '0' && ch <= '9':
+			digits.WriteRune(ch)
+		case strings.ContainsRune("+ -().", ch):
+		default:
+			return nil
+		}
+	}
+	number := digits.String()
+	if len(number) == 12 && strings.HasPrefix(number, "254") {
+		number = number[3:]
+	}
+	if len(number) == 10 && strings.HasPrefix(number, "0") {
+		number = number[1:]
+	}
+	return likePattern(number)
 }
 
 func nilIfEmpty(s string) *string {
