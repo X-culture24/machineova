@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, type Coverage, type CoverageRow } from "../api";
-import { num, pct } from "../format";
+import { num, turnoutPercent } from "../format";
 import { Badge, Card, ErrorNote, Kpi, Loading } from "./ui";
 
 const statusLabel: Record<CoverageRow["status"], string> = {
@@ -13,14 +13,23 @@ const levelLabel = { county: "County", constituency: "Constituency", ward: "Ward
  * Coverage analytics: registered voters reached vs registered voters in the area,
  * drilling down constituency → ward → polling centre, with "push here next".
  */
-export default function CoveragePanel({ group }: { group: { event_id?: string; drive_id?: string } }) {
+export default function CoveragePanel({ group, onShowStations }: {
+  group: { event_id?: string; drive_id?: string };
+  onShowStations?: () => void;
+}) {
   const [drill, setDrill] = useState<{ constituency?: string; ward?: string }>({});
   const [data, setData] = useState<Coverage | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     setData(null);
-    api.coverage(group, drill).then(setData, (e: Error) => setError(e.message));
+    setError(null);
+    api.coverage(group, drill).then(
+      (result) => { if (active) setData(result); },
+      (e: Error) => { if (active) setError(e.message); },
+    );
+    return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group.event_id, group.drive_id, drill.constituency, drill.ward]);
 
@@ -37,12 +46,12 @@ export default function CoveragePanel({ group }: { group: { event_id?: string; d
       extra={(drill.constituency || drill.ward) && <button className="btn small secondary" onClick={() => setDrill(drill.ward ? { constituency: drill.constituency } : {})}>← Up a level</button>}
     >
       <ErrorNote error={error} />
-      {!data ? <Loading /> : (
+      {!data ? !error && <Loading /> : (
         <div className="stack">
           <div className="grid kpis">
-            <Kpi label="Registered voters reached" value={num(data.reached)} caption={`of ${num(data.registered)} registered`} tone="teal" />
-            <Kpi label="Coverage" value={pct(data.coverage)} progress={data.coverage} />
-            <Kpi label="Remaining" value={num(data.remaining)} caption="still to reach" />
+            <Kpi label="Registered voters reached" value={num(data.reached)} caption={`of ${num(data.registered)} registered`} tone="teal" onClick={onShowStations} />
+            <Kpi label="Turnout" value={turnoutPercent(data.reached, data.registered)} progress={data.registered ? data.reached / data.registered : 0} onClick={onShowStations} />
+            <Kpi label="Remaining" value={num(data.remaining)} caption="still to reach" onClick={onShowStations} />
             <Kpi label="Not registered" value={num(data.not_registered)} caption="reached, not on the register" tone="amber" />
             <Kpi label="Gender mix" value={`${num(data.female)} · ${num(data.male)}`} caption="female · male" />
             <Kpi label="Top age group" value={data.top_age_group ?? "—"} />
@@ -53,23 +62,26 @@ export default function CoveragePanel({ group }: { group: { event_id?: string; d
               {data.push_here_next.map((r) => `${r.area} (${num(r.remaining)} to reach)`).join(" · ")}
             </div>
           )}
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>{levelLabel[data.level]}</th><th>Reached</th><th>Registered</th><th>Coverage</th><th>Status</th></tr></thead>
-              <tbody>
-                {(data.rows ?? []).map((r) => (
-                  <tr key={r.area} className={canDrill ? "clickable" : ""} onClick={() => canDrill && open(r)}>
-                    <td>{r.area}{canDrill && <small className="muted"> ›</small>}</td>
-                    <td>{num(r.reached)}</td>
-                    <td>{num(r.registered)}</td>
-                    <td>{pct(r.coverage)}</td>
-                    <td><Badge tone={statusTone[r.status]}>{statusLabel[r.status]}</Badge></td>
-                  </tr>
-                ))}
-                {(!data.rows || data.rows.length === 0) && <tr><td colSpan={5} className="muted">No registered voters found for this area.</td></tr>}
-              </tbody>
-            </table>
-          </div>
+          <details open={onShowStations ? undefined : true}>
+            <summary>Coverage by area</summary>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>{levelLabel[data.level]}</th><th>Reached</th><th>Registered</th><th>Coverage</th><th>Status</th></tr></thead>
+                <tbody>
+                  {(data.rows ?? []).map((r) => (
+                    <tr key={r.area} className={canDrill ? "clickable" : ""} onClick={() => canDrill && open(r)}>
+                      <td>{r.area}{canDrill && <small className="muted"> ›</small>}</td>
+                      <td>{num(r.reached)}</td>
+                      <td>{num(r.registered)}</td>
+                      <td>{turnoutPercent(r.reached, r.registered)}</td>
+                      <td><Badge tone={statusTone[r.status]}>{statusLabel[r.status]}</Badge></td>
+                    </tr>
+                  ))}
+                  {(!data.rows || data.rows.length === 0) && <tr><td colSpan={5} className="muted">No registered voters found for this area.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
       )}
     </Card>

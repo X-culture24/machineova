@@ -1,7 +1,7 @@
 import SearchInput, { matchesSearch } from "../components/SearchInput";
 import ParticipantTypeFilter from "../components/ParticipantFilter";
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api, type CoverageLevel, type ParticipantFilter } from "../api";
 import { isManager, useAuth } from "../auth";
 import { AssignModal } from "../components/AssignModal";
@@ -14,8 +14,15 @@ import CoveragePanel from "../components/Coverage";
 import EventStationCoverage from "../components/EventStationCoverage";
 import AttendanceExport from "../components/AttendanceExport";
 
+function showSection(id: string, smooth = true) {
+  const section = document.getElementById(id);
+  section?.focus({ preventScroll: true });
+  section?.scrollIntoView({ block: "start", behavior: smooth ? "smooth" : "instant" });
+}
+
 export default function EventDetail() {
   const { id = "" } = useParams();
+  const [params] = useSearchParams();
   const { me } = useAuth();
   const t = useTerms();
   const manager = isManager(me);
@@ -28,6 +35,12 @@ export default function EventDetail() {
   const [coverageVersion, refreshCoverage] = useState(0);
   const [modal, setModal] = useState<"assign" | "participants" | null>(null);
   const [actionErr, setActionErr] = useState<string | null>(null);
+
+  const loadedId = detail.data?.event.id;
+  const showStations = params.get("view") === "stations";
+  useEffect(() => {
+    if (showStations && loadedId === id) showSection("polling-stations", false);
+  }, [id, loadedId, showStations]);
 
   if (detail.error) return <ErrorNote error={detail.error} />;
   if (!detail.data) return <Loading />;
@@ -61,49 +74,68 @@ export default function EventDetail() {
             <Badge tone={e.list_only ? "blue" : "grey"}>{e.list_only ? "Selected participants only" : "General participants"}</Badge>
             {e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}
             {e.active && me?.role !== "viewer" && <Link className="btn" to={`/checkin?event=${e.id}`}>{t.checkInPeople}</Link>}
+            <button className="btn secondary" onClick={() => showSection("polling-stations")}>Polling-station turnout</button>
             <button className="btn secondary" onClick={reloadAll}>Refresh</button>
           </>
         }
       />
       <ErrorNote error={actionErr} />
       <div className="grid kpis">
-        <Kpi label={t.checkins} value={num(e.checkins)} caption="all visits, every day" tone="teal" />
-        <Kpi label="Unique" value={num(e.unique)} caption="different people" tone="teal" />
+        <Kpi label="Check-ins" value={num(e.checkins)} caption="View attendance records" tone="teal"
+          onClick={() => showSection("event-attendance")} />
+        <Kpi label="Unique members" value={num(e.unique)} caption="View attendance breakdown" tone="teal"
+          onClick={() => showSection("event-insights")} />
         <Kpi
           label="Out of region"
           value={num(e.out_of_region)}
           caption={e.checkins ? `${pct(e.out_of_region / e.checkins)} of check-ins` : "—"}
           tone="amber"
+          onClick={() => showSection("event-insights")}
         />
-        <Kpi label="Peak hour" value={ins?.peak_hour != null ? hourLabel(ins.peak_hour) : "—"} caption={ins ? `on ${ins.day}` : undefined} />
+        <Kpi label="Peak hour" value={ins?.peak_hour != null ? hourLabel(ins.peak_hour) : "—"} caption="View hourly arrivals"
+          onClick={() => showSection("hourly-arrivals")} />
+      </div>
+
+      <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }}
+        onShowStations={() => showSection("polling-stations")} />
+      <div id="polling-stations" className="insight-target" tabIndex={-1}>
+        <EventStationCoverage key={`stations-${id}-${coverageVersion}`} eventId={e.id} />
       </div>
 
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
-        <Card title="Check-ins by hour" extra={ins && <small className="muted">{ins.day}</small>}>
-          {ins ? (
-            <BarChart
-              data={ins.by_hour.map((h) => ({ label: hourLabel(h.hour), value: h.count }))}
-              highlight={ins.by_hour.findIndex((h) => h.hour === ins.peak_hour)}
-            />
-          ) : (
-            <Loading />
-          )}
-        </Card>
-        <Card title="Check-in mix">
-          {ins && ins.total > 0 ? (
+        <div id="hourly-arrivals" className="insight-target" tabIndex={-1}>
+          <Card title="Check-ins by hour" extra={ins && <small className="muted">{ins.day}</small>}>
+            {ins ? (
+              <BarChart
+                data={ins.by_hour.map((h) => ({ label: hourLabel(h.hour), value: h.count }))}
+                highlight={ins.by_hour.findIndex((h) => h.hour === ins.peak_hour)}
+              />
+            ) : insights.error ? <ErrorNote error={insights.error} /> : <Loading />}
+          </Card>
+        </div>
+        <div id="event-insights" className="insight-target" tabIndex={-1}>
+          <Card title="Attendance breakdown">
             <div className="stack">
-              <div className="row spread"><span>In-region rate</span><strong>{pct(ins.in_region_rate)}</strong></div>
-              <div className="row spread"><span>Female · Male</span><strong>{num(ins.female)} · {num(ins.male)}</strong></div>
-              <div className="split" aria-label="Gender mix">
-                <div style={{ width: `${(ins.female / ins.total) * 100}%` }} />
-                <div style={{ flex: 1 }} />
-              </div>
-              <small className="muted">Teal = female, amber = male</small>
+              <div className="row spread"><span>Unique members</span><strong>{num(e.unique)}</strong></div>
+              <div className="row spread"><span>Repeat check-ins</span><strong>{num(Math.max(0, e.checkins - e.unique))}</strong></div>
+              <div className="row spread"><span>In-region check-ins</span><strong>{num(e.checkins - e.out_of_region)}</strong></div>
+              <div className="row spread"><span>Out-of-region check-ins</span><strong>{num(e.out_of_region)}{e.checkins > 0 ? ` · ${pct(e.out_of_region / e.checkins)}` : ""}</strong></div>
             </div>
-          ) : (
-            <Empty>No check-ins on this day yet.</Empty>
-          )}
-        </Card>
+            {ins && ins.total > 0 ? (
+              <div className="stack">
+                <div className="row spread"><span>In-region rate</span><strong>{pct(ins.in_region_rate)}</strong></div>
+                <div className="row spread"><span>Female · Male</span><strong>{num(ins.female)} · {num(ins.male)}</strong></div>
+                <div className="split" aria-label="Gender mix">
+                  <div style={{ width: `${(ins.female / ins.total) * 100}%` }} />
+                  <div style={{ flex: 1 }} />
+                </div>
+                <small className="muted">Teal = female, amber = male</small>
+              </div>
+            ) : (
+              <Empty>No check-ins on this day yet.</Empty>
+            )}
+          </Card>
+        </div>
       </div>
 
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
@@ -158,42 +190,42 @@ export default function EventDetail() {
         </Card>
       </div>
 
-      <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }} />
-      <EventStationCoverage key={`stations-${id}-${coverageVersion}`} eventId={e.id} />
-      <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} query={query} participants={participants} />}>
-        <div className="toolbar">
-          <SearchInput label="Search name, ID or phone" value={query} onChange={setQuery} />
-          <ParticipantTypeFilter value={participants} onChange={setParticipants} />
-        </div>
-        <ErrorNote error={list.error} />
-        {list.loading ? (
-          <Loading />
-        ) : !list.data?.length ? (
-          <Empty>No matching check-ins.</Empty>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Name</th><th>ID number</th><th>Phone</th><th>Participant type</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
-              </thead>
-              <tbody>
-                {list.data.map((c) => (
-                  <tr key={c.id}>
-                    <td>{c.name}</td>
-                    <td className="id-masked">{maskId(c.national_id)}</td>
-                    <td>{c.phone ?? "—"}</td>
-                    <td>{c.selected_participant ? "Selected" : "General"}</td>
-                    <td>{area(c.constituency, c.ward)}</td>
-                    <td>{c.by}</td>
-                    <td>{time(c.at)}</td>
-                    <td><RegionBadge inRegion={c.in_region ?? true} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div id="event-attendance" className="insight-target" tabIndex={-1}>
+        <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} query={query} participants={participants} />}>
+          <div className="toolbar">
+            <SearchInput label="Search name, ID or phone" value={query} onChange={setQuery} />
+            <ParticipantTypeFilter value={participants} onChange={setParticipants} />
           </div>
-        )}
-      </Card>
+          <ErrorNote error={list.error} />
+          {list.loading ? (
+            <Loading />
+          ) : !list.data?.length ? (
+            <Empty>No matching check-ins.</Empty>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>ID number</th><th>Phone</th><th>Participant type</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
+                </thead>
+                <tbody>
+                  {list.data.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.name}</td>
+                      <td className="id-masked">{maskId(c.national_id)}</td>
+                      <td>{c.phone ?? "—"}</td>
+                      <td>{c.selected_participant ? "Selected" : "General"}</td>
+                      <td>{area(c.constituency, c.ward)}</td>
+                      <td>{c.by}</td>
+                      <td>{time(c.at)}</td>
+                      <td><RegionBadge inRegion={c.in_region ?? true} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      </div>
 
       {modal === "assign" && (
         <AssignModal

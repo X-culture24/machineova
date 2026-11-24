@@ -526,7 +526,7 @@ export type IssueCategory = "internet" | "device" | "location" | "account" | "ap
 export const issueCategoryLabel: Record<IssueCategory, string> = {
   internet: "Device internet connection",
   device: "Device malfunction",
-  location: "Chief location issue",
+  location: "Member location issue",
   account: "Sign-in / PIN / account",
   app: "App error",
   other: "Other",

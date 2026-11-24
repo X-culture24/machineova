@@ -395,7 +395,7 @@ func (s *Server) createCheckin(w http.ResponseWriter, r *http.Request, p *Princi
 		return
 	}
 	if phoneMissing(vocab, in.Phone) {
-		writeErrCode(w, http.StatusBadRequest, "phone_required", "Enter the chief's phone number")
+		writeErrCode(w, http.StatusBadRequest, "phone_required", "Enter the member's phone number")
 		return
 	}
 	if msg, err := s.resolvePerson(r.Context(), &in.personInput, false); err != nil {

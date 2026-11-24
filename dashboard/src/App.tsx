@@ -7,7 +7,7 @@ import Protect from "./components/Protect";
 import { initials } from "./format";
 import Login from "./pages/Login";
 import DashboardPage from "./pages/Dashboard";
-import TrainingReportPage from "./pages/TrainingReport";
+import EventReportPage from "./pages/EventReport";
 import EventsPage from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import CheckinDesk from "./pages/CheckinDesk";
@@ -71,7 +71,7 @@ export default function App() {
       <Route element={<Shell />}>
         {hasCheckin(me) && (
           <>
-            <Route index element={me.organization?.vocabulary === "sdics_chiefs" ? <TrainingReportPage /> : <DashboardPage />} />
+            <Route index element={me.organization?.vocabulary === "sdics_chiefs" ? <EventReportPage /> : <DashboardPage />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="events/:id" element={<EventDetail />} />
             <Route path="checkin" element={<CheckinDesk />} />

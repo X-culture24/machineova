@@ -29,7 +29,7 @@ export function Card({ title, extra, children, className = "" }: { title?: strin
   );
 }
 
-export function Kpi({ label, value, caption, tone, progress, icon }: {
+export function Kpi({ label, value, caption, tone, progress, icon, onClick, pressed }: {
   label: string;
   value: ReactNode;
   caption?: ReactNode;
@@ -37,10 +37,12 @@ export function Kpi({ label, value, caption, tone, progress, icon }: {
   progress?: number;
   /** Defaults to an icon chosen from the label. */
   icon?: IconName;
+  onClick?: () => void;
+  pressed?: boolean;
 }) {
   const name = icon ?? iconFor(label);
-  return (
-    <div className={`kpi kpi-${tone ?? "ink"}`}>
+  const className = `kpi kpi-${tone ?? "ink"}`;
+  const content = <>
       <Icon name={name} size={112} className="kpi-watermark" />
       <div className="kpi-top">
         <div className="kpi-label">{label}</div>
@@ -49,8 +51,10 @@ export function Kpi({ label, value, caption, tone, progress, icon }: {
       <div className="kpi-value">{value}</div>
       {caption && <div className="kpi-caption">{caption}</div>}
       {progress !== undefined && <ProgressBar value={progress} tone={tone === "amber" ? "amber" : "teal"} />}
-    </div>
-  );
+    </>;
+  return onClick
+    ? <button type="button" className={`${className} kpi-action`} onClick={onClick} aria-pressed={pressed}>{content}</button>
+    : <div className={className}>{content}</div>;
 }
 
 export function ProgressBar({ value, tone = "teal" }: { value: number; tone?: "teal" | "amber" }) {

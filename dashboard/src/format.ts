@@ -1,6 +1,9 @@
 const nf = new Intl.NumberFormat("en-KE");
 export const num = (n: number) => nf.format(n);
 export const pct = (f: number) => `${Math.round(f * 100)}%`;
+const turnoutFormat = new Intl.NumberFormat("en-KE", { style: "percent", maximumFractionDigits: 2 });
+export const turnoutPercent = (checkedIn: number, registered: number) =>
+  registered <= 0 ? "—" : checkedIn > 0 && checkedIn / registered < 0.0001 ? "<0.01%" : turnoutFormat.format(checkedIn / registered);
 export const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" });
 export const dateTime = (iso: string) =>

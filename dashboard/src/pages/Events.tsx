@@ -15,8 +15,12 @@ export default function EventsPage() {
   const { data, error, loading, reload } = useAsync(() => api.events(), []);
   const [query, setQuery] = useState("");
   const [admission, setAdmission] = useState("");
+  const [status, setStatus] = useState("all");
   const items = (data?.items ?? []).filter((e) =>
-    (!admission || e.list_only === (admission === "selected")) && matchesSearch(query, e.name, e.venue, e.county, e.constituency, e.ward),
+    (!admission || e.list_only === (admission === "selected"))
+    && (status === "all" || (status === "active" && e.active) || (status === "closed" && !e.active)
+      || (status === "attendance" && e.checkins > 0))
+    && matchesSearch(query, e.name, e.venue, e.county, e.constituency, e.ward),
   );
   const [creating, setCreating] = useState(false);
 
@@ -32,14 +36,18 @@ export default function EventsPage() {
       {data && (
         <>
           <div className="grid kpis">
-            <Kpi label="Total events" value={num(data.summary.total)} />
-            <Kpi label="Active now" value={num(data.summary.active)} tone="teal" />
-            <Kpi label="Closed" value={num(data.summary.closed)} />
-            <Kpi label={t.chiefs ? "Chiefs present" : "Total check-ins"} value={num(data.summary.checkins)} tone="teal" />
+            <Kpi label="Total events" value={num(data.summary.total)} onClick={() => setStatus("all")} pressed={status === "all"} />
+            <Kpi label="Active now" value={num(data.summary.active)} tone="teal" onClick={() => setStatus("active")} pressed={status === "active"} />
+            <Kpi label="Closed" value={num(data.summary.closed)} onClick={() => setStatus("closed")} pressed={status === "closed"} />
+            <Kpi label="Total check-ins" value={num(data.summary.checkins)} tone="teal" onClick={() => setStatus("attendance")} pressed={status === "attendance"} />
           </div>
           <Card>
             <div className="toolbar">
               <SearchInput label="Search events or areas" value={query} onChange={setQuery} />
+              <select className="input" aria-label="Event status" value={status} onChange={(e) => setStatus(e.target.value)}>
+                <option value="all">Any status</option><option value="active">Active</option>
+                <option value="closed">Closed</option><option value="attendance">With attendance</option>
+              </select>
               <select className="input" aria-label="Event admission" value={admission} onChange={(e) => setAdmission(e.target.value)}>
                 <option value="">All events</option>
                 <option value="selected">Selected participants only</option>
@@ -57,8 +65,8 @@ export default function EventsPage() {
                       <th>Area</th>
                       <th>Starts</th>
                       <th>Admission</th>
-                      <th className="num">{t.chiefs ? "Marked present" : "Check-ins"}</th>
-                      <th className="num">{t.chiefs ? "Chiefs" : "Unique"}</th>
+                      <th className="num">Check-ins</th>
+                      <th className="num">{t.chiefs ? "Unique members" : "Unique"}</th>
                       <th>Status</th>
                     </tr>
                   </thead>

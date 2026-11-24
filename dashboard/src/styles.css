@@ -107,6 +107,8 @@ small { font-size: 12px; }
   transition: transform .18s ease, box-shadow .18s ease;
 }
 .kpi:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgb(16 40 34 / 6%), 0 16px 30px -14px color-mix(in srgb, var(--kpi-c) 55%, transparent); }
+.kpi-action { cursor: pointer; width: 100%; text-align: left; color: inherit; font-family: inherit; }
+.kpi-action:focus-visible, .kpi-action[aria-pressed="true"] { outline: 2px solid var(--kpi-c); outline-offset: 2px; }
 .kpi-teal { --kpi-c: var(--teal); }
 .kpi-amber { --kpi-c: var(--amber); }
 .kpi-red { --kpi-c: var(--red); }
@@ -702,3 +704,5 @@ html.privacy-blur .sd-root > .sd-shell { filter: blur(14px); transition: filter 
 .issue-chief { font-weight: 600; font-size: 13px; }
 .issue-text { margin: 0; white-space: pre-wrap; }
 textarea { font: inherit; }
+
+.insight-target { scroll-margin-top: 160px; }

@@ -1,39 +1,64 @@
 import { useState } from "react";
 import { api } from "../api";
-import { num, pct } from "../format";
+import { num, turnoutPercent } from "../format";
 import { useAsync } from "../useAsync";
-import { Card, Empty, ErrorNote, Loading } from "./ui";
+import SearchInput, { matchesSearch } from "./SearchInput";
+import { Card, Empty, ErrorNote, Kpi, Loading } from "./ui";
 
-const pageSize = 50;
+const pageSize = 25;
+type StationView = "all" | "reached" | "zero";
 
 export default function EventStationCoverage({ eventId }: { eventId: string }) {
   const stations = useAsync(() => api.eventStationCoverage(eventId), [eventId]);
   const [query, setQuery] = useState("");
+  const [view, setView] = useState<StationView>("all");
   const [page, setPage] = useState(0);
-  const search = query.trim().toLowerCase();
-  const matches = stations.data?.filter((s) =>
-    [s.code, s.name, s.county, s.constituency, s.ward].some((part) => part.toLowerCase().includes(search)),
-  ) ?? [];
+  const all = stations.data ?? [];
+  const totals = all.reduce((acc, station) => {
+    acc.registered += station.registered;
+    acc.reached += station.reached;
+    if (station.reached > 0) acc.stationsReached++;
+    return acc;
+  }, { reached: 0, registered: 0, stationsReached: 0 });
+  const matches = all.filter((station) =>
+    (view === "all" || (view === "reached" ? station.reached > 0 : station.reached === 0))
+    && matchesSearch(query, station.code, station.name, station.county, station.constituency, station.ward),
+  );
   const offset = Math.min(page * pageSize, Math.max(0, Math.ceil(matches.length / pageSize) - 1) * pageSize);
+  const changeView = (next: StationView) => { setView(next); setPage(0); };
 
   return (
-    <Card title="Polling station coverage" extra={stations.data && <small>{num(stations.data.length)} stations</small>}>
+    <Card title="Polling-station turnout">
       <ErrorNote error={stations.error} />
       {stations.loading && <Loading />}
       {stations.data && <>
+        <p className="muted">Turnout is unique members checked in from each polling station divided by its registered voters, across the event’s selected vying area.</p>
+        <div className="grid kpis">
+          <Kpi label="Overall turnout" value={turnoutPercent(totals.reached, totals.registered)}
+            caption={`${num(totals.reached)} of ${num(totals.registered)} registered voters`} onClick={() => changeView("all")} pressed={view === "all"} />
+          <Kpi label="Stations with turnout" value={num(totals.stationsReached)} caption="View stations with check-ins"
+            tone="teal" onClick={() => changeView("reached")} pressed={view === "reached"} />
+          <Kpi label="Stations with zero check-ins" value={num(all.length - totals.stationsReached)}
+            caption="View stations with zero check-ins" onClick={() => changeView("zero")} pressed={view === "zero"} />
+        </div>
         <div className="toolbar">
-          <input className="input" aria-label="Search polling stations" placeholder="Search station or area…" value={query}
-            onChange={(e) => { setQuery(e.target.value); setPage(0); }} />
+          <SearchInput label="Search station or area" value={query} onChange={(q) => { setQuery(q); setPage(0); }} />
+          <select className="input" aria-label="Filter polling stations" value={view} onChange={(e) => changeView(e.target.value as StationView)}>
+            <option value="all">All stations ({num(all.length)})</option>
+            <option value="reached">With check-ins</option>
+            <option value="zero">With zero check-ins</option>
+          </select>
         </div>
         {matches.length === 0 ? <Empty>No polling stations match.</Empty> : <>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Station</th><th>County</th><th>Constituency</th><th>Ward</th><th>Reached</th><th>Registered</th><th>Coverage</th></tr></thead>
-              <tbody>{matches.slice(offset, offset + pageSize).map((s) =>
-                <tr key={s.code}>
-                  <td>{s.name} <small className="muted">{s.code}</small></td><td>{s.county}</td><td>{s.constituency}</td>
-                  <td>{s.ward}</td><td>{num(s.reached)}</td><td>{num(s.registered)}</td>
-                  <td>{s.registered ? pct(s.reached / s.registered) : "—"}</td>
+              <thead><tr><th>Polling station</th><th>County</th><th>Constituency</th><th>Ward</th><th className="num">Members checked in</th><th className="num">Registered voters</th><th className="num">Turnout</th></tr></thead>
+              <tbody>{matches.slice(offset, offset + pageSize).map((station) =>
+                <tr key={station.code}>
+                  <td>{station.name} <small className="muted">{station.code}</small></td>
+                  <td>{station.county}</td><td>{station.constituency}</td><td>{station.ward}</td>
+                  <td className="num">{num(station.reached)}</td><td className="num">{num(station.registered)}</td>
+                  <td className="num">{turnoutPercent(station.reached, station.registered)}</td>
                 </tr>,
               )}</tbody>
             </table>

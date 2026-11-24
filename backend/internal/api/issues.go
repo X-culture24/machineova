@@ -255,7 +255,7 @@ func (s *Server) issueChief(w http.ResponseWriter, r *http.Request, p *Principal
 		FROM checkins WHERE event_id = $1 AND org_id = $2 AND national_id = $3
 		ORDER BY checked_in_at DESC LIMIT 1`, eventID, p.OrgID, nid).Scan(&out.Name, &out.Phone, &out.Location)
 	if errors.Is(err, pgx.ErrNoRows) {
-		writeErr(w, http.StatusNotFound, "Not checked in at this training")
+		writeErr(w, http.StatusNotFound, "Not checked in at this event")
 		return
 	}
 	if err != nil {

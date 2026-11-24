@@ -1,7 +1,7 @@
 import { issueCategoryLabel, type Issue, type IssueCategory, type IssuesReport } from "../api";
 
 // The field training report as a printable page in its own window (the browser's "Save as PDF"):
-// a summary of every training, the problems by kind, and every problem recorded, grouped by
+// a summary of every event, the problems by kind, and every problem recorded, grouped by
 // training. The app itself can't be printed (voter-data protection), so the report opens apart.
 
 const esc = (v: unknown) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
@@ -12,7 +12,7 @@ const cats = Object.keys(issueCategoryLabel) as IssueCategory[];
 
 function issueRows(list: Issue[]) {
   if (list.length === 0) return `<p class="none">No problems recorded.</p>`;
-  return `<table class="issues"><thead><tr><th>When</th><th>Problem</th><th>Chief</th><th>ID no.</th><th>Phone</th><th>Location</th>
+  return `<table class="issues"><thead><tr><th>When</th><th>Problem</th><th>Member</th><th>ID no.</th><th>Phone</th><th>Location</th>
     <th>What happened</th><th>Action taken</th><th>Status</th><th>Recorded by</th></tr></thead><tbody>${list.map((i) => `
     <tr><td class="nw">${esc(when(i.reported_at))}</td><td>${esc(issueCategoryLabel[i.category])}</td><td>${esc(i.chief_name || "—")}</td>
     <td class="nw">${esc(i.national_id || "—")}</td><td class="nw">${esc(i.phone || "—")}</td><td>${esc(i.location || "—")}</td>
@@ -65,7 +65,7 @@ export async function openIssuesReport(report: Promise<IssuesReport>) {
   const logo = await logoData();
   const generated = new Date(r.generated_at).toLocaleString("en-GB", { dateStyle: "full", timeStyle: "short" });
 
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Field training report — ${esc(r.organization)}</title>
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Event issues report — ${esc(r.organization)}</title>
 <style>
   @page { size: A4 landscape; margin: 12mm; }
   * { box-sizing: border-box; }
@@ -99,13 +99,13 @@ export async function openIssuesReport(report: Promise<IssuesReport>) {
 </style></head><body>
 <div class="flag"><i></i><i></i><i></i></div>
 <div class="noprint"><button onclick="window.print()">Save as PDF / print</button></div>
-<header>${logo ? `<img src="${logo}" alt="">` : ""}<div><div class="k">REPUBLIC OF KENYA · SDICS</div><h1>Field training report</h1>
-<div class="sub">${esc(r.organization)} · problems recorded and a summary of every training · generated ${esc(generated)}</div></div></header>
+<header>${logo ? `<img src="${logo}" alt="">` : ""}<div><div class="k">REPUBLIC OF KENYA · SDICS</div><h1>Event issues report</h1>
+<div class="sub">${esc(r.organization)} · problems recorded and a summary of every event · generated ${esc(generated)}</div></div></header>
 
 <h2>Summary</h2>
 <div class="kpis">
-  <div class="kpi"><span>Trainings held</span><b>${held.length} of ${r.trainings.length}</b></div>
-  <div class="kpi"><span>Chiefs present</span><b>${present.toLocaleString()}</b></div>
+  <div class="kpi"><span>Events with check-ins</span><b>${held.length} of ${r.trainings.length}</b></div>
+  <div class="kpi"><span>Members checked in</span><b>${present.toLocaleString()}</b></div>
   <div class="kpi"><span>Phone numbers</span><b>${phones.toLocaleString()}</b></div>
   <div class="kpi"><span>Problems recorded</span><b>${total}</b></div>
   <div class="kpi ${r.open ? "warn" : ""}"><span>Still open</span><b>${r.open}</b></div>
@@ -117,8 +117,8 @@ export async function openIssuesReport(report: Promise<IssuesReport>) {
 ${cats.map((c) => `<tr><td>${esc(issueCategoryLabel[c])}</td><td class="n">${r.by_category[c] ?? 0}</td><td class="n">${total ? Math.round(((r.by_category[c] ?? 0) / total) * 100) : 0}%</td></tr>`).join("")}
 </tbody></table>
 
-<h2>Trainings</h2>
-<table><thead><tr><th>Training</th><th>County</th><th>Venue</th><th>Held on</th><th>Time</th><th class="n">Chiefs present</th><th class="n">Phones</th>
+<h2>Events</h2>
+<table><thead><tr><th>Event</th><th>County</th><th>Venue</th><th>Held on</th><th>Time</th><th class="n">Members checked in</th><th class="n">Phones</th>
 <th class="n">Out of region</th><th class="n">Problems</th><th class="n">Open</th><th>Main problems</th></tr></thead><tbody>
 ${r.trainings.map((t) => {
     const top = cats.filter((c) => t.by_category[c]).sort((a, b) => (t.by_category[b] ?? 0) - (t.by_category[a] ?? 0))
@@ -129,13 +129,13 @@ ${r.trainings.map((t) => {
   }).join("")}
 </tbody></table>
 
-<h2 class="newpage">Problems recorded, by training</h2>
+<h2 class="newpage">Problems recorded, by event</h2>
 ${r.trainings.filter((t) => byEvent.has(t.event_id)).map((t) => `<div class="training">
-  <h3>${esc(t.name)} <small>· ${esc(t.county)} · ${esc(day(t.held_on))} · ${t.present} chiefs present · ${t.issues} problem${t.issues === 1 ? "" : "s"}</small></h3>
-  ${issueRows(byEvent.get(t.event_id)!)}</div>`).join("") || `<p class="none">No problems recorded at any training.</p>`}
-${unlinked.length ? `<div class="training"><h3>Not linked to a training</h3>${issueRows(unlinked)}</div>` : ""}
+  <h3>${esc(t.name)} <small>· ${esc(t.county)} · ${esc(day(t.held_on))} · ${t.present} members checked in · ${t.issues} problem${t.issues === 1 ? "" : "s"}</small></h3>
+  ${issueRows(byEvent.get(t.event_id)!)}</div>`).join("") || `<p class="none">No problems recorded at any event.</p>`}
+${unlinked.length ? `<div class="training"><h3>Not linked to an event</h3>${issueRows(unlinked)}</div>` : ""}
 
-<footer>SDICS Checkin · ${esc(r.organization)} · confidential: contains chiefs' ID and phone numbers.</footer>
+<footer>SDICS Checkin · ${esc(r.organization)} · confidential: contains members’ ID and phone numbers.</footer>
 </body></html>`;
   w.document.open();
   w.document.write(html);
