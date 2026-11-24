@@ -706,3 +706,5 @@ html.privacy-blur .sd-root > .sd-shell { filter: blur(14px); transition: filter 
 textarea { font: inherit; }
 
 .insight-target { scroll-margin-top: 160px; }
+
+.event-detail-tabs { margin: 12px 0 16px; }

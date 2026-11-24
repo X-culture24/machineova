@@ -22,7 +22,8 @@ function showSection(id: string, smooth = true) {
 
 export default function EventDetail() {
   const { id = "" } = useParams();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
+  const section = params.get("section") === "stations" || params.get("view") === "stations" ? "stations" : "attendance";
   const { me } = useAuth();
   const t = useTerms();
   const manager = isManager(me);
@@ -96,11 +97,22 @@ export default function EventDetail() {
           onClick={() => showSection("hourly-arrivals")} />
       </div>
 
-      <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }}
-        onShowStations={() => showSection("polling-stations")} />
-      <div id="polling-stations" className="insight-target" tabIndex={-1}>
-        <EventStationCoverage key={`stations-${id}-${coverageVersion}`} eventId={e.id} />
+      <div className="tabs event-detail-tabs" role="tablist" aria-label="Event details">
+        <button type="button" role="tab" aria-selected={section === "attendance"} className={section === "attendance" ? "on" : ""}
+          onClick={() => setParams((current) => { current.delete("section"); current.delete("view"); return current; })}>Attendance &amp; insights</button>
+        <button type="button" role="tab" aria-selected={section === "stations"} className={section === "stations" ? "on" : ""}
+          onClick={() => setParams((current) => { current.set("section", "stations"); current.delete("view"); return current; })}>
+          Polling stations · {e.coverage_level === "national" ? "National" : area(e.county, e.constituency, e.ward)}
+        </button>
       </div>
+      {section === "stations" ? (
+        <div id="polling-stations" className="insight-target stack" tabIndex={-1}>
+          <EventStationCoverage key={`stations-${id}-${coverageVersion}`} eventId={e.id} />
+          <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }} />
+        </div>
+      ) : <>
+      <CoveragePanel key={`coverage-${id}-${coverageVersion}`} group={{ event_id: e.id }}
+        onShowStations={() => setParams((current) => { current.set("section", "stations"); return current; })} />
 
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
         <div id="hourly-arrivals" className="insight-target" tabIndex={-1}>
@@ -226,6 +238,7 @@ export default function EventDetail() {
           )}
         </Card>
       </div>
+      </>}
 
       {modal === "assign" && (
         <AssignModal
