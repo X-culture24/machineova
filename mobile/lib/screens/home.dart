@@ -194,8 +194,8 @@ class _QuickActions extends StatelessWidget {
             ),
           ),
         );
-    // Field issues: any training's problems, with no signal too (the outbox sends them later).
-    final issues = tile('Record a problem', 'Device, internet, chief location…', Icons.report_problem_outlined,
+    // Problems at any event, with no signal too (the outbox sends them later).
+    final issues = tile('Problems reported', 'Event, check-in, device, app…', Icons.report_problem_outlined,
         AppColors.red, AppColors.redSoft, true,
         onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const IssuesScreen())));
     if (terms.chiefs) {

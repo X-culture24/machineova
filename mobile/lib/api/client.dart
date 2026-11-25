@@ -228,9 +228,20 @@ class ApiClient {
     return [for (final e in r['items'] as List) EventItem.fromJson(e)];
   }
 
-  // ---- field issues ----
-  Future<List<Issue>> issues({String? eventId}) async {
-    final r = await get('/api/issues', query: {'event_id': eventId});
+  /// Turnout against the registered voters of the event's vying area, optionally inside one area of it.
+  Future<Coverage> coverage(String eventId, {String? constituency, String? ward}) async => Coverage.fromJson(await get(
+      '/api/insights/coverage',
+      query: {'event_id': eventId, 'constituency': constituency, 'ward': ward}));
+
+  /// Turnout per polling station. Not kept for offline use: a national event has some 30,000 of them.
+  Future<List<StationCoverage>> eventStations(String eventId) async {
+    final r = await _req('GET', '/api/events/$eventId/station-coverage');
+    return [for (final s in r as List) StationCoverage.fromJson(s)];
+  }
+
+  // ---- problems reported ----
+  Future<List<Issue>> issues({String? eventId, String? q}) async {
+    final r = await get('/api/issues', query: {'event_id': eventId, 'q': q});
     return [for (final i in r['items'] as List) Issue.fromJson(i)];
   }
 
@@ -238,7 +249,7 @@ class ApiClient {
   Future<SendResult> reportIssue(Map<String, dynamic> body, {required String label}) =>
       send('POST', '/api/issues', body, label: label, scope: 'issues');
 
-  /// The chief's details from their check-in at that training; null when not checked in there.
+  /// The member's details from their check-in at that event; null when not checked in there.
   Future<Map<String, dynamic>?> issueChief(String eventId, String nationalId) async {
     try {
       return Map<String, dynamic>.from(
@@ -256,8 +267,8 @@ class ApiClient {
   Future<SendResult> checkin(String eventId, Map<String, String?> person, {required String label}) =>
       send('POST', '/api/checkins', {'event_id': eventId, ..._clean(person)}, label: label, scope: 'checkin:$eventId');
 
-  Future<List<PersonRecord>> checkins({String? eventId, String? q}) async {
-    final r = await get('/api/checkins', query: {'event_id': eventId, 'q': q});
+  Future<List<PersonRecord>> checkins({String? eventId, String? q, String? participants}) async {
+    final r = await get('/api/checkins', query: {'event_id': eventId, 'q': q, 'participants': participants});
     return [for (final p in r as List) PersonRecord.fromJson(p)];
   }
 

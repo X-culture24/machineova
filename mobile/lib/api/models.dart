@@ -46,6 +46,13 @@ class EventItem {
   final bool active, regionRestricted, listOnly;
   final int checkins, unique, outOfRegion;
 
+  /// Vying level whose registered voters the turnout is measured against (null: the event's own area).
+  final String? coverageLevel;
+
+  /// The venue's polling station, when one was chosen.
+  final String? pollingStation;
+  final DateTime? startsAt;
+
   EventItem.fromJson(Map<String, dynamic> j)
       : id = j['id'],
         name = j['name'],
@@ -58,7 +65,34 @@ class EventItem {
         listOnly = j['list_only'] ?? false,
         checkins = _i(j['checkins']),
         unique = _i(j['unique']),
-        outOfRegion = _i(j['out_of_region']);
+        outOfRegion = _i(j['out_of_region']),
+        coverageLevel = _s(j['coverage_level']),
+        pollingStation = _s(j['polling_station_code']),
+        startsAt = j['starts_at'] == null ? null : DateTime.parse(j['starts_at']).toLocal();
+
+  /// Who may check in, in the dashboard's words.
+  String get admission => listOnly ? 'Selected participants only' : 'General participants';
+
+  /// The area whose registered voters count towards this event's turnout.
+  String get vyingArea {
+    switch (coverageLevel) {
+      case 'national':
+        return 'National';
+      case 'county':
+        return county ?? '';
+      case 'constituency':
+        return constituency ?? '';
+      case 'ward':
+        return ward ?? '';
+    }
+    return ward ?? constituency ?? county ?? 'National';
+  }
+
+  bool matches(String query) {
+    final q = query.trim().toLowerCase();
+    return q.isEmpty ||
+        [name, venue, county, constituency, ward].any((p) => p != null && p.toLowerCase().contains(q));
+  }
 
   String get area => [ward ?? constituency ?? county, venue].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
 }
@@ -198,6 +232,9 @@ class PersonRecord {
   final String id, nationalId, name, county, constituency, ward, by, groupName;
   final String? phone;
   final bool? inRegion;
+
+  /// On the event's participant list (check-ins only).
+  final bool? selectedParticipant;
   final DateTime at;
 
   PersonRecord.fromJson(Map<String, dynamic> j)
@@ -211,6 +248,7 @@ class PersonRecord {
         by = j['by'],
         groupName = j['group_name'],
         inRegion = j['in_region'] as bool?,
+        selectedParticipant = j['selected_participant'] as bool?,
         at = DateTime.parse(j['at']).toLocal();
 }
 
@@ -264,6 +302,78 @@ class CheckinInsights {
         byHour = [for (final h in j['by_hour'] as List) MapEntry(_i(h['hour']), _i(h['count']))];
 }
 
+/// Registered voters reached in one area (county, constituency, ward or polling centre).
+class CoverageRow {
+  final String area, status;
+  final int registered, reached, remaining;
+  CoverageRow.fromJson(Map<String, dynamic> j)
+      : area = j['area'] ?? '',
+        status = j['status'] ?? 'not_started',
+        registered = _i(j['registered']),
+        reached = _i(j['reached']),
+        remaining = _i(j['remaining']);
+
+  static const _labels = {
+    'strong': 'Strong',
+    'moderate': 'Moderate',
+    'low': 'Low',
+    'critical': 'Critical',
+    'not_started': 'Not started',
+  };
+  String get statusLabel => _labels[status] ?? status;
+}
+
+/// An event's turnout: people checked in against the registered voters of its vying area.
+class Coverage {
+  final String level, label;
+  final int reached, registered, remaining, notRegistered, female, male;
+  final String? topAgeGroup;
+  final List<CoverageRow> rows, pushHereNext;
+
+  Coverage.fromJson(Map<String, dynamic> j)
+      : level = j['level'] ?? '',
+        label = j['label'] ?? '',
+        reached = _i(j['reached']),
+        registered = _i(j['registered']),
+        remaining = _i(j['remaining']),
+        notRegistered = _i(j['not_registered']),
+        female = _i(j['female']),
+        male = _i(j['male']),
+        topAgeGroup = _s(j['top_age_group']),
+        rows = [for (final r in (j['rows'] as List?) ?? const []) CoverageRow.fromJson(r)],
+        pushHereNext = [for (final r in (j['push_here_next'] as List?) ?? const []) CoverageRow.fromJson(r)];
+
+  /// Constituencies open into wards, wards into polling centres (as on the dashboard).
+  bool get canDrill => level == 'constituency' || level == 'ward';
+
+  String get areaLabel =>
+      const {
+        'county': 'County',
+        'constituency': 'Constituency',
+        'ward': 'Ward',
+        'polling_center': 'Polling centre',
+      }[level] ??
+      'Area';
+}
+
+class StationCoverage {
+  final String code, name, county, constituency, ward;
+  final int registered, reached;
+  StationCoverage.fromJson(Map<String, dynamic> j)
+      : code = j['code'] ?? '',
+        name = j['name'] ?? '',
+        county = j['county'] ?? '',
+        constituency = j['constituency'] ?? '',
+        ward = j['ward'] ?? '',
+        registered = _i(j['registered']),
+        reached = _i(j['reached']);
+
+  bool matches(String query) {
+    final q = query.trim().toLowerCase();
+    return q.isEmpty || [code, name, county, constituency, ward].any((p) => p.toLowerCase().contains(q));
+  }
+}
+
 class MobilizationInsights {
   final Drive drive;
   final int today;
@@ -278,13 +388,13 @@ class MobilizationInsights {
 }
 
 
-// ---- Field issues (problems met at the trainings) ----
+// ---- Problems reported (events, members' check-ins, the dashboard or app) ----
 const issueCategories = <String, String>{
-  'internet': 'Device internet connection',
-  'device': 'Device malfunction',
-  'location': 'Chief location issue',
+  'internet': 'Connectivity',
+  'device': 'Device or equipment',
+  'location': 'Venue, location or coverage',
   'account': 'Sign-in / PIN / account',
-  'app': 'App error',
+  'app': 'Check-in, dashboard or app',
   'other': 'Other',
 };
 

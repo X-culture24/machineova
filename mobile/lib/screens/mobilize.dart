@@ -246,14 +246,14 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
             IdentityInputs(_f, required: !offline),
             const SizedBox(height: 10),
           ],
-          // Onboarding chiefs is how their phone numbers are collected: required there.
+          // Onboarding members is how their phone numbers are collected: required there.
           TextFormField(
             controller: _f.phone,
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-                labelText: terms.chiefs ? "Chief's phone number" : 'Phone', hintText: '07… or +254…'),
+                labelText: terms.chiefs ? 'Member’s phone number' : 'Phone', hintText: '07…, 01… or +254…'),
             validator: terms.chiefs
-                ? (s) => (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? "Enter the chief's phone number" : null
+                ? (s) => (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? 'Enter the member’s phone number' : null
                 : null,
           ),
           const SizedBox(height: 10),

@@ -13,7 +13,7 @@ class PeopleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Chief training: one list, the chiefs marked present (with their phone numbers).
+    // SDICS: one list, the members checked in (with their phone numbers).
     if (terms.chiefs) {
       return Scaffold(
         appBar: AppBar(title: Text(terms.checkins, style: const TextStyle(fontWeight: FontWeight.w800))),
@@ -48,6 +48,7 @@ class _PeopleList extends StatefulWidget {
 class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientMixin {
   List<_Group> _groups = [];
   String? _groupId;
+  String? _participants; // null (all) | selected | general
   final _search = TextEditingController();
   Timer? _debounce;
   List<PersonRecord>? _rows;
@@ -81,20 +82,23 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
     }
   }
 
+  int _request = 0; // a slow answer to an older search or filter is dropped
+
   Future<void> _load() async {
+    final request = ++_request;
     try {
       final q = _search.text.trim();
       final rows = widget.checkins
-          ? await api.checkins(eventId: _groupId, q: q)
+          ? await api.checkins(eventId: _groupId, q: q, participants: _participants)
           : await api.mobilizations(driveId: _groupId, q: q);
-      if (mounted) {
+      if (mounted && request == _request) {
         setState(() {
           _rows = rows;
           _error = null;
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _error = errorText(e));
+      if (mounted && request == _request) setState(() => _error = errorText(e));
     }
   }
 
@@ -128,14 +132,40 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: TextField(
           controller: _search,
-          decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search), hintText: 'Search name or ID number', isDense: true),
+          decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              hintText: widget.checkins ? 'Search name, ID or phone' : 'Search name or ID number',
+              isDense: true),
           onChanged: (_) {
             _debounce?.cancel();
             _debounce = Timer(const Duration(milliseconds: 350), _load);
           },
         ),
       ),
+      if (widget.checkins)
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+          child: Row(children: [
+            for (final (value, label) in const [
+              (null, 'All participants'),
+              ('selected', 'Selected'),
+              ('general', 'General'),
+            ]) ...[
+              ChoiceChip(
+                key: Key('participants-${value ?? 'all'}'),
+                label: Text(label),
+                selected: _participants == value,
+                selectedColor: AppColors.tealSoft,
+                onSelected: (_) {
+                  setState(() => _participants = value);
+                  _load();
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
+          ]),
+        ),
       if (_rows != null)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -166,8 +196,9 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
                               leading: Avatar(p.name, color: color),
                               title: Text(p.name.isEmpty ? 'Name not on record' : p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                               subtitle: Text(
-                                  terms.chiefs
+                                  widget.checkins
                                       ? '${p.phone ?? 'No phone'} · ${p.ward}\nID ${maskId(p.nationalId)}'
+                                          '${p.selectedParticipant == null ? '' : p.selectedParticipant! ? ' · Selected' : ' · General'}'
                                       : 'ID ${maskId(p.nationalId)} · ${p.ward}\n${p.groupName}',
                                   maxLines: 2),
                               isThreeLine: true,

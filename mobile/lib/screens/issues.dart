@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../api/client.dart';
@@ -7,10 +9,9 @@ import '../session.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
-// Field issues: the team records each problem met at a training as it happens (no internet on
-// the device, a device that fails, a chief's location, sign-in, the app, …) with the chief
-// concerned. Recorded with no signal too: the outbox sends it later. The dashboard compiles them
-// into the training report (PDF).
+// Problems reported: the team records each problem as it happens (an event, a member's check-in,
+// the device, sign-in, the app, …) with the member concerned, if any. Recorded with no signal too: the outbox sends it later. The dashboard compiles them
+// into the event issues report (PDF).
 
 class IssuesScreen extends StatefulWidget {
   const IssuesScreen({super.key});
@@ -20,12 +21,21 @@ class IssuesScreen extends StatefulWidget {
 
 class _IssuesScreenState extends State<IssuesScreen> {
   late Future<List<Issue>> _list = api.issues();
+  final _search = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _search.dispose();
+    super.dispose();
+  }
 
   Future<void> _record() async {
     final saved = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const IssueForm()));
     if (saved == true && mounted) {
       setState(() {
-        _list = api.issues();
+        _list = api.issues(q: _search.text.trim());
       });
     }
   }
@@ -34,7 +44,7 @@ class _IssuesScreenState extends State<IssuesScreen> {
   Widget build(BuildContext context) {
     final canWrite = session.me?.canOperate ?? false;
     return Scaffold(
-      appBar: AppBar(title: const Text('Field issues')),
+      appBar: AppBar(title: const Text('Problems reported')),
       floatingActionButton: canWrite
           ? FloatingActionButton.extended(
               key: const Key('record-issue'),
@@ -43,14 +53,38 @@ class _IssuesScreenState extends State<IssuesScreen> {
               foregroundColor: Colors.white,
               shape: const StadiumBorder(),
               icon: const Icon(Icons.report_problem_outlined),
-              label: const Text('Record a problem'),
+              label: const Text('Report a problem'),
             )
           : null,
-      body: RefreshIndicator(
+      body: Column(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: TextField(
+            key: const Key('issue-search'),
+            controller: _search,
+            decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search), hintText: 'Search problems or members', isDense: true),
+            onChanged: (_) {
+              _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 350), () {
+                if (!mounted) return;
+                setState(() {
+                  _list = api.issues(q: _search.text.trim());
+                });
+              });
+            },
+          ),
+        ),
+        Expanded(child: _results()),
+      ]),
+    );
+  }
+
+  Widget _results() => RefreshIndicator(
         onRefresh: () async {
           setState(() {
-      _list = api.issues();
-    });
+            _list = api.issues(q: _search.text.trim());
+          });
           await _list.catchError((_) => <Issue>[]);
         },
         child: FutureBuilder<List<Issue>>(
@@ -65,7 +99,7 @@ class _IssuesScreenState extends State<IssuesScreen> {
             final items = snap.data!;
             final waiting = outbox.forScope('issues').length;
             return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 96), children: [
-              const Text('Problems met during the trainings, with the chief concerned. They go into the training report.',
+              const Text('Report a problem with an event, a member’s check-in, or the app.',
                   style: TextStyle(color: AppColors.muted)),
               const SizedBox(height: 12),
               if (waiting > 0) ...[
@@ -73,14 +107,13 @@ class _IssuesScreenState extends State<IssuesScreen> {
                     fg: AppColors.amber, bg: AppColors.amberSoft, icon: Icons.cloud_upload_outlined),
                 const SizedBox(height: 12),
               ],
-              if (items.isEmpty) const EmptyNote('No problems recorded yet.'),
+              if (items.isEmpty)
+                EmptyNote(_search.text.trim().isEmpty ? 'No problems reported yet.' : 'No problems match.'),
               for (final i in items) _IssueCard(i),
             ]);
           },
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _IssueCard extends StatelessWidget {
@@ -89,7 +122,7 @@ class _IssueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chief = [i.chiefName, if (i.nationalId.isNotEmpty) 'ID ${i.nationalId}', i.phone, i.location]
+    final member = [i.chiefName, if (i.nationalId.isNotEmpty) 'ID ${maskId(i.nationalId)}', i.phone, i.location]
         .where((s) => s.isNotEmpty)
         .join(' · ');
     return Card(
@@ -103,11 +136,11 @@ class _IssueCard extends StatelessWidget {
                 fg: i.open ? AppColors.amber : AppColors.green, bg: i.open ? AppColors.amberSoft : AppColors.greenSoft),
           ]),
           const SizedBox(height: 2),
-          Text('${i.eventName ?? 'Not at a training'} · ${fmtDateTime(i.reportedAt)} · ${i.reportedBy}',
+          Text('${i.eventName ?? 'Not linked to an event'} · ${fmtDateTime(i.reportedAt)} · ${i.reportedBy}',
               style: const TextStyle(color: AppColors.muted, fontSize: 12)),
-          if (chief.isNotEmpty) ...[
+          if (member.isNotEmpty) ...[
             const SizedBox(height: 6),
-            Text(chief, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(member, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
           const SizedBox(height: 6),
           Text(i.description),
@@ -157,7 +190,7 @@ class _IssueFormState extends State<IssueForm> {
     super.dispose();
   }
 
-  Future<void> _findChief() async {
+  Future<void> _findMember() async {
     final id = _id.text.trim();
     if (_eventId == null || id.isEmpty) return;
     try {
@@ -165,7 +198,7 @@ class _IssueFormState extends State<IssueForm> {
       if (!mounted) return;
       setState(() {
         if (c == null) {
-          _lookup = 'Not checked in at this training: type their details.';
+          _lookup = 'Not checked in at this event: type their details.';
           return;
         }
         if (_name.text.isEmpty) _name.text = '${c['name'] ?? ''}';
@@ -216,16 +249,16 @@ class _IssueFormState extends State<IssueForm> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Record a problem')),
+        appBar: AppBar(title: const Text('Report a problem')),
         body: ListView(padding: const EdgeInsets.all(16), children: [
           DropdownButtonFormField<String?>(
-            // Rebuilt when the trainings arrive, so the open one shows as chosen.
-            key: ValueKey('issue-training-${_events.length}'),
+            // Rebuilt when the events arrive, so the open one shows as chosen.
+            key: ValueKey('issue-event-${_events.length}'),
             initialValue: _eventId,
             isExpanded: true,
-            decoration: _dec('Training'),
+            decoration: _dec('Event'),
             items: [
-              const DropdownMenuItem<String?>(value: null, child: Text('Not at a training')),
+              const DropdownMenuItem<String?>(value: null, child: Text('Not linked to an event')),
               for (final e in _events)
                 DropdownMenuItem<String?>(value: e.id, child: Text('${e.name}${e.active ? ' (open)' : ''}', overflow: TextOverflow.ellipsis)),
             ],
@@ -254,9 +287,9 @@ class _IssueFormState extends State<IssueForm> {
                 key: const Key('issue-id'),
                 controller: _id,
                 keyboardType: TextInputType.number,
-                decoration: _dec("Chief's ID number",
+                decoration: _dec('Member’s ID (optional)',
                     helper: _lookup ?? (_eventId != null ? 'Find fills the rest if they checked in here.' : null)),
-                onSubmitted: (_) => _findChief(),
+                onSubmitted: (_) => _findMember(),
               ),
             ),
             const SizedBox(width: 8),
@@ -265,16 +298,16 @@ class _IssueFormState extends State<IssueForm> {
               // The theme's buttons are full width; this one sits beside the ID field.
               child: SizedBox(
                 width: 84,
-                child: OutlinedButton(onPressed: _eventId == null ? null : _findChief, child: const Text('Find')),
+                child: OutlinedButton(onPressed: _eventId == null ? null : _findMember, child: const Text('Find')),
               ),
             ),
           ]),
           const SizedBox(height: 12),
-          TextField(key: const Key('issue-name'), controller: _name, decoration: _dec("Chief's name"), textCapitalization: TextCapitalization.words),
+          TextField(key: const Key('issue-name'), controller: _name, decoration: _dec('Member’s name (optional)'), textCapitalization: TextCapitalization.words),
           const SizedBox(height: 12),
-          TextField(key: const Key('issue-phone'), controller: _phone, keyboardType: TextInputType.phone, decoration: _dec('Phone number')),
+          TextField(key: const Key('issue-phone'), controller: _phone, keyboardType: TextInputType.phone, decoration: _dec('Phone number (optional)')),
           const SizedBox(height: 12),
-          TextField(key: const Key('issue-location'), controller: _location, decoration: _dec('Location', hint: 'e.g. Kapropita, Kabarnet')),
+          TextField(key: const Key('issue-location'), controller: _location, decoration: _dec('Location (optional)', hint: 'e.g. Kapropita, Kabarnet')),
           const SizedBox(height: 12),
           TextField(
             key: const Key('issue-what'),
@@ -285,7 +318,7 @@ class _IssueFormState extends State<IssueForm> {
             minLines: 3,
             maxLines: 8,
             textCapitalization: TextCapitalization.sentences,
-            decoration: _dec('What happened', hint: 'Describe the problem as it is: what the chief saw, what was tried…'),
+            decoration: _dec('What happened', hint: 'Describe the problem as it is: what happened, what was tried, error messages…'),
           ),
           const SizedBox(height: 12),
           TextField(

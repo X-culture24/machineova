@@ -11,7 +11,7 @@ import '../widgets/common.dart';
 import 'voter_form.dart';
 
 /// Teal flow: pick event → look up ID → confirm → check in → next voter.
-/// Chief training: pick the training → find the chief in the IEBC register → phone → mark present.
+/// SDICS: pick the event → find the member in the IEBC register → phone (required) → check in.
 class CheckinFlow extends StatefulWidget {
   const CheckinFlow({super.key});
   @override
@@ -67,7 +67,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
   }
 
   Future<void> _pickEvent() async {
-    final picked = await pickFrom<EventItem>(context, terms.chooseEvent, _events!, (e) => e.name, (e) => e.area);
+    final picked = await pickEvent(context, terms.chooseEvent, _events!);
     if (picked != null) {
       _reset();
       setState(() => _event = picked);
@@ -135,7 +135,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
   }
 
   static String? _phoneRequired(String? s) =>
-      (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? "Enter the chief's phone number" : null;
+      (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? 'Enter the member’s phone number' : null;
 
   @override
   Widget build(BuildContext context) {
@@ -167,6 +167,14 @@ class _CheckinFlowState extends State<CheckinFlow> {
         onTap: _events!.length > 1 ? _pickEvent : null,
       ),
       if (_event != null) ...[
+        const SizedBox(height: 8),
+        Wrap(spacing: 6, runSpacing: 6, children: [
+          Pill(_event!.admission.toUpperCase(),
+              fg: _event!.listOnly ? AppColors.purpleDark : AppColors.muted,
+              bg: _event!.listOnly ? AppColors.purpleSoft : AppColors.border),
+          if (_event!.regionRestricted)
+            Pill(['REGION-RESTRICTED', _event!.ward ?? _event!.constituency ?? _event!.county ?? ''].where((p) => p.isNotEmpty).join(' · ').toUpperCase(), fg: AppColors.amber, bg: AppColors.amberSoft),
+        ]),
         const SizedBox(height: 12),
         IdEntry(
           controller: _id,
@@ -193,7 +201,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
     if (l.isOffline) return _offlineForm();
     switch (l.status) {
       case 'not_on_list':
-        return const Notice('Not on the participant list. This event is list-only and this ID isn\'t approved.',
+        return const Notice('Not on the participant list. This event is for selected participants only and this ID isn\'t on its list.',
             fg: AppColors.red, bg: AppColors.redSoft, icon: Icons.block);
       case 'already_checked_in':
         final p = l.previous;
@@ -206,7 +214,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
     }
     final v = l.voter;
     return SectionCard(
-      title: terms.chiefs ? 'Confirm chief present' : 'Confirm & check in',
+      title: 'Confirm & check in',
       child: Form(
         key: _form,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -227,12 +235,12 @@ class _CheckinFlowState extends State<CheckinFlow> {
             IdentityInputs(_f, required: false),
           ],
           const SizedBox(height: 12),
-          // Chief training collects every chief's phone number here: required.
+          // SDICS collects every member's phone number here: required.
           TextFormField(
             key: const Key('phone-input'),
             controller: _f.phone,
             keyboardType: TextInputType.phone,
-            decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07… or +254…'),
+            decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07…, 01… or +254…'),
             validator: terms.chiefs ? _phoneRequired : null,
           ),
           // Known person outside the event area: show where they're from, from the records.
@@ -247,7 +255,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
 
   /// Offline entry: ID (+ whatever details are known); the server completes it from the register on sync.
   Widget _offlineForm() => SectionCard(
-        title: terms.chiefs ? 'Save offline' : 'Save check-in offline',
+        title: 'Save check-in offline',
         child: Form(
           key: _form,
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -264,7 +272,7 @@ class _CheckinFlowState extends State<CheckinFlow> {
             TextFormField(
               controller: _f.phone,
               keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07… or +254…'),
+              decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07…, 01… or +254…'),
               validator: terms.chiefs ? _phoneRequired : null,
             ),
             SwitchListTile(

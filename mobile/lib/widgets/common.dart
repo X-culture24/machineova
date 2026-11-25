@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../api/models.dart';
 import '../theme.dart';
 
 final _num = NumberFormat.decimalPattern('en_US');
 String fmtNum(num n) => _num.format(n);
 String fmtPct(double f) => '${(f * 100).round()}%';
+/// Share of registered voters, as the dashboard shows it: two decimals, so a small turnout isn't "0%".
+String fmtTurnout(int reached, int registered) {
+  if (registered <= 0) return '—';
+  final f = reached / registered;
+  if (reached > 0 && f < .0001) return '<0.01%';
+  return '${NumberFormat('0.##').format(f * 100)}%';
+}
+
 String fmtTime(DateTime t) => DateFormat.jm().format(t);
 String fmtDateTime(DateTime t) => DateFormat('d MMM, h:mm a').format(t);
 String hourLabel(int h) => '${h % 12 == 0 ? 12 : h % 12}${h < 12 ? 'am' : 'pm'}';
@@ -328,7 +337,59 @@ class GroupBanner extends StatelessWidget {
       );
 }
 
-/// Bottom-sheet picker for events or drives.
+/// Bottom-sheet event picker, searchable when there are more than a few.
+Future<EventItem?> pickEvent(BuildContext context, String title, List<EventItem> events) {
+  var query = '';
+  return showModalBottomSheet<EventItem>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (ctx) => StatefulBuilder(builder: (ctx, setState) {
+      final found = events.where((e) => e.matches(query)).toList();
+      return SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * .7),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  child: Text(title, style: Theme.of(ctx).textTheme.titleMedium)),
+              if (events.length > 5)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    key: const Key('event-search'),
+                    decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search), hintText: 'Search events or areas', isDense: true),
+                    onChanged: (v) => setState(() => query = v),
+                  ),
+                ),
+              if (found.isEmpty) const EmptyNote('No events match.'),
+              Flexible(
+                child: ListView(shrinkWrap: true, children: [
+                  for (final e in found)
+                    ListTile(
+                      title: Text(e.name),
+                      subtitle: Text([
+                        if (e.area.isNotEmpty) e.area,
+                        e.admission,
+                        if (!e.active) 'Closed',
+                      ].join(' · ')),
+                      trailing: Text('${fmtNum(e.checkins)} in', style: const TextStyle(color: AppColors.muted)),
+                      onTap: () => Navigator.pop(ctx, e),
+                    ),
+                ]),
+              ),
+            ]),
+          ),
+        ),
+      );
+    }),
+  );
+}
+
+/// Bottom-sheet picker for drives.
 Future<T?> pickFrom<T>(
     BuildContext context, String title, List<T> items, String Function(T) label, String Function(T) sub) {
   return showModalBottomSheet<T>(

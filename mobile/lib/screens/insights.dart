@@ -5,6 +5,7 @@ import '../api/models.dart';
 import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import 'turnout.dart';
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({super.key});
@@ -40,6 +41,7 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
   List<EventItem>? _events;
   EventItem? _event;
   CheckinInsights? _data;
+  int _version = 0; // a refresh reloads the turnout card too
   String? _error;
 
   @override
@@ -53,12 +55,17 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
 
   Future<void> _load() async {
     try {
-      _events ??= await api.events();
-      _event ??= _events!.isEmpty ? null : _events!.first;
-      final d = _event == null ? null : await api.checkinInsights(_event!.id);
-      if (mounted) {
+      // Fetched again on refresh: the totals on the tiles come from the event itself.
+      final wanted = _event?.id;
+      final events = await api.events();
+      final event = events.where((e) => e.id == wanted).firstOrNull ?? events.firstOrNull;
+      final d = event == null ? null : await api.checkinInsights(event.id);
+      if (mounted && _event?.id == wanted) {
         setState(() {
+          _events = events;
+          _event = event;
           _data = d;
+          _version++;
           _error = null;
         });
       }
@@ -80,11 +87,11 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
         GroupBanner(
           kicker: '${terms.eventLabel.toUpperCase()} · TAP TO SWITCH',
           title: _event!.name,
-          subtitle: d == null ? '' : 'Showing ${d.day}',
+          subtitle: '${_event!.admission} · ${_event!.active ? 'Active' : 'Closed'}',
           color: AppColors.teal,
           soft: AppColors.tealSoft,
           onTap: () async {
-            final e = await pickFrom<EventItem>(context, 'Choose event', _events!, (e) => e.name, (e) => e.area);
+            final e = await pickEvent(context, 'Choose event', _events!);
             if (e != null) {
               setState(() {
                 _event = e;
@@ -99,15 +106,24 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
           const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()))
         else ...[
           KpiGrid([
-            KpiTile(label: terms.chiefs ? 'Times marked present' : 'Total check-ins', value: fmtNum(d.total)),
-            KpiTile(label: terms.uniquePeople, value: fmtNum(d.unique)),
+            KpiTile(label: 'Check-ins', value: fmtNum(_event!.checkins), caption: 'all visits, every day'),
+            KpiTile(label: terms.uniquePeople, value: fmtNum(_event!.unique), caption: 'different people'),
             KpiTile(
-                label: 'In-region rate', value: d.total == 0 ? '—' : fmtPct(d.inRegionRate), accent: AppColors.green),
+                label: 'Out of region',
+                value: fmtNum(_event!.outOfRegion),
+                caption: _event!.checkins == 0 ? null : '${fmtPct(_event!.outOfRegion / _event!.checkins)} of check-ins',
+                accent: AppColors.amber),
             KpiTile(
-                label: 'Peak hour', value: d.peakHour == null ? '—' : hourLabel(d.peakHour!), accent: AppColors.amber),
+                label: 'Peak hour',
+                value: d.peakHour == null ? '—' : hourLabel(d.peakHour!),
+                caption: 'on ${d.day}',
+                accent: AppColors.amber),
           ]),
+          const SizedBox(height: 2),
+          TurnoutCard(key: ValueKey('turnout-${_event!.id}-$_version'), event: _event!),
+          const SizedBox(height: 12),
           SectionCard(
-            title: terms.chiefs ? 'Chiefs marked present, by hour' : 'Check-ins by hour',
+            title: 'Check-ins by hour · ${d.day}',
             child: MiniBarChart(
               data: [for (final h in d.byHour) MapEntry(hourLabel(h.key), h.value)],
               highlight: d.byHour.indexWhere((h) => h.key == d.peakHour),
@@ -115,9 +131,15 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
           ),
           const SizedBox(height: 12),
           SectionCard(
-            title: 'Gender mix',
-            child: d.total == 0
-                ? EmptyNote(terms.chiefs ? 'No chiefs marked present yet.' : 'No check-ins yet.')
+            title: 'Attendance breakdown',
+            child: Column(children: [
+              _line(terms.uniquePeople, fmtNum(_event!.unique)),
+              _line('Repeat check-ins', fmtNum((_event!.checkins - _event!.unique).clamp(0, _event!.checkins))),
+              _line('In-region check-ins', fmtNum(_event!.checkins - _event!.outOfRegion)),
+              _line('Out-of-region check-ins', fmtNum(_event!.outOfRegion)),
+              const Divider(height: 20),
+              d.total == 0
+                ? const EmptyNote('No check-ins on this day yet.')
                 : Column(children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(99),
@@ -135,12 +157,21 @@ class _CheckinInsightsTabState extends State<_CheckinInsightsTab> with Automatic
                       Text('Male ${fmtNum(d.male)} (${fmtPct(d.male / d.total)})'),
                     ]),
                   ]),
+            ]),
           ),
         ],
       ]),
     );
   }
 }
+
+Widget _line(String label, String value) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(children: [
+        Expanded(child: Text(label)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+      ]),
+    );
 
 class _MobilizationInsightsTab extends StatefulWidget {
   const _MobilizationInsightsTab();

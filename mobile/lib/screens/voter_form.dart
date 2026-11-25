@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../api/models.dart';
-import '../terms.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../scan/scan_screen.dart';
@@ -34,7 +33,7 @@ class IdEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionCard(
-      title: terms.chiefs ? 'Find the chief' : 'Find a voter',
+      title: 'Find a voter',
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         // Scanning is the fast path in a queue; typing is the fallback.
         Material(
