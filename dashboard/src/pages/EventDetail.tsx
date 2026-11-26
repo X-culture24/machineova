@@ -5,7 +5,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api, type CoverageLevel, type ParticipantFilter } from "../api";
 import { isManager, useAuth } from "../auth";
 import { AssignModal } from "../components/AssignModal";
-import { Badge, BarChart, Card, Empty, ErrorNote, Kpi, Loading, Modal, PageHeader, RegionBadge, Toggle } from "../components/ui";
+import { Badge, BarChart, Card, Empty, ErrorNote, focusSection, Kpi, Loading, Modal, PageHeader, RegionBadge, Toggle } from "../components/ui";
 import { area, dateTime, hourLabel, num, pct, time } from "../format";
 import { useAsync, useDebounced } from "../useAsync";
 import { maskId } from "../mask";
@@ -14,25 +14,18 @@ import CoveragePanel from "../components/Coverage";
 import EventStationCoverage from "../components/EventStationCoverage";
 import AttendanceExport from "../components/AttendanceExport";
 
-function showSection(id: string, smooth = true) {
-  const section = document.getElementById(id);
-  section?.focus({ preventScroll: true });
-  section?.scrollIntoView({ block: "start", behavior: smooth ? "smooth" : "instant" });
-}
-
 export default function EventDetail() {
   const { id = "" } = useParams();
   const [params, setParams] = useSearchParams();
-  const [section, setSection] = useState<"attendance" | "stations">(
-    params.get("section") === "stations" || params.get("view") === "stations" ? "stations" : "attendance",
-  );
+  const section: "attendance" | "stations" =
+    params.get("section") === "stations" || params.get("view") === "stations" ? "stations" : "attendance";
   const selectSection = (next: "attendance" | "stations") => {
-    setSection(next);
     setParams((current) => {
-      current.delete("view");
-      if (next === "stations") current.set("section", "stations");
-      else current.delete("section");
-      return current;
+      const updated = new URLSearchParams(current);
+      updated.delete("view");
+      if (next === "stations") updated.set("section", "stations");
+      else updated.delete("section");
+      return updated;
     });
   };
   const { me } = useAuth();
@@ -49,13 +42,25 @@ export default function EventDetail() {
   const [actionErr, setActionErr] = useState<string | null>(null);
 
   const loadedId = detail.data?.event.id;
-  const showStations = params.get("view") === "stations";
+  const [attendanceTarget, setAttendanceTarget] = useState("");
+  const openAttendance = (target: string) => {
+    if (section === "attendance") focusSection(target);
+    else {
+      setAttendanceTarget(target);
+      selectSection("attendance");
+    }
+  };
   useEffect(() => {
-    if (showStations && loadedId === id) showSection("polling-stations", false);
-  }, [id, loadedId, showStations]);
+    if (loadedId !== id) return;
+    if (section === "stations") focusSection("polling-stations", "instant");
+    if (section === "attendance" && attendanceTarget) {
+      focusSection(attendanceTarget);
+      setAttendanceTarget("");
+    }
+  }, [id, loadedId, section, attendanceTarget]);
 
   if (detail.error) return <ErrorNote error={detail.error} />;
-  if (!detail.data) return <Loading />;
+  if (!detail.data || loadedId !== id) return <Loading />;
   const { event: e, assigned_users } = detail.data;
   const reloadAll = () => {
     detail.reload();
@@ -86,7 +91,11 @@ export default function EventDetail() {
             <Badge tone={e.list_only ? "blue" : "grey"}>{e.list_only ? "Selected participants only" : "General participants"}</Badge>
             {e.active ? <Badge tone="green">Active</Badge> : <Badge>Closed</Badge>}
             {e.active && me?.role !== "viewer" && <Link className="btn" to={`/checkin?event=${e.id}`}>{t.checkInPeople}</Link>}
-            <button className="btn secondary" onClick={() => showSection("polling-stations")}>Polling-station turnout</button>
+            <button className="btn secondary" onClick={() => {
+              if (section === "stations") focusSection("polling-stations");
+              else selectSection("stations");
+            }}>Polling-station turnout</button>
+            {me?.role !== "viewer" && <Link className="btn secondary" to={`/issues?event=${e.id}`}>Report a problem</Link>}
             <button className="btn secondary" onClick={reloadAll}>Refresh</button>
           </>
         }
@@ -94,18 +103,18 @@ export default function EventDetail() {
       <ErrorNote error={actionErr} />
       <div className="grid kpis">
         <Kpi label="Check-ins" value={num(e.checkins)} caption="View attendance records" tone="teal"
-          onClick={() => showSection("event-attendance")} />
+          onClick={() => openAttendance("event-attendance")} />
         <Kpi label="Unique members" value={num(e.unique)} caption="View attendance breakdown" tone="teal"
-          onClick={() => showSection("event-insights")} />
+          onClick={() => openAttendance("event-insights")} />
         <Kpi
           label="Out of region"
           value={num(e.out_of_region)}
           caption={e.checkins ? `${pct(e.out_of_region / e.checkins)} of check-ins` : "—"}
           tone="amber"
-          onClick={() => showSection("event-insights")}
+          onClick={() => openAttendance("event-insights")}
         />
         <Kpi label="Peak hour" value={ins?.peak_hour != null ? hourLabel(ins.peak_hour) : "—"} caption="View hourly arrivals"
-          onClick={() => showSection("hourly-arrivals")} />
+          onClick={() => openAttendance("hourly-arrivals")} />
       </div>
 
       <div className="tabs event-detail-tabs" role="tablist" aria-label="Event details">
@@ -138,6 +147,7 @@ export default function EventDetail() {
         </div>
         <div id="event-insights" className="insight-target" tabIndex={-1}>
           <Card title="Attendance breakdown">
+            <ErrorNote error={insights.error} />
             <div className="stack">
               <div className="row spread"><span>Unique members</span><strong>{num(e.unique)}</strong></div>
               <div className="row spread"><span>Repeat check-ins</span><strong>{num(Math.max(0, e.checkins - e.unique))}</strong></div>
@@ -181,7 +191,7 @@ export default function EventDetail() {
         </Card>
         <Card title="Event rules">
           <div className="stack">
-            <Toggle label="Region-restricted" checked={e.region_restricted} onChange={(v) => manager && update({ region_restricted: v })} />
+            <Toggle label="Region-restricted" checked={e.region_restricted} disabled={!manager} onChange={(v) => manager && update({ region_restricted: v })} />
             <label className="field">
               <span>Admission</span>
               <select disabled={!manager} value={e.list_only ? "participants" : "general"}
@@ -214,7 +224,7 @@ export default function EventDetail() {
       </div>
 
       <div id="event-attendance" className="insight-target" tabIndex={-1}>
-        <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} query={query} participants={participants} />}>
+        <Card title="Who checked in" extra={manager && <AttendanceExport key={id} eventId={id} eventName={e.name} query={query} participants={participants} />}>
           <div className="toolbar">
             <SearchInput label="Search name, ID or phone" value={query} onChange={setQuery} />
             <ParticipantTypeFilter value={participants} onChange={setParticipants} />

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { api, type Pace } from "../api";
 import { isManager, useAuth } from "../auth";
 import { AssignModal } from "../components/AssignModal";
-import { Badge, BarChart, Card, Empty, ErrorNote, Field, Kpi, Loading, PageHeader, RankList } from "../components/ui";
+import { Badge, BarChart, Card, Empty, ErrorNote, focusSection, Field, Kpi, Loading, PageHeader, RankList } from "../components/ui";
 import { area, dateTime, num, pct } from "../format";
 import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
@@ -60,16 +60,16 @@ export default function DriveDetail() {
       />
       <ErrorNote error={err} />
       <div className="grid kpis">
-        <Kpi label={t.peopleMobilized} value={num(d.mobilized)} tone="amber" />
-        <Kpi label="Of target" value={d.target ? pct(d.progress) : "—"} caption={`target ${num(d.target)}`} progress={d.progress} tone="amber" />
-        <Kpi label="Remaining" value={num(d.remaining)} />
-        <Kpi label={t.mobilizedToday} value={m ? num(m.today) : "—"} tone="amber" />
+        <Kpi label={t.peopleMobilized} value={num(d.mobilized)} tone="amber" onClick={() => focusSection("drive-people")} />
+        <Kpi label="Of target" value={d.target ? pct(d.progress) : "—"} caption={`target ${num(d.target)}`} progress={d.progress} tone="amber" onClick={() => focusSection("drive-pace")} />
+        <Kpi label="Remaining" value={num(d.remaining)} onClick={() => focusSection("drive-pace")} />
+        <Kpi label={t.mobilizedToday} value={m ? num(m.today) : "—"} tone="amber" onClick={() => focusSection("drive-momentum")} />
       </div>
       <div className="grid cols-2" style={{ marginBottom: 16 }}>
-        <Card title="Momentum · last 14 days" extra={m?.pace && <small className="muted">{m.pace.momentum}</small>}>
+        <Card id="drive-momentum" title="Momentum · last 14 days" extra={m?.pace && <small className="muted">{m.pace.momentum}</small>}>
           {m ? <BarChart tone="amber" data={m.daily.map((x) => ({ label: x.day.slice(5), value: x.count }))} /> : <Loading />}
         </Card>
-        <Card title="Pace">
+        <Card id="drive-pace" title="Pace">
           {!m ? <Loading /> : !m.pace ? <Empty>Set a target to track pace.</Empty> : (
             <div className="stack">
               <div className="row spread"><span>Days left</span><strong>{d.target_date ? num(m.pace.days_left) : "No target date"}</strong></div>
@@ -97,7 +97,7 @@ export default function DriveDetail() {
       </div>
       {/* Registered-voter coverage isn't part of the SDICS chiefs check-ins. */}
       {!isSdicsBrand() && <CoveragePanel group={{ drive_id: d.id }} />}
-      <Card title={t.registeredList}>
+      <Card id="drive-people" title={t.registeredList}>
         {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>{t.noneRegistered}</Empty> : (
           <div className="table-wrap">
             <table>

@@ -1,5 +1,6 @@
 import SearchInput from "../components/SearchInput";
 import ParticipantTypeFilter from "../components/ParticipantFilter";
+import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { isManager, useAuth } from "../auth";
 import AttendanceExport from "../components/AttendanceExport";
@@ -14,20 +15,26 @@ type Tab = "checkins" | "mobilized";
 
 function downloadCsv(rows: PersonRecord[], tab: Tab) {
   const header = ["name", "national_id", "sex", "phone", "county", "constituency", "ward", tab === "checkins" ? "event" : "drive", "by", "at"];
-  const esc = (s: unknown) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const esc = (value: unknown) => {
+    const text = String(value ?? "");
+    const safe = /^[\s]*[=+@-]|^[\t\r\n]/.test(text) ? "'" + text : text;
+    return '"' + safe.replaceAll('"', '""') + '"';
+  };
   const lines = rows.map((r) => [r.name, maskId(r.national_id), r.sex, r.phone, r.county, r.constituency, r.ward, r.group_name, r.by, r.at].map(esc).join(","));
   const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `${tab}-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
-  URL.revokeObjectURL(a.href);
+  window.setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 export default function PeoplePage() {
   const t = useTerms();
   const { me } = useAuth();
-  const [tab, setTab] = useState<Tab>("checkins");
+  const [params, setParams] = useSearchParams();
+  const tab: Tab = !t.chiefs && params.get("tab") === "mobilized" ? "mobilized" : "checkins";
+  const setTab = (selected: Tab) => setParams(selected === "mobilized" ? { tab: selected } : {});
   const [group, setGroup] = useState("");
   const [participants, setParticipants] = useState<ParticipantFilter>("");
   const [q, setQ] = useState("");
@@ -46,8 +53,8 @@ export default function PeoplePage() {
         title="People reached"
         subtitle={t.peopleSubtitle}
         actions={tab === "checkins" && isManager(me)
-          ? <AttendanceExport key={group} eventId={group || undefined} query={q} participants={participants} />
-          : list.data && list.data.length > 0 && <button className="btn secondary" onClick={() => downloadCsv(list.data!, tab)}>Export CSV</button>}
+          ? <AttendanceExport key={group} eventId={group || undefined} eventName={groups.find((g) => g.id === group)?.name} query={q} participants={participants} />
+          : !list.loading && q === dq && list.data && list.data.length > 0 && <button type="button" className="btn secondary" onClick={() => downloadCsv(list.data!, tab)}>Export CSV</button>}
       />
       <div className="toolbar">
         <div className="tabs" role="tablist">

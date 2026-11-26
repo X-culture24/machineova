@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api, type RegisterStation } from "../api";
-import { Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader } from "../components/ui";
+import { Card, Empty, ErrorNote, Field, focusSection, Kpi, Loading, Modal, PageHeader } from "../components/ui";
 import { num } from "../format";
 import { Pager } from "../ops/components";
 import { useAsync } from "../useAsync";
@@ -61,10 +61,10 @@ export default function PlatformStations() {
         <input className="input" placeholder="Search name or code…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
       </div>
       <div className="grid kpis">
-        <Kpi label={`Stations — ${area}`} value={list.data ? num(list.data.total) : "–"} tone="teal" />
-        <Kpi label="Registered voters" value={list.data ? num(list.data.registered_voters) : "–"} />
+        <Kpi label={`Stations — ${area}`} value={list.data ? num(list.data.total) : "–"} tone="teal" onClick={() => focusSection("platform-station-list")} />
+        <Kpi label="Registered voters" value={list.data ? num(list.data.registered_voters) : "–"} onClick={() => focusSection("platform-station-list")} />
       </div>
-      <Card>
+      <Card id="platform-station-list">
         {!list.data ? <Loading /> : list.data.items.length === 0 ? <Empty>No stations in {area}{dq && " match"}.</Empty> : (
           <>
             <div className="table-wrap">

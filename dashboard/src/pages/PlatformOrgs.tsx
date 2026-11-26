@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
-import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, PageHeader, Toggle } from "../components/ui";
+import { Badge, Card, Empty, ErrorNote, focusSection, Field, Kpi, Loading, PageHeader, Toggle } from "../components/ui";
 import { area, initials, num } from "../format";
 import { useAsync } from "../useAsync";
 
@@ -9,7 +9,6 @@ const orgStatus = (o: { active: boolean; trial: boolean }) =>
   !o.active ? <Badge tone="red">Inactive</Badge> : o.trial ? <Badge tone="amber">Trial</Badge> : <Badge tone="green">Active</Badge>;
 
 export default function PlatformOrgs() {
-  const nav = useNavigate();
   const ov = useAsync(api.platformOverview, []);
   const { data, error } = useAsync(api.orgs, []);
   return (
@@ -19,20 +18,20 @@ export default function PlatformOrgs() {
       <ErrorNote error={error ?? ov.error} />
       {ov.data && (
         <div className="grid kpis">
-          <Kpi label="Organizations" value={num(ov.data.organizations)} caption={`${ov.data.active} active · ${ov.data.trial} trial`} />
-          <Kpi label="Members" value={num(ov.data.members)} caption="Across all tenants" />
-          <Kpi label="Polling stations" value={num(ov.data.stations)} caption="In active elections" tone="teal" />
-          <Kpi label="Field agents" value={num(ov.data.agents)} caption="Across all tenants" tone="amber" />
+          <Kpi label="Organizations" value={num(ov.data.organizations)} caption={`${ov.data.active} active · ${ov.data.trial} trial`} onClick={() => focusSection("platform-organizations")} />
+          <Kpi label="Members" value={num(ov.data.members)} caption="Across all tenants" onClick={() => focusSection("platform-organizations")} />
+          <Kpi label="Polling stations" value={num(ov.data.stations)} caption="In active elections" details={<Link to="/platform/stations">Open polling station register</Link>} tone="teal" />
+          <Kpi label="Field agents" value={num(ov.data.agents)} caption="Across all tenants" details={<p>Field agents assigned across all organizations.</p>} tone="amber" />
         </div>
       )}
-      <Card title="Organizations">
+      <Card id="platform-organizations" title="Organizations">
         {!data ? <Loading /> : data.length === 0 ? <Empty>No organizations yet.</Empty> : (
           <div className="table-wrap">
             <table className="cards">
               <thead><tr><th>Organization</th><th>Boundary</th><th className="num">Members</th><th className="num">Events</th><th className="num">Mobilized</th><th>Status</th><th /></tr></thead>
               <tbody>
                 {data.map((o) => (
-                  <tr key={o.id} className="clickable" onClick={() => nav(`/platform/orgs/${o.id}`)}>
+                  <tr key={o.id}>
                     <td data-label="Organization">
                       <div className="person">
                         <span className="avatar" style={{ background: o.accent_color, color: "#fff" }}>{initials(o.name)}</span>
@@ -44,7 +43,7 @@ export default function PlatformOrgs() {
                     <td data-label="Events" className="num">{num(o.events)}</td>
                     <td data-label="Mobilized" className="num">{num(o.mobilized)}</td>
                     <td data-label="Status">{orgStatus(o)}</td>
-                    <td><button className="btn small secondary">Open</button></td>
+                    <td><Link className="btn small secondary" to={`/platform/orgs/${o.id}`}>Open</Link></td>
                   </tr>
                 ))}
               </tbody>
@@ -76,10 +75,10 @@ export function PlatformOrgDetail() {
         <strong>{area(o.boundary_county, o.boundary_constituency)}</strong> — set at creation, everything inside the org is scoped to it.
       </div>
       <div className="grid kpis">
-        <Kpi label="Members" value={num(o.members)} />
-        <Kpi label="Stations" value={num(details.stations)} caption="in the active election" tone="teal" />
-        <Kpi label="Agents" value={num(details.agents)} tone="amber" />
-        <Kpi label="Voters mobilized" value={num(o.mobilized)} />
+        <Kpi label="Members" value={num(o.members)} details={<p>Members across the {o.name} organization.</p>} />
+        <Kpi label="Stations" value={num(details.stations)} caption="in the active election" details={<p>Stations assigned to the organization’s active election.</p>} tone="teal" />
+        <Kpi label="Agents" value={num(details.agents)} details={<p>Field agents assigned to the organization’s active election.</p>} tone="amber" />
+        <Kpi label="Voters mobilized" value={num(o.mobilized)} details={<p>Voters reached through the organization’s mobilization drives.</p>} />
       </div>
       <div className="grid cols-even" style={{ alignItems: "start" }}>
         <Card title="Owners & admins">

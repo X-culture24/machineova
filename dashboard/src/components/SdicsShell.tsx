@@ -18,6 +18,7 @@ export default function SdicsShell({ me, tabs, roleText, onSignOut, children }: 
   const [now, setNow] = useState(new Date());
   const [menu, setMenu] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const account = useRef<HTMLButtonElement>(null);
   const loc = useLocation();
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30_000);
@@ -27,8 +28,17 @@ export default function SdicsShell({ me, tabs, roleText, onSignOut, children }: 
   useEffect(() => {
     if (!menu) return;
     const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setMenu(false); };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenu(false);
+      account.current?.focus();
+    };
     document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", escape);
+    };
   }, [menu]);
 
   return (
@@ -43,14 +53,14 @@ export default function SdicsShell({ me, tabs, roleText, onSignOut, children }: 
           </div>
           <div className="sd-top-right" ref={ref}>
             <ThemeToggle />
-            <button type="button" className="sd-avatar" onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu}
+            <button ref={account} type="button" className="sd-avatar" aria-label="Account menu" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-controls={menu ? "sd-account-menu" : undefined}
               title={me.name}>{initials(me.name)}</button>
             {menu && (
-              <div className="sd-menu" role="menu">
+              <div id="sd-account-menu" className="sd-menu">
                 <div className="who">{me.name}</div>
                 <small>{roleText}</small>
-                <NavLink to="/account" role="menuitem">Account</NavLink>
-                <button type="button" role="menuitem" onClick={onSignOut}>Sign out</button>
+                <NavLink to="/account">Account</NavLink>
+                <button type="button" onClick={onSignOut}>Sign out</button>
               </div>
             )}
           </div>

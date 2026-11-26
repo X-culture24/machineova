@@ -1,6 +1,6 @@
 import SearchInput, { matchesSearch } from "../components/SearchInput";
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api, type CoverageLevel } from "../api";
 import { isManager, useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader, Toggle } from "../components/ui";
@@ -72,9 +72,9 @@ export default function EventsPage() {
                   </thead>
                   <tbody>
                     {items.map((e) => (
-                      <tr key={e.id} className="clickable" onClick={() => nav(`/events/${e.id}`)}>
+                      <tr key={e.id}>
                         <td>
-                          <div style={{ fontWeight: 600 }}>{e.name}</div>
+                          <Link to={`/events/${e.id}`} style={{ fontWeight: 600 }}>{e.name}</Link>
                           <small className="muted">{e.venue}</small>
                         </td>
                         <td>{area(e.county, e.constituency, e.ward)}</td>

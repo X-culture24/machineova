@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../auth";
-import { Badge, Card, Empty, ErrorNote, Kpi, Loading, ProgressBar } from "../components/ui";
+import { Badge, Card, Empty, ErrorNote, focusSection, Kpi, Loading, ProgressBar } from "../components/ui";
 import { date, num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, pp, regionLabel, slotLabel, type Drill, type Leader } from "./api";
@@ -242,15 +242,15 @@ export function ReplayPage() {
       {!d ? <Loading /> : (
         <>
           <div className="grid kpis mt">
-            <Kpi label={`Turnout at ${slotLabel(hour)}`} value={pct(d.turnout)} caption={`${num(d.cast)} of ${num(d.registered)}`} tone="teal" />
-            <Kpi label="Stations" value={`${d.stations_reporting} of ${d.stations}`} caption="reporting" />
+            <Kpi label={`Turnout at ${slotLabel(hour)}`} value={pct(d.turnout)} caption={`${num(d.cast)} of ${num(d.registered)}`} tone="teal" onClick={() => focusSection("replay-areas")} />
+            <Kpi label="Stations" value={`${d.stations_reporting} of ${d.stations}`} caption="reporting" onClick={() => focusSection("replay-areas")} />
             <Kpi label={`Leading — ${d.focus_position?.name ?? "race"}`} value={d.leading ? <span style={{ fontSize: 18 }}>{d.leading.candidate.name}</span> : "—"}
-              caption={d.leading ? pct(d.leading.share) : "no results yet"} />
+              caption={d.leading ? pct(d.leading.share) : "no results yet"} onClick={() => focusSection("replay-areas")} />
             <Kpi label="Our margin" value={d.margin == null || d.we_lead == null ? "—" : `${Math.abs(d.margin)}pp`}
-              caption={d.we_lead == null ? undefined : d.we_lead ? "ahead" : "behind"} tone={d.we_lead ? "teal" : "amber"} />
+              caption={d.we_lead == null ? undefined : d.we_lead ? "ahead" : "behind"} tone={d.we_lead ? "teal" : "amber"} onClick={() => focusSection("replay-areas")} />
           </div>
           <div className="grid cols-2">
-            <Card title={`By ${d.child_level} — at ${slotLabel(hour)}`}>
+            <Card id="replay-areas" title={`By ${d.child_level} — at ${slotLabel(hour)}`}>
               <div className="table-wrap">
                 <table className="cards">
                   <thead><tr><th>{d.child_level}</th><th className="num">Turnout</th><th>Leading</th><th className="num">Margin</th></tr></thead>

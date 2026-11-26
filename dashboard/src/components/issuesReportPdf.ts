@@ -36,17 +36,14 @@ async function logoData(): Promise<string> {
   }
 }
 
-export async function openIssuesReport(report: Promise<IssuesReport>) {
+export async function openIssuesReport(loadReport: () => Promise<IssuesReport>) {
   // Opened before any await, so pop-up blockers see the click.
   const w = window.open("", "_blank");
-  if (!w) {
-    alert("Allow pop-ups for this site to open the report.");
-    return;
-  }
+  if (!w) throw new Error("Allow pop-ups for this site to open the report.");
   w.document.write("<p style=\"font:14px sans-serif;padding:24px\">Preparing the report…</p>");
   let r: IssuesReport;
   try {
-    r = await report;
+    r = await loadReport();
   } catch (e) {
     w.close();
     throw e;

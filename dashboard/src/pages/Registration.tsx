@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { api, type RegistrationStats } from "../api";
 import { num, pct } from "../format";
-import { Card, ErrorNote, Kpi, Loading, PageHeader } from "../components/ui";
+import { Card, ErrorNote, focusSection, Kpi, Loading, PageHeader } from "../components/ui";
 
 /** Registration analysis: adults in the national ID records vs those on the voter register. */
 export default function RegistrationPage() {
   const [data, setData] = useState<RegistrationStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => { api.registration().then(setData, (e: Error) => setError(e.message)); }, []);
-  const rows = data ? [...data.rows].sort((a, b) => b.unregistered - a.unregistered) : [];
+  const [metric, setMetric] = useState<"adults" | "registered" | "unregistered" | "rate">("unregistered");
+  const rows = data ? [...data.rows].sort((a, b) => b[metric] - a[metric]) : [];
+  const showMetric = (next: typeof metric) => { setMetric(next); focusSection("registration-areas"); };
 
   return (
     <>
@@ -17,12 +19,12 @@ export default function RegistrationPage() {
       {!data ? <Loading /> : (
         <>
           <div className="grid kpis">
-            <Kpi label="Adults (national ID)" value={num(data.adults)} caption={data.label} />
-            <Kpi label="Registered to vote" value={num(data.registered)} tone="teal" progress={data.adults ? data.registered / data.adults : 0} />
-            <Kpi label="Not registered" value={num(data.adults - data.registered)} tone="amber" caption="the mobilization opportunity" />
-            <Kpi label="Registration rate" value={pct(data.adults ? data.registered / data.adults : 0)} />
+            <Kpi label="Adults (national ID)" value={num(data.adults)} caption={data.label} onClick={() => showMetric("adults")} pressed={metric === "adults"} />
+            <Kpi label="Registered to vote" value={num(data.registered)} tone="teal" progress={data.adults ? data.registered / data.adults : 0} onClick={() => showMetric("registered")} pressed={metric === "registered"} />
+            <Kpi label="Not registered" value={num(data.adults - data.registered)} tone="amber" onClick={() => showMetric("unregistered")} pressed={metric === "unregistered"} />
+            <Kpi label="Registration rate" value={pct(data.adults ? data.registered / data.adults : 0)} onClick={() => showMetric("rate")} pressed={metric === "rate"} />
           </div>
-          <Card title={data.level === "sub_county" ? `By sub-county · ${data.label}` : "By county"} extra={data.built_at && <small className="muted">updated {data.built_at}</small>}>
+          <Card id="registration-areas" title={data.level === "sub_county" ? `By sub-county · ${data.label}` : "By county"} extra={data.built_at && <small className="muted">updated {data.built_at}</small>}>
             <div className="table-wrap">
               <table>
                 <thead><tr><th>{data.level === "sub_county" ? "Sub-county" : "County"}</th><th>Adults</th><th>Registered</th><th>Not registered</th><th>Rate</th></tr></thead>

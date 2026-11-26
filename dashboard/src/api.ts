@@ -524,11 +524,11 @@ export interface TrainingReport {
 // ---- Training issues (problems met in the field) ----
 export type IssueCategory = "internet" | "device" | "location" | "account" | "app" | "other";
 export const issueCategoryLabel: Record<IssueCategory, string> = {
-  internet: "Device internet connection",
-  device: "Device malfunction",
-  location: "Member location issue",
+  internet: "Connectivity",
+  device: "Device or equipment",
+  location: "Venue, location or coverage",
   account: "Sign-in / PIN / account",
-  app: "App error",
+  app: "Check-in, dashboard or app",
   other: "Other",
 };
 export interface IssueInput {

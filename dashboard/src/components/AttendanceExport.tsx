@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { api, type ParticipantFilter, type PersonRecord } from "../api";
 import { dateTime } from "../format";
+import { createPaymentPdf, paymentHeaders, paymentRecipients, paymentRows } from "./paymentExport";
 import ParticipantTypeFilter from "./ParticipantFilter";
 import { ErrorNote, Field, Modal } from "./ui";
 
@@ -51,37 +52,28 @@ async function exportPdf(rows: PersonRecord[], filename: string, fields: typeof 
   doc.save(filename);
 }
 
-export function mpesaPhone(phone: string | null): string | null {
-  const digits = (phone ?? "").replace(/[\s().+-]/g, "");
-  const match = /^(?:0|254)?([17]\d{8})$/.exec(digits);
-  return match ? "254" + match[1] : null;
-}
-
-async function exportMpesa(rows: PersonRecord[], amount: number, purpose: string, filename: string) {
-  const recipients = new Map<string, PersonRecord>();
-  for (const row of rows) {
-    if (!recipients.has(row.national_id)) recipients.set(row.national_id, row);
+async function exportMpesa(rows: PersonRecord[], amount: number, purpose: string, filename: string, format: "xlsx" | "pdf", eventName?: string) {
+  const data = paymentRecipients(rows);
+  const payments = paymentRows(data, amount, purpose);
+  if (format === "pdf") {
+    const doc = await createPaymentPdf(payments, amount, eventName);
+    doc.save(filename);
+    return;
   }
-  const data = Array.from(recipients.values(), (p) => ({
-    phone: mpesaPhone(p.phone),
-    document: /^(?:[1-9][0-9]{0,14})$/.test(p.national_id) ? Number(p.national_id) : p.national_id,
-    name: p.name.trim(),
-  }));
-  const invalid = data.filter((p) => !p.phone || !p.name || !/^\d+$/.test(String(p.document))).length;
-  if (invalid) throw new Error(`${invalid} recipient(s) have a missing name, invalid ID, or invalid Kenyan mobile number. Correct the check-in details before exporting.`);
   const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Sheet1");
-  sheet.addRow(["MobileNumber", "DocumentType", "DocumentNumber", "Amount", "PurposeOfPayment", "Name"]);
+  sheet.addRow([...paymentHeaders]);
   sheet.getRow(1).font = { bold: true };
-  for (const p of data) sheet.addRow([p.phone, "National Id", p.document, amount, purpose, p.name]);
+  for (const row of payments) sheet.addRow(row);
   const bytes = await workbook.xlsx.writeBuffer();
   download(new Blob([new Uint8Array(bytes)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), filename);
 }
 
-export default function AttendanceExport({ eventId, query, participants = "" }: { eventId?: string; query: string; participants?: ParticipantFilter }) {
+export default function AttendanceExport({ eventId, eventName, query, participants = "" }: { eventId?: string; eventName?: string; query: string; participants?: ParticipantFilter }) {
   const [dialog, setDialog] = useState<"normal" | "mpesa" | null>(null);
   const [format, setFormat] = useState<"csv" | "pdf">("csv");
+  const [paymentFormat, setPaymentFormat] = useState<"xlsx" | "pdf">("xlsx");
   const [scope, setScope] = useState<ParticipantFilter>("");
   const [labels, setLabels] = useState(() => columns.map((column) => column.label));
   const [amount, setAmount] = useState("");
@@ -97,13 +89,13 @@ export default function AttendanceExport({ eventId, query, participants = "" }: 
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const fileType = dialog === "mpesa" ? "xlsx" : format;
+    const fileType = dialog === "mpesa" ? paymentFormat : format;
     const fields = columns.filter((column) => labels.includes(column.label));
-    if (fileType !== "xlsx" && !fields.length) {
+    if (dialog === "normal" && !fields.length) {
       setError("Choose at least one column.");
       return;
     }
-    if (fileType === "xlsx" && (!purpose.trim() || !Number.isFinite(Number(amount)) || Number(amount) <= 0)) {
+    if (dialog === "mpesa" && (!purpose.trim() || !Number.isFinite(Number(amount)) || Number(amount) <= 0)) {
       setError("Enter a positive payment amount and a purpose.");
       return;
     }
@@ -112,10 +104,15 @@ export default function AttendanceExport({ eventId, query, participants = "" }: 
     try {
       const rows = await api.checkins({ event_id: eventId, q: query, participants: scope, export: "true" });
       if (!rows.length) throw new Error("No check-ins match this export.");
-      const filename = `attendance-${new Date().toISOString().slice(0, 10)}.${fileType}`;
-      if (fileType === "csv") exportCsv(rows, filename, fields);
-      if (fileType === "pdf") await exportPdf(rows, filename, fields);
-      if (fileType === "xlsx") await exportMpesa(rows, Number(amount), purpose.trim(), filename);
+      const prefix = dialog === "mpesa" ? "mpesa-payments" : "attendance";
+      const filename = `${prefix}-${new Date().toISOString().slice(0, 10)}.${fileType}`;
+      if (dialog === "mpesa") {
+        await exportMpesa(rows, Number(amount), purpose.trim(), filename, paymentFormat, eventName);
+      } else if (format === "csv") {
+        exportCsv(rows, filename, fields);
+      } else {
+        await exportPdf(rows, filename, fields);
+      }
       setDialog(null);
     } catch (err) {
       setError((err as Error).message);
@@ -127,8 +124,8 @@ export default function AttendanceExport({ eventId, query, participants = "" }: 
   return (
     <>
       <div className="row gap">
-        <button className="btn secondary" disabled={busy} onClick={() => open("normal")}>Export</button>
-        <button className="btn secondary" disabled={busy || !eventId} title={eventId ? undefined : "Select an event first"} onClick={() => open("mpesa")}>M-Pesa bulk (.xlsx)</button>
+        <button type="button" className="btn secondary" disabled={busy} onClick={() => open("normal")}>Export</button>
+        <button type="button" className="btn secondary" disabled={busy || !eventId} title={eventId ? undefined : "Select an event first"} onClick={() => open("mpesa")}>M-Pesa bulk</button>
       </div>
       {dialog && <Modal title={dialog === "normal" ? "Normal export" : "M-Pesa bulk export"} onClose={() => { if (!busy) setDialog(null); }}>
         <form className="stack" onSubmit={submit}>
@@ -156,6 +153,12 @@ export default function AttendanceExport({ eventId, query, participants = "" }: 
               </div>
             </fieldset>
           </> : <>
+            <Field label="File format">
+              <select value={paymentFormat} onChange={(e) => setPaymentFormat(e.target.value === "pdf" ? "pdf" : "xlsx")}>
+                <option value="xlsx">Excel (.xlsx) for upload</option>
+                <option value="pdf">PDF payment schedule</option>
+              </select>
+            </Field>
             <p className="muted">One payment row per national ID.</p>
             <Field label="Amount per person (KES)"><input type="number" required min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
             <Field label="Purpose of payment"><input required value={purpose} onChange={(e) => setPurpose(e.target.value)} /></Field>

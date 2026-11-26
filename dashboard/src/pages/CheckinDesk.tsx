@@ -15,8 +15,9 @@ export default function CheckinDesk() {
   const [params, setParams] = useSearchParams();
   const events = useAsync(() => api.events(true), []);
   const items = events.data?.items ?? [];
-  const eventId = params.get("event") ?? (items.length === 1 ? items[0]!.id : "");
-  const event = items.find((e) => e.id === eventId);
+  const requestedEvent = params.get("event");
+  const event = requestedEvent ? items.find((item) => item.id === requestedEvent) : items.length === 1 ? items[0] : undefined;
+  const eventId = event?.id ?? "";
 
   const [eventQuery, setEventQuery] = useState("");
   const matchingEvents = items.filter((e) => e.id === eventId || matchesSearch(eventQuery, e.name, e.venue, e.county, e.constituency, e.ward));
@@ -39,11 +40,12 @@ export default function CheckinDesk() {
     setLoc({ county: "", constituency: "", ward: "" });
     idRef.current?.focus();
   };
-  useEffect(reset, [eventId]);
+  useEffect(() => { reset(); setFlash(null); }, [eventId]);
+  useEffect(() => { if (!busy && !nid && eventId) idRef.current?.focus(); }, [busy, nid, eventId]);
 
   async function doLookup(e: FormEvent) {
     e.preventDefault();
-    if (!eventId || !nid.trim()) return;
+    if (busy || !eventId || !nid.trim()) return;
     setBusy(true);
     setFlash(null);
     try {
@@ -58,7 +60,7 @@ export default function CheckinDesk() {
 
   async function doCheckin(e: FormEvent) {
     e.preventDefault();
-    if (!lookup) return;
+    if (busy || !eventId || !lookup) return;
     setBusy(true);
     try {
       const res = await api.checkin(eventId, {
@@ -92,11 +94,11 @@ export default function CheckinDesk() {
         <div className="grid cols-even" style={{ alignItems: "start" }}>
           <Card title="Find a voter">
             <div className="stack">
-              {items.length > 1 ? (
+              {items.length > 1 || !event ? (
                 <>
                   <SearchInput label="Search active events" value={eventQuery} onChange={setEventQuery} />
                   <Field label="Event">
-                    <select value={eventId} onChange={(e) => setParams(e.target.value ? { event: e.target.value } : {})}>
+                    <select value={eventId} disabled={busy} onChange={(e) => setParams(e.target.value ? { event: e.target.value } : {})}>
                       <option value="">Select your event…</option>
                       {matchingEvents.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
                     </select>
@@ -105,6 +107,7 @@ export default function CheckinDesk() {
               ) : (
                 <div className="alert teal">Selected event: <strong>{event?.name}</strong></div>
               )}
+              {requestedEvent && !event && <ErrorNote error="That event is no longer available for check-in. Select an active event." />}
               {event && (
                 <div className="row gap">
                   {event.region_restricted && <Badge tone="amber">Region-restricted · {area(event.county, event.constituency, event.ward)}</Badge>}
@@ -114,7 +117,7 @@ export default function CheckinDesk() {
               <form onSubmit={doLookup} className="stack">
                 <Field label="ID number">
                   <input ref={idRef} className="big-input" inputMode="numeric" autoComplete="off" value={nid}
-                    onChange={(e) => { setNid(e.target.value); setLookup(null); }} disabled={!eventId} />
+                    onChange={(e) => { setNid(e.target.value); setLookup(null); }} disabled={busy || !eventId} />
                 </Field>
                 <button className="btn" disabled={busy || !eventId || !nid.trim()}>Look up</button>
               </form>

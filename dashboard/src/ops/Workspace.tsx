@@ -13,33 +13,54 @@ const reports = [
   { kind: "incidents", title: "Incident log", text: "Every flag raised — type, note, resolution and timing." },
 ];
 
-/** Renders a CSV as a printable table in a new window (browser "Save as PDF"). */
-function printCsv(title: string, csv: string) {
-  const rows = csv.trim().split("\n").map((line) => {
-    const out: string[] = [];
-    let cur = "", quoted = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i]!;
-      if (ch === '"' && line[i + 1] === '"' && quoted) { cur += '"'; i++; }
-      else if (ch === '"') quoted = !quoted;
-      else if (ch === "," && !quoted) { out.push(cur); cur = ""; }
-      else cur += ch;
+function parseCsv(csv: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let quoted = false;
+  for (let i = csv.charCodeAt(0) === 0xfeff ? 1 : 0; i < csv.length; i++) {
+    const char = csv[i];
+    if (char === '"') {
+      if (quoted && csv[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (!quoted && (char === "," || char === "\r" || char === "\n")) {
+      row.push(field);
+      field = "";
+      if (char === ",") continue;
+      if (char === "\r" && csv[i + 1] === "\n") i++;
+      rows.push(row);
+      row = [];
+    } else {
+      field += char;
     }
-    out.push(cur);
-    return out;
+  }
+  if (row.length || field) rows.push([...row, field]);
+  return rows;
+}
+
+async function exportReportPdf(title: string, csv: string, filename: string) {
+  const [headers, ...rows] = parseCsv(csv);
+  if (!headers?.some(Boolean)) throw new Error("The report returned no columns.");
+  const [{ jsPDF }, { autoTable }] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
+  const doc = new jsPDF({ orientation: "landscape" });
+  doc.setProperties({ title });
+  autoTable(doc, {
+    startY: 24,
+    head: [headers],
+    body: rows,
+    styles: { fontSize: 8 },
+    didDrawPage: ({ pageNumber }) => {
+      doc.setFontSize(12);
+      doc.text(doc.splitTextToSize(title, 260).slice(0, 2), 14, 13);
+      doc.setFontSize(8);
+      doc.text(`Page ${pageNumber}`, 283, 202, { align: "right" });
+    },
   });
-  const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
-  const w = window.open("", "_blank");
-  if (!w) return;
-  w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(title)}</title>
-    <style>body{font:12px system-ui,sans-serif;margin:24px}h1{font-size:18px}table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid #ccc;padding:4px 6px;text-align:left}th{background:#f2f5f4}</style>
-    <h1>${esc(title)}</h1><p>Generated ${new Date().toLocaleString()}</p>
-    <table><thead><tr>${rows[0]!.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
-    <tbody>${rows.slice(1).map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`);
-  w.document.close();
-  w.focus();
-  w.print();
+  doc.save(filename);
 }
 
 export function ReportsPage() {
@@ -47,6 +68,21 @@ export function ReportsPage() {
   const ov = useAsync(ops.overview, []);
   const [err, setErr] = useState<string | null>(null);
   const e = ov.data?.election;
+  const [busy, setBusy] = useState("");
+  async function downloadReport(report: (typeof reports)[number], format: "csv" | "pdf") {
+    if (!e || busy) return;
+    const filename = `${e.code.toLowerCase()}-${report.kind}.${format}`;
+    setErr(null);
+    setBusy(`${report.kind}-${format}`);
+    try {
+      if (format === "csv") await ops.downloadReport(report.kind, filename);
+      else await exportReportPdf(`${report.title} — ${e.name}`, await ops.reportText(report.kind), filename);
+    } catch (error) {
+      setErr((error as Error).message);
+    } finally {
+      setBusy("");
+    }
+  }
   return (
     <>
       <OpsHeader title="Reports" subtitle={`Exports scoped to ${me?.scope_label ?? "your area"}`} election={e} scopeLabel={me?.scope_label} />
@@ -57,8 +93,12 @@ export function ReportsPage() {
             <p className="muted" style={{ marginTop: -6 }}>{r.text}</p>
             <small className="muted">Scoped to {me?.scope_label}{e && ` · ${e.name}`}</small>
             <div className="row gap" style={{ marginTop: 12 }}>
-              <button className="btn small" disabled={!e} onClick={() => ops.downloadReport(r.kind, `${e!.code.toLowerCase()}-${r.kind}.csv`).catch((x: Error) => setErr(x.message))}>Export CSV</button>
-              <button className="btn small secondary" disabled={!e} onClick={() => ops.reportText(r.kind).then((csv) => printCsv(`${r.title} — ${e!.name}`, csv), (x: Error) => setErr(x.message))}>Export PDF</button>
+              <button type="button" className="btn small" disabled={!e || !!busy} onClick={() => downloadReport(r, "csv")}>
+                {busy === `${r.kind}-csv` ? "Preparing…" : "Export CSV"}
+              </button>
+              <button type="button" className="btn small secondary" disabled={!e || !!busy} onClick={() => downloadReport(r, "pdf")}>
+                {busy === `${r.kind}-pdf` ? "Preparing…" : "Export PDF"}
+              </button>
             </div>
           </Card>
         ))}

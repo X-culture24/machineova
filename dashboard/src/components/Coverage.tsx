@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { api, type Coverage, type CoverageRow } from "../api";
 import { num, turnoutPercent } from "../format";
-import { Badge, Card, ErrorNote, Kpi, Loading } from "./ui";
+import { Badge, Card, ErrorNote, focusSection, Kpi, Loading } from "./ui";
 
 const statusLabel: Record<CoverageRow["status"], string> = {
   strong: "Strong", moderate: "Moderate", low: "Low", critical: "Critical", not_started: "Not started",
@@ -17,6 +17,9 @@ export default function CoveragePanel({ group, onShowStations }: {
   group: { event_id?: string; drive_id?: string };
   onShowStations?: () => void;
 }) {
+  const areaId = useId();
+  const [areasOpen, setAreasOpen] = useState(!onShowStations);
+  const showAreas = () => { setAreasOpen(true); focusSection(areaId); };
   const [drill, setDrill] = useState<{ constituency?: string; ward?: string }>({});
   const [data, setData] = useState<Coverage | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +52,12 @@ export default function CoveragePanel({ group, onShowStations }: {
       {!data ? !error && <Loading /> : (
         <div className="stack">
           <div className="grid kpis">
-            <Kpi label="Registered voters reached" value={num(data.reached)} caption={`of ${num(data.registered)} registered`} tone="teal" onClick={onShowStations} />
-            <Kpi label="Turnout" value={turnoutPercent(data.reached, data.registered)} progress={data.registered ? data.reached / data.registered : 0} onClick={onShowStations} />
-            <Kpi label="Remaining" value={num(data.remaining)} caption="still to reach" onClick={onShowStations} />
-            <Kpi label="Not registered" value={num(data.not_registered)} caption="reached, not on the register" tone="amber" />
-            <Kpi label="Gender mix" value={`${num(data.female)} · ${num(data.male)}`} caption="female · male" />
-            <Kpi label="Top age group" value={data.top_age_group ?? "—"} />
+            <Kpi label="Registered voters reached" value={num(data.reached)} caption={`of ${num(data.registered)} registered`} tone="teal" onClick={onShowStations ?? showAreas} />
+            <Kpi label="Turnout" value={turnoutPercent(data.reached, data.registered)} progress={data.registered ? data.reached / data.registered : 0} onClick={onShowStations ?? showAreas} />
+            <Kpi label="Remaining" value={num(data.remaining)} caption="still to reach" onClick={onShowStations ?? showAreas} />
+            <Kpi label="Not registered" value={num(data.not_registered)} caption="reached, not on the register" tone="amber" details={<p>People reached in {data.label} whose ID does not match the voter register.</p>} />
+            <Kpi label="Gender mix" value={`${num(data.female)} · ${num(data.male)}`} caption="female · male" details={<p>Counts use the available demographic records for {data.label}.</p>} />
+            <Kpi label="Top age group" value={data.top_age_group ?? "—"} details={<p>Most common recorded age group among people reached in {data.label}.</p>} />
           </div>
           {data.push_here_next && data.push_here_next.length > 0 && (
             <div className="alert amber">
@@ -62,15 +65,15 @@ export default function CoveragePanel({ group, onShowStations }: {
               {data.push_here_next.map((r) => `${r.area} (${num(r.remaining)} to reach)`).join(" · ")}
             </div>
           )}
-          <details open={onShowStations ? undefined : true}>
+          <details id={areaId} className="insight-target" tabIndex={-1} open={areasOpen} onToggle={(e) => setAreasOpen(e.currentTarget.open)}>
             <summary>Coverage by area</summary>
             <div className="table-wrap">
               <table>
                 <thead><tr><th>{levelLabel[data.level]}</th><th>Reached</th><th>Registered</th><th>Coverage</th><th>Status</th></tr></thead>
                 <tbody>
                   {(data.rows ?? []).map((r) => (
-                    <tr key={r.area} className={canDrill ? "clickable" : ""} onClick={() => canDrill && open(r)}>
-                      <td>{r.area}{canDrill && <small className="muted"> ›</small>}</td>
+                    <tr key={r.area}>
+                      <td>{canDrill ? <button type="button" className="btn small ghost" onClick={() => open(r)}>{r.area} ›</button> : r.area}</td>
                       <td>{num(r.reached)}</td>
                       <td>{num(r.registered)}</td>
                       <td>{turnoutPercent(r.reached, r.registered)}</td>

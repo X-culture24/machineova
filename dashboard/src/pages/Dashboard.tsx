@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Kpi, Loading, PageHeader, RankList } from "../components/ui";
@@ -13,6 +13,7 @@ function greeting() {
 
 export default function DashboardPage() {
   const { me } = useAuth();
+  const navigate = useNavigate();
   const t = useTerms();
   const { data, error, loading } = useAsync(api.dashboard, []);
 
@@ -28,10 +29,11 @@ export default function DashboardPage() {
       {data && (
         <>
           <div className="grid kpis">
-            <Kpi label={t.totalEvents} value={num(data.total_events)} caption={`${num(data.active_events)} active right now`} tone="teal" />
-            {!t.chiefs && <Kpi label={t.peopleMobilized} value={num(data.voters_mobilized)} caption={`across ${num(data.active_regions)} active regions`} tone="amber" />}
-            <Kpi label="Team members" value={num(data.team_members)} caption={<Link to="/team">Manage team →</Link>} />
-            <Kpi label={`${t.checkins} · 7 days`} value={num(data.checkins_7d)} caption={`across all ${t.events.toLowerCase()}`} tone="teal" />
+            <Kpi label={t.totalEvents} value={num(data.total_events)} caption={`${num(data.active_events)} active right now`} tone="teal" onClick={() => navigate("/events")} />
+            {!t.chiefs && <Kpi label={t.peopleMobilized} value={num(data.voters_mobilized)} caption={`across ${num(data.active_regions)} active regions`} tone="amber" onClick={() => navigate("/mobilization")} />}
+            <Kpi label="Team members" value={num(data.team_members)} caption="View team" onClick={() => navigate("/team")} />
+            <Kpi label={`${t.checkins} · 7 days`} value={num(data.checkins_7d)} caption={`across all ${t.events.toLowerCase()}`} tone="teal"
+              details={<Link to="/people">Open check-in records</Link>} />
           </div>
           <div className="grid cols-2">
             {!t.chiefs && (

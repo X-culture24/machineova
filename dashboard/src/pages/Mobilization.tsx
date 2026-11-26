@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { isManager, useAuth } from "../auth";
-import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader, ProgressBar } from "../components/ui";
+import { Badge, Card, Empty, ErrorNote, focusSection, Field, Kpi, Loading, Modal, PageHeader, ProgressBar } from "../components/ui";
 import { area, num, pct } from "../format";
 import { useTerms } from "../terms";
 import { useAsync } from "../useAsync";
@@ -27,13 +27,13 @@ export default function MobilizationPage() {
       {data && s && (
         <>
           <div className="grid kpis">
-            <Kpi label={t.activeRegions} value={num(s.active_regions)} tone="amber" />
+            <Kpi label={t.activeRegions} value={num(s.active_regions)} tone="amber" onClick={() => focusSection("mobilization-drives")} />
             <Kpi label={t.peopleMobilized} value={num(s.mobilized)} caption={s.target ? `${pct(s.mobilized / s.target)} of ${num(s.target)} target` : undefined}
-              progress={s.target ? s.mobilized / s.target : undefined} tone="amber" />
-            <Kpi label="Boundary" value={<span style={{ fontSize: 18 }}>{area(s.boundary_county, s.boundary_constituency)}</span>} />
-            <Kpi label="Org status" value={s.org_active ? <Badge tone="green">Active</Badge> : <Badge tone="red">Inactive</Badge>} />
+              progress={s.target ? s.mobilized / s.target : undefined} tone="amber" onClick={() => nav("/people?tab=mobilized")} />
+            <Kpi label="Boundary" value={<span style={{ fontSize: 18 }}>{area(s.boundary_county, s.boundary_constituency)}</span>} details={<p>The organization’s area for mobilization and registration analysis.</p>} />
+            <Kpi label="Org status" value={s.org_active ? <Badge tone="green">Active</Badge> : <Badge tone="red">Inactive</Badge>} details={<p>Current status of the organization’s mobilization workspace.</p>} />
           </div>
-          <Card>
+          <Card id="mobilization-drives">
             {data.items.length === 0 ? (
               <Empty>{t.noDrives}</Empty>
             ) : (

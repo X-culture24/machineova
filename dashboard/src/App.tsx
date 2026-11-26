@@ -31,7 +31,7 @@ import OpsPeople from "./ops/People";
 import StationsPage from "./ops/Stations";
 import { ReplayPage, ResultsPage, TurnoutPage } from "./ops/Monitor";
 import { useTerms } from "./terms";
-import { applyBrand, isSdicsBrand, sdicsHost } from "./brand";
+import { applyBrand, sdicsHost } from "./brand";
 import SdicsShell, { type SdTab } from "./components/SdicsShell";
 import BrandMark from "./components/BrandMark";
 import { ReportsPage, SettingsPage } from "./ops/Workspace";
@@ -163,12 +163,12 @@ function Shell() {
   );
 
   // The SDICS look: the other SDICS dashboards' header and tabs instead of the sidebar.
-  if (isSdicsBrand() && me.organization && !inOps && hasCheckin(me)) {
+  if ((sdicsHost() || t.chiefs) && me.organization && !inOps && hasCheckin(me)) {
     const tabs: SdTab[] = [
       ...(!t.chiefs ? [{ to: "/", label: "Dashboard", icon: "chart" as const, end: true }] : []),
       ...(me.module_events ? [{ to: "/events", label: t.events, icon: "calendar" as const }] : []),
       ...(me.module_events && me.role !== "viewer" ? [{ to: "/checkin", label: t.checkin, icon: "check" as const }] : []),
-      { to: "/issues", label: "Issues", icon: "alert" },
+      { to: "/issues", label: "Problems reported", icon: "alert" },
       ...(me.module_mobilization ? [{ to: "/mobilization", label: t.mobilization, icon: "megaphone" as const }] : []),
       { to: "/people", label: "People reached", icon: "people" },
       ...(!t.chiefs ? [{ to: "/registration", label: "Registration analysis", icon: "ballot" as const }] : []),
@@ -212,7 +212,7 @@ function Shell() {
             {section("Operate")}
             {me.module_events && link("/events", t.events, "▦")}
             {me.module_events && me.role !== "viewer" && link("/checkin", t.checkin, "✓")}
-            {link("/issues", "Field issues", "!")}
+            {link("/issues", "Problems reported", "!")}
             {me.module_mobilization && link("/mobilization", t.mobilization, "➚")}
             {section("People")}
             {link("/people", "People reached", "☰")}

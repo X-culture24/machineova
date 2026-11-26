@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth";
-import { Badge, Card, Empty, ErrorNote, Kpi, Loading, ProgressBar } from "../components/ui";
+import { Badge, Card, Empty, ErrorNote, focusSection, Kpi, Loading, ProgressBar } from "../components/ui";
 import { num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, pp, regionLabel, type AttentionItem, type SeatHistory } from "./api";
@@ -50,18 +50,18 @@ export default function OpsOverview() {
           {seats.data?.map((h) => <SeatCard key={h.ours.id} h={h} />)}
           <div className="grid kpis">
             <Kpi label="Reporting progress" value={pct(data.stations ? data.reported / data.stations : 0)}
-              caption={`${num(data.reported)} of ${num(data.stations)} stations reported`} progress={data.stations ? data.reported / data.stations : 0} tone="teal" />
-            <Kpi label="Stations open" value={num(data.open)} caption={`${num(data.stations)} total · ${num(data.closed)} closed`} />
+              caption={`${num(data.reported)} of ${num(data.stations)} stations reported`} progress={data.stations ? data.reported / data.stations : 0} tone="teal" details={<Link to="/ops/turnout">Open turnout reporting</Link>} />
+            <Kpi label="Stations open" value={num(data.open)} caption={`${num(data.stations)} total · ${num(data.closed)} closed`} details={<Link to="/ops/stations?status=open">View open stations</Link>} />
             <Kpi label="Turnout so far" value={pct(data.turnout)} caption={`${num(data.cast)} of ${num(data.registered)} registered`}
-              progress={data.turnout} tone="teal" />
+              progress={data.turnout} tone="teal" onClick={() => focusSection("ops-turnout-trend")} />
             <Kpi label="Needs attention" value={num(data.attention_count)}
-              caption={`${num(data.issues)} ${data.issues === 1 ? "issue" : "issues"} · ${num(data.uncovered)} uncovered · ${num(data.to_verify)} to verify`} tone="amber" />
+              caption={`${num(data.issues)} ${data.issues === 1 ? "issue" : "issues"} · ${num(data.uncovered)} uncovered · ${num(data.to_verify)} to verify`} tone="amber" onClick={() => focusSection("ops-attention")} />
           </div>
           <div className="grid cols-2">
-            <Card title={`Turnout trend — ${data.scope_label}`} extra={data.last_update && <small className="muted">Last updated {time(data.last_update)}</small>}>
+            <Card id="ops-turnout-trend" title={`Turnout trend — ${data.scope_label}`} extra={data.last_update && <small className="muted">Last updated {time(data.last_update)}</small>}>
               {data.trend.every((p) => p.cast === 0) ? <Empty>No turnout recorded yet.</Empty> : <TrendChart points={data.trend} slots={[6, 9, 11, 13, 15, 17]} />}
             </Card>
-            <Card title="Needs attention now" extra={<span className="badge red">{num(data.attention_count)}</span>}>
+            <Card id="ops-attention" title="Needs attention now" extra={<span className="badge red">{num(data.attention_count)}</span>}>
               {data.attention.length === 0 ? (
                 <Empty>All clear — every station is covered and nothing is flagged.</Empty>
               ) : (

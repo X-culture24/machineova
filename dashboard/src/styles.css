@@ -88,6 +88,7 @@ small { font-size: 12px; }
 .main { padding: 24px 28px 48px; min-width: 0; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .page-header p { margin: 4px 0 0; }
+.page-header-actions { flex-wrap: wrap; max-width: 100%; }
 
 .grid { display: grid; gap: 16px; }
 .kpis { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 16px; }

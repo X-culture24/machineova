@@ -1,7 +1,13 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { isSdicsBrand } from "../brand";
 import { LineChart } from "./LineChart";
 import { Icon, iconFor, type IconName } from "./icons";
+
+export function focusSection(id: string, behavior: ScrollBehavior = "smooth") {
+  const section = document.getElementById(id);
+  section?.focus({ preventScroll: true });
+  section?.scrollIntoView({ block: "start", behavior });
+}
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
@@ -10,14 +16,14 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
         <h1>{title}</h1>
         {subtitle && <p className="muted">{subtitle}</p>}
       </div>
-      {actions && <div className="row gap">{actions}</div>}
+      {actions && <div className="row gap page-header-actions">{actions}</div>}
     </header>
   );
 }
 
-export function Card({ title, extra, children, className = "" }: { title?: string; extra?: ReactNode; children: ReactNode; className?: string }) {
+export function Card({ title, extra, children, className = "", id }: { id?: string; title?: string; extra?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={`card ${className}`}>
+    <section id={id} tabIndex={id ? -1 : undefined} className={`card ${className}${id ? " insight-target" : ""}`}>
       {(title || extra) && (
         <div className="card-head">
           {title && <h2>{title}</h2>}
@@ -29,7 +35,7 @@ export function Card({ title, extra, children, className = "" }: { title?: strin
   );
 }
 
-export function Kpi({ label, value, caption, tone, progress, icon, onClick, pressed }: {
+export function Kpi({ label, value, caption, tone, progress, icon, onClick, pressed, details }: {
   label: string;
   value: ReactNode;
   caption?: ReactNode;
@@ -39,7 +45,9 @@ export function Kpi({ label, value, caption, tone, progress, icon, onClick, pres
   icon?: IconName;
   onClick?: () => void;
   pressed?: boolean;
+  details?: ReactNode;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const name = icon ?? iconFor(label);
   const className = `kpi kpi-${tone ?? "ink"}`;
   const content = <>
@@ -52,9 +60,17 @@ export function Kpi({ label, value, caption, tone, progress, icon, onClick, pres
       {caption && <div className="kpi-caption">{caption}</div>}
       {progress !== undefined && <ProgressBar value={progress} tone={tone === "amber" ? "amber" : "teal"} />}
     </>;
-  return onClick
-    ? <button type="button" className={`${className} kpi-action`} onClick={onClick} aria-pressed={pressed}>{content}</button>
-    : <div className={className}>{content}</div>;
+  return <>
+    <button type="button" className={`${className} kpi-action`} onClick={onClick ?? (() => setExpanded(true))}
+      aria-pressed={pressed} aria-haspopup={onClick ? undefined : "dialog"}>{content}</button>
+    {expanded && <Modal title={label} onClose={() => setExpanded(false)}>
+      <div className="stack">
+        <strong className="kpi-value">{value}</strong>
+        {caption && <p className="muted">{caption}</p>}
+        {details}
+      </div>
+    </Modal>}
+  </>;
 }
 
 export function ProgressBar({ value, tone = "teal" }: { value: number; tone?: "teal" | "amber" }) {
@@ -124,21 +140,51 @@ export function Loading() {
 }
 
 export function ErrorNote({ error }: { error: string | null }) {
-  return error ? <div className="alert red">{error}</div> : null;
+  return error ? <div className="alert red" role="alert">{error}</div> : null;
 }
 
 export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  const dialog = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const node = dialog.current;
+    node?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (!node || !node.contains(document.activeElement)) return;
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        close.current();
+      }
+      if (event.key !== "Tab") return;
+      const items = Array.from(node.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), [href], input:not(:disabled):not([type=hidden]), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]',
+      )).filter((item) => item.getClientRects().length);
+      const first = items[0];
+      const last = items.at(-1);
+      if (!first) {
+        event.preventDefault();
+      } else if (event.shiftKey && (document.activeElement === first || document.activeElement === node)) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    node?.addEventListener("keydown", onKey);
+    return () => {
+      node?.removeEventListener("keydown", onKey);
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    };
+  }, []);
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label={title}>
+      <div ref={dialog} className="modal" role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
         <div className="card-head">
           <h2>{title}</h2>
-          <button className="btn ghost" onClick={onClose} aria-label="Close">✕</button>
+          <button type="button" className="btn ghost" onClick={onClose} aria-label="Close">✕</button>
         </div>
         {children}
       </div>
@@ -156,10 +202,10 @@ export function Field({ label, children, hint }: { label: string; children: Reac
   );
 }
 
-export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+export function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
   return (
     <label className="toggle">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       <span className="toggle-track" />
       <span>{label}</span>
     </label>
