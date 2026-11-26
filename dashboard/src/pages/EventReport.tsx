@@ -5,6 +5,7 @@ import SearchInput, { matchesSearch } from "../components/SearchInput";
 import { Badge, Card, Empty, ErrorNote, Kpi, Loading, PageHeader } from "../components/ui";
 import { area, dateTime, num } from "../format";
 import { useAsync } from "../useAsync";
+import { useTable } from "../components/TableTools";
 
 type ReportView = "all" | "active" | "closed" | "attendance";
 
@@ -17,6 +18,18 @@ export default function EventReportPage() {
     && (view === "all" || (view === "active" && event.active) || (view === "closed" && !event.active)
       || (view === "attendance" && event.checkins > 0)),
   );
+
+  const table = useTable(events, [
+    { key: "name", label: "Event", sort: (e) => e.name },
+    { key: "area", label: "Area", sort: (e) => area(e.county, e.constituency, e.ward), filter: (e) => e.county, filterLabel: "County" },
+    { key: "starts", label: "Starts", sort: (e) => e.starts_at },
+    { key: "status", label: "Status", sort: (e) => e.active },
+    { key: "admission", label: "Admission", sort: (e) => e.list_only, filter: (e) => (e.list_only ? "Selected participants only" : "General participants") },
+    { key: "checkins", label: "Check-ins", num: true, sort: (e) => e.checkins },
+    { key: "unique", label: "Unique members", num: true, sort: (e) => e.unique },
+    { key: "out", label: "Out-of-region check-ins", num: true, sort: (e) => e.out_of_region },
+    { key: "insights", label: "Insights" },
+  ]);
 
   return (
     <>
@@ -42,13 +55,13 @@ export default function EventReportPage() {
               <option value="closed">Closed events</option><option value="attendance">Events with attendance</option>
             </select>
           </div>
-          {events.length === 0 ? <Empty>No events match.</Empty> : (
+          {table.filterBar}
+          {table.rows.length === 0 ? <Empty>No events match.</Empty> : (
             <div className="table-wrap">
               <table>
-                <thead><tr><th>Event</th><th>Area</th><th>Starts</th><th>Status</th><th>Admission</th>
-                  <th className="num">Check-ins</th><th className="num">Unique members</th><th className="num">Out-of-region check-ins</th><th>Insights</th></tr></thead>
+                <thead>{table.head}</thead>
                 <tbody>
-                  {events.map((event) => (
+                  {table.rows.map((event) => (
                     <tr key={event.id}>
                       <td><Link to={`/events/${event.id}`}>{event.name}</Link>{event.venue && <div className="muted">{event.venue}</div>}</td>
                       <td>{area(event.county, event.constituency, event.ward)}</td>

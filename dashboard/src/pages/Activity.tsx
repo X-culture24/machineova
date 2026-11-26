@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type AuditEntry } from "../api";
 import { Card, ErrorNote, Loading, PageHeader } from "../components/ui";
+import { useTable } from "../components/TableTools";
 
 /** Append-only audit trail: every sign-in and every change in the organization. */
 export default function ActivityPage() {
@@ -9,6 +10,13 @@ export default function ActivityPage() {
   const [error, setError] = useState<string | null>(null);
   const [more, setMore] = useState(true);
 
+  const table = useTable(rows, [
+    { key: "at", label: "When", sort: (e) => e.at },
+    { key: "actor", label: "Who", sort: (e) => e.actor, filter: (e) => e.actor },
+    { key: "action", label: "What", sort: (e) => e.action, filter: (e) => e.action },
+    { key: "status", label: "Result", sort: (e) => e.status, filter: (e) => String(e.status) },
+    { key: "ip", label: "From", sort: (e) => e.ip },
+  ]);
   const load = (before?: string) =>
     api.audit({ q: q || undefined, before }).then((r) => {
       setRows((prev) => (before && prev ? [...prev, ...r] : r));
@@ -27,12 +35,13 @@ export default function ActivityPage() {
       <ErrorNote error={error} />
       <Card>
         <input placeholder="Search by person or action…" value={q} onChange={(e) => setQ(e.target.value)} style={{ marginBottom: 12, width: "100%" }} />
+        {table.filterBar}
         {!rows ? <Loading /> : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>When</th><th>Who</th><th>What</th><th>Result</th><th>From</th></tr></thead>
+              <thead>{table.head}</thead>
               <tbody>
-                {rows.map((e, i) => (
+                {table.rows.map((e, i) => (
                   <tr key={i}>
                     <td>{new Date(e.at).toLocaleString()}</td>
                     <td>{e.actor ?? "—"}</td>

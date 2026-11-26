@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { api, type Coverage, type CoverageRow } from "../api";
 import { num, turnoutPercent } from "../format";
 import { Badge, Card, ErrorNote, focusSection, Kpi, Loading } from "./ui";
+import { useTable } from "./TableTools";
 
 const statusLabel: Record<CoverageRow["status"], string> = {
   strong: "Strong", moderate: "Moderate", low: "Low", critical: "Critical", not_started: "Not started",
@@ -42,6 +43,13 @@ export default function CoveragePanel({ group, onShowStations }: {
     else if (data.level === "ward") setDrill({ ...drill, ward: r.area });
   };
   const canDrill = data && (data.level === "constituency" || data.level === "ward");
+  const table = useTable(data?.rows, [
+    { key: "area", label: data ? levelLabel[data.level] : "Area", sort: (r) => r.area },
+    { key: "reached", label: "Reached", num: true, sort: (r) => r.reached },
+    { key: "registered", label: "Registered", num: true, sort: (r) => r.registered },
+    { key: "coverage", label: "Coverage", num: true, sort: (r) => (r.registered > 0 ? r.reached / r.registered : null) },
+    { key: "status", label: "Status", sort: (r) => r.status, filter: (r) => r.status, format: (v) => statusLabel[v as CoverageRow["status"]] ?? v },
+  ]);
 
   return (
     <Card
@@ -67,16 +75,17 @@ export default function CoveragePanel({ group, onShowStations }: {
           )}
           <details id={areaId} className="insight-target" tabIndex={-1} open={areasOpen} onToggle={(e) => setAreasOpen(e.currentTarget.open)}>
             <summary>Coverage by area</summary>
+            {table.filterBar}
             <div className="table-wrap">
               <table>
-                <thead><tr><th>{levelLabel[data.level]}</th><th>Reached</th><th>Registered</th><th>Coverage</th><th>Status</th></tr></thead>
+                <thead>{table.head}</thead>
                 <tbody>
-                  {(data.rows ?? []).map((r) => (
+                  {table.rows.map((r) => (
                     <tr key={r.area}>
                       <td>{canDrill ? <button type="button" className="btn small ghost" onClick={() => open(r)}>{r.area} ›</button> : r.area}</td>
-                      <td>{num(r.reached)}</td>
-                      <td>{num(r.registered)}</td>
-                      <td>{turnoutPercent(r.reached, r.registered)}</td>
+                      <td className="num">{num(r.reached)}</td>
+                      <td className="num">{num(r.registered)}</td>
+                      <td className="num">{turnoutPercent(r.reached, r.registered)}</td>
                       <td><Badge tone={statusTone[r.status]}>{statusLabel[r.status]}</Badge></td>
                     </tr>
                   ))}

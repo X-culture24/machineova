@@ -724,6 +724,12 @@ func (s *Server) registryStations(w http.ResponseWriter, r *http.Request, p *Pri
 	}
 	q := r.URL.Query()
 	pg := pageParams(q.Get("page"), q.Get("page_size"))
+	order, ok := orderParam(w, q, map[string]string{
+		"code": "code", "name": "lower(name)", "ward": "lower(ward)", "constituency": "lower(constituency)", "registered": "registered_voters",
+	}, "county, constituency, ward, name")
+	if !ok {
+		return
+	}
 	// Optional county/constituency/ward filters, never outside the organization's boundary.
 	sc := b.narrow(q.Get("county"), q.Get("constituency"), q.Get("ward"))
 	var total int
@@ -732,7 +738,7 @@ func (s *Server) registryStations(w http.ResponseWriter, r *http.Request, p *Pri
 		FROM polling_stations
 		WHERE ($1::text IS NULL OR county = $1) AND ($2::text IS NULL OR constituency = $2) AND ($6::text IS NULL OR ward = $6)
 		  AND ($3::text IS NULL OR name ILIKE $3 OR code ILIKE $3 OR ward ILIKE $3)
-		ORDER BY county, constituency, ward, name LIMIT $4 OFFSET $5`,
+		ORDER BY `+order+` LIMIT $4 OFFSET $5`,
 		sc.County, sc.Constituency, likePattern(q.Get("q")), pg.size, pg.offset(), sc.Ward)
 	if err != nil {
 		s.internal(w, r, err)

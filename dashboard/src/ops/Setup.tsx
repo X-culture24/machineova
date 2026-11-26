@@ -5,6 +5,7 @@ import { initials, num } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, regionLabel, type Level, type Race } from "./api";
 import { ElectionPicker, NoElection, OpsHeader, Pager, PartyDot, PastElectionNote, usePickedElection } from "./components";
+import { SortTh, useSort, useTable } from "../components/TableTools";
 
 const levelLabel: Record<Level, string> = { national: "National level", county: "County level", constituency: "Constituency level", ward: "Ward level" };
 
@@ -234,8 +235,14 @@ export function RegistryPage() {
   const [tab, setTab] = useState<"stations" | "parties">("stations");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
-  const stations = useAsync(() => ops.registryStations(q, page), [q, page]);
+  const order = useSort(null, () => setPage(1));
+  const stations = useAsync(() => ops.registryStations(q, page, {}, 25, order.params), [q, page, order.sort?.key, order.sort?.dir]);
   const parties = useAsync(ops.parties, []);
+  const partyTable = useTable(parties.data, [
+    { key: "code", label: "Code", sort: (p) => p.code },
+    { key: "name", label: "Party", sort: (p) => p.name },
+  ]);
+  const th = (label: string, key: string, num = false) => <SortTh label={label} sortKey={key} sort={order.sort} onSort={order.toggle} num={num} />;
   return (
     <>
       <OpsHeader title="Registry" subtitle="Official register — statutory, read-only" />
@@ -253,7 +260,7 @@ export function RegistryPage() {
             <>
               <div className="table-wrap">
                 <table className="cards">
-                  <thead><tr><th>Code</th><th>Polling station</th><th>Ward</th><th>Constituency</th><th className="num">Reg. voters</th></tr></thead>
+                  <thead><tr>{th("Code", "code")}{th("Polling station", "name")}{th("Ward", "ward")}{th("Constituency", "constituency")}{th("Reg. voters", "registered", true)}</tr></thead>
                   <tbody>
                     {stations.data.items.map((s) => (
                       <tr key={s.code}>
@@ -271,8 +278,8 @@ export function RegistryPage() {
         ) : !parties.data ? <Loading /> : parties.data.length === 0 ? <Empty>No parties in the registry.</Empty> : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Code</th><th>Party</th></tr></thead>
-              <tbody>{parties.data.map((p) => <tr key={p.code}><td>{p.code}</td><td><PartyDot colour={p.colour} /> {p.name}</td></tr>)}</tbody>
+              <thead>{partyTable.head}</thead>
+              <tbody>{partyTable.rows.map((p) => <tr key={p.code}><td>{p.code}</td><td><PartyDot colour={p.colour} /> {p.name}</td></tr>)}</tbody>
             </table>
           </div>
         )}

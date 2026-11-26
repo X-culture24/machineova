@@ -13,6 +13,7 @@ import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
 import EventStationCoverage from "../components/EventStationCoverage";
 import AttendanceExport from "../components/AttendanceExport";
+import { SortTh, useSort } from "../components/TableTools";
 
 export default function EventDetail() {
   const { id = "" } = useParams();
@@ -36,7 +37,10 @@ export default function EventDetail() {
   const [query, setQuery] = useState("");
   const search = useDebounced(query);
   const [participants, setParticipants] = useState<ParticipantFilter>("");
-  const list = useAsync(() => api.checkins({ event_id: id, q: search, participants }), [id, search, participants]);
+  const order = useSort({ key: "at", dir: "desc" });
+  const list = useAsync(() => api.checkins({ event_id: id, q: search, participants, ...order.params }),
+    [id, search, participants, order.sort?.key, order.sort?.dir]);
+  const th = (label: string, key: string) => <SortTh label={label} sortKey={key} sort={order.sort} onSort={order.toggle} />;
   const [coverageVersion, refreshCoverage] = useState(0);
   const [modal, setModal] = useState<"assign" | "participants" | null>(null);
   const [actionErr, setActionErr] = useState<string | null>(null);
@@ -238,7 +242,7 @@ export default function EventDetail() {
             <div className="table-wrap">
               <table>
                 <thead>
-                  <tr><th>Name</th><th>ID number</th><th>Phone</th><th>Participant type</th><th>Location</th><th>By</th><th>Time</th><th>Region</th></tr>
+                  <tr>{th("Name", "name")}<th>ID number</th><th>Phone</th><th>Participant type</th>{th("Location", "ward")}{th("By", "by")}{th("Time", "at")}{th("Region", "region")}</tr>
                 </thead>
                 <tbody>
                   {list.data.map((c) => (

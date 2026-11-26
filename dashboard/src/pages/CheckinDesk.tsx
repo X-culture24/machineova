@@ -8,6 +8,7 @@ import { area, initials, time } from "../format";
 import { useAsync } from "../useAsync";
 import { maskId } from "../mask";
 import { useTerms } from "../terms";
+import PhoneField from "../components/PhoneField";
 
 type Flash = { tone: "green" | "amber" | "red"; text: string } | null;
 
@@ -199,9 +200,7 @@ export default function CheckinDesk() {
                   </>
                 )}
                 <Field label={t.chiefs ? "Member’s phone number" : "Phone"}>
-                  <input type="tel" inputMode="tel" placeholder="07XX XXX XXX" required={t.chiefs} value={phone}
-                    aria-invalid={!!phoneProblem(phone)} onChange={(e) => setPhone(e.target.value)} />
-                  {phone.trim() !== "" && phoneProblem(phone) && <small style={{ color: "var(--red)" }}>{phoneProblem(phone)}</small>}
+                  <PhoneField value={phone} onChange={setPhone} required={t.chiefs} label={t.chiefs ? "Member’s phone number" : "Phone"} />
                 </Field>
                 {v && lookup.in_region === false && (
                   <div className="origin-panel">

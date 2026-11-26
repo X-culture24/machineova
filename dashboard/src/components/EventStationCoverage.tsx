@@ -4,6 +4,7 @@ import { num, turnoutPercent } from "../format";
 import { useAsync } from "../useAsync";
 import SearchInput, { matchesSearch } from "./SearchInput";
 import { Card, Empty, ErrorNote, Kpi, Loading } from "./ui";
+import { useTable } from "./TableTools";
 
 const pageSize = 25;
 type StationView = "all" | "reached" | "zero";
@@ -24,7 +25,17 @@ export default function EventStationCoverage({ eventId }: { eventId: string }) {
     (view === "all" || (view === "reached" ? station.reached > 0 : station.reached === 0))
     && matchesSearch(query, station.code, station.name, station.county, station.constituency, station.ward),
   );
-  const offset = Math.min(page * pageSize, Math.max(0, Math.ceil(matches.length / pageSize) - 1) * pageSize);
+  const table = useTable(matches, [
+    { key: "name", label: "Polling station", sort: (s) => s.name },
+    { key: "county", label: "County", sort: (s) => s.county, filter: (s) => s.county },
+    { key: "constituency", label: "Constituency", sort: (s) => s.constituency, filter: (s) => s.constituency },
+    { key: "ward", label: "Ward", sort: (s) => s.ward, filter: (s) => s.ward },
+    { key: "reached", label: "Members checked in", num: true, sort: (s) => s.reached },
+    { key: "registered", label: "Registered voters", num: true, sort: (s) => s.registered },
+    { key: "turnout", label: "Turnout", num: true, sort: (s) => (s.registered > 0 ? s.reached / s.registered : null) },
+  ]);
+  const shown = table.rows;
+  const offset = Math.min(page * pageSize, Math.max(0, Math.ceil(shown.length / pageSize) - 1) * pageSize);
   const changeView = (next: StationView) => { setView(next); setPage(0); };
 
   return (
@@ -49,11 +60,12 @@ export default function EventStationCoverage({ eventId }: { eventId: string }) {
             <option value="zero">With zero check-ins</option>
           </select>
         </div>
-        {matches.length === 0 ? <Empty>No polling stations match.</Empty> : <>
+        {table.filterBar}
+        {shown.length === 0 ? <Empty>No polling stations match.</Empty> : <>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Polling station</th><th>County</th><th>Constituency</th><th>Ward</th><th className="num">Members checked in</th><th className="num">Registered voters</th><th className="num">Turnout</th></tr></thead>
-              <tbody>{matches.slice(offset, offset + pageSize).map((station) =>
+              <thead>{table.head}</thead>
+              <tbody>{shown.slice(offset, offset + pageSize).map((station) =>
                 <tr key={station.code}>
                   <td>{station.name} <small className="muted">{station.code}</small></td>
                   <td>{station.county}</td><td>{station.constituency}</td><td>{station.ward}</td>
@@ -65,8 +77,8 @@ export default function EventStationCoverage({ eventId }: { eventId: string }) {
           </div>
           <div className="toolbar">
             <button className="btn small secondary" disabled={offset === 0} onClick={() => setPage(offset / pageSize - 1)}>Previous</button>
-            <small>{num(offset + 1)}–{num(Math.min(offset + pageSize, matches.length))} of {num(matches.length)}</small>
-            <button className="btn small secondary" disabled={offset + pageSize >= matches.length} onClick={() => setPage(offset / pageSize + 1)}>Next</button>
+            <small>{num(offset + 1)}–{num(Math.min(offset + pageSize, shown.length))} of {num(shown.length)}</small>
+            <button className="btn small secondary" disabled={offset + pageSize >= shown.length} onClick={() => setPage(offset / pageSize + 1)}>Next</button>
           </div>
         </>}
       </>}

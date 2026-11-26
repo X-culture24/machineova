@@ -89,6 +89,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
     ('constituency', false, 'Constituency'),
     ('ward', false, 'Ward'),
     ('region', true, 'In region first'),
+    ('station', false, 'Polling station'),
     ('event', false, 'Event'),
     ('by', false, 'Checked in by'),
   ];
@@ -101,6 +102,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
     ('ward', 'Ward'),
     ('region', 'Region'),
     ('home_county', 'Home county'),
+    ('station', 'Polling station'),
     ('by', 'Checked in by'),
   ];
 

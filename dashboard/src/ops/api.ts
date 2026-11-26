@@ -304,21 +304,21 @@ export const ops = {
     req<void>("PATCH", `/api/ops/candidates/${id}`, body),
   deleteCandidate: (id: string) => req<void>("DELETE", `/api/ops/candidates/${id}`),
 
-  registryStations: (q: string, page: number, area: Drill = {}, pageSize = 25) =>
-    req<Paged<Station>>("GET", `/api/ops/registry/stations${qs({ q, page, page_size: pageSize, ...area })}`),
+  registryStations: (q: string, page: number, area: Drill = {}, pageSize = 25, order: { sort?: string; dir?: string } = {}) =>
+    req<Paged<Station>>("GET", `/api/ops/registry/stations${qs({ q, page, page_size: pageSize, ...area, ...order })}`),
   parties: () => req<Party[]>("GET", "/api/ops/registry/parties"),
   regions: () => req<Regions>("GET", "/api/ops/registry/regions"),
   /** County › constituency › ward only — no station list (for filters on nationwide scopes). */
   areas: () => req<Regions>("GET", "/api/ops/registry/regions?stations=0"),
 
-  people: (p: { role?: string; q?: string; page?: number }) => req<Paged<Person>>("GET", `/api/ops/people${qs({ ...p, page_size: 25 })}`),
+  people: (p: { role?: string; q?: string; page?: number; sort?: string; dir?: string }) => req<Paged<Person>>("GET", `/api/ops/people${qs({ ...p, page_size: 25 })}`),
   addPerson: (body: Record<string, string | undefined>) => req<Person>("POST", "/api/ops/people", body),
   updatePerson: (id: string, body: { active?: boolean; email?: string; password?: string; phone?: string }) =>
     req<void>("PATCH", `/api/ops/people/${id}`, body),
 
   overview: () => req<Overview>("GET", "/api/ops/overview"),
   seatHistory: () => req<SeatHistory[]>("GET", "/api/ops/seat-history"),
-  stations: (p: { status?: string; q?: string; county?: string; constituency?: string; ward?: string; page?: number }) =>
+  stations: (p: { status?: string; q?: string; county?: string; constituency?: string; ward?: string; page?: number; sort?: string; dir?: string }) =>
     req<Paged<Station> & { counts: Record<string, number>; in_scope: number; scope: Scope; scope_label: string; election: Election }>(
       "GET",
       `/api/ops/stations${qs({ ...p, page_size: 10 })}`,

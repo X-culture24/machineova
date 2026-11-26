@@ -10,6 +10,7 @@ import { maskId } from "../mask";
 import { useTerms } from "../terms";
 import CoveragePanel from "../components/Coverage";
 import { isSdicsBrand } from "../brand";
+import { useTable } from "../components/TableTools";
 
 const paceLabel: Record<Pace["status"], [string, "green" | "teal" | "red" | "blue"]> = {
   ahead: ["Ahead of target", "green"],
@@ -26,6 +27,14 @@ export default function DriveDetail() {
   const detail = useAsync(() => api.drive(id), [id]);
   const ins = useAsync(() => api.mobilizationInsights(id), [id]);
   const list = useAsync(() => api.mobilizations({ drive_id: id }), [id]);
+  const table = useTable(list.data, [
+    { key: "name", label: "Name", sort: (p) => p.name },
+    { key: "id", label: "ID number" },
+    { key: "phone", label: "Phone" },
+    { key: "location", label: "Location", sort: (p) => area(p.constituency, p.ward), filter: (p) => p.ward, filterLabel: "Ward" },
+    { key: "by", label: t.mobilizedBy, sort: (p) => p.by, filter: (p) => p.by, filterLabel: "Mobilized by" },
+    { key: "at", label: "When", sort: (p) => p.at },
+  ], { key: "at", dir: "desc" });
   const [assigning, setAssigning] = useState(false);
   const [target, setTarget] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -99,16 +108,16 @@ export default function DriveDetail() {
       {!isSdicsBrand() && <CoveragePanel group={{ drive_id: d.id }} />}
       <Card id="drive-people" title={t.registeredList}>
         {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>{t.noneRegistered}</Empty> : (
-          <div className="table-wrap">
+          <>{table.filterBar}<div className="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>ID number</th><th>Phone</th><th>Location</th><th>{t.mobilizedBy}</th><th>When</th></tr></thead>
+              <thead>{table.head}</thead>
               <tbody>
-                {list.data.map((p) => (
+                {table.rows.map((p) => (
                   <tr key={p.id}><td>{p.name}</td><td className="id-masked">{maskId(p.national_id)}</td><td>{p.phone ?? "—"}</td><td>{area(p.constituency, p.ward)}</td><td>{p.by}</td><td>{dateTime(p.at)}</td></tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </div></>
         )}
       </Card>
       {assigning && (

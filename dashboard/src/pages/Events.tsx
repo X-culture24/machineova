@@ -7,6 +7,7 @@ import { Badge, Card, Empty, ErrorNote, Field, Kpi, Loading, Modal, PageHeader, 
 import { area, dateTime, num } from "../format";
 import { useTerms } from "../terms";
 import { useAsync } from "../useAsync";
+import { useTable } from "../components/TableTools";
 
 export default function EventsPage() {
   const { me } = useAuth();
@@ -23,6 +24,15 @@ export default function EventsPage() {
     && matchesSearch(query, e.name, e.venue, e.county, e.constituency, e.ward),
   );
   const [creating, setCreating] = useState(false);
+  const table = useTable(items, [
+    { key: "name", label: t.event, sort: (e) => e.name },
+    { key: "area", label: "Area", sort: (e) => area(e.county, e.constituency, e.ward), filter: (e) => e.county, filterLabel: "County" },
+    { key: "starts", label: "Starts", sort: (e) => e.starts_at },
+    { key: "admission", label: "Admission", sort: (e) => e.list_only },
+    { key: "checkins", label: "Check-ins", num: true, sort: (e) => e.checkins },
+    { key: "unique", label: t.chiefs ? "Unique members" : "Unique", num: true, sort: (e) => e.unique },
+    { key: "status", label: "Status", sort: (e) => e.active },
+  ]);
 
   return (
     <>
@@ -54,24 +64,15 @@ export default function EventsPage() {
                 <option value="general">General participants</option>
               </select>
             </div>
-            {data.items.length > 0 && items.length === 0 ? <Empty>No events match.</Empty> : items.length === 0 ? (
+            {table.filterBar}
+            {data.items.length > 0 && table.rows.length === 0 ? <Empty>No events match.</Empty> : items.length === 0 ? (
               <Empty>No events yet{isManager(me) ? " — create the first one." : ". Ask an admin to assign you."}</Empty>
             ) : (
               <div className="table-wrap">
                 <table>
-                  <thead>
-                    <tr>
-                      <th>{t.event}</th>
-                      <th>Area</th>
-                      <th>Starts</th>
-                      <th>Admission</th>
-                      <th className="num">Check-ins</th>
-                      <th className="num">{t.chiefs ? "Unique members" : "Unique"}</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
+                  <thead>{table.head}</thead>
                   <tbody>
-                    {items.map((e) => (
+                    {table.rows.map((e) => (
                       <tr key={e.id}>
                         <td>
                           <Link to={`/events/${e.id}`} style={{ fontWeight: 600 }}>{e.name}</Link>

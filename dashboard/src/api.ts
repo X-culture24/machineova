@@ -191,17 +191,19 @@ export interface PersonRecord {
   by_id?: string;
   group_id: string;
   group_name: string;
+  station_code?: string;
+  station?: string;
 }
 
 /** Filters and sort for the check-in list (all optional). */
 export interface CheckinQuery {
   event_id?: string; q?: string; participants?: ParticipantFilter; export?: string;
   sex?: string; age_group?: string; county?: string; constituency?: string; ward?: string;
-  region?: "" | "in" | "out"; home_county?: string; by?: string; sort?: string; dir?: "asc" | "desc";
+  region?: "" | "in" | "out"; home_county?: string; by?: string; station?: string; sort?: string; dir?: "asc" | "desc";
 }
 
 export interface FacetValue { value: string; label?: string; count: number }
-export type CheckinFacets = Record<"sex" | "age_group" | "county" | "constituency" | "ward" | "region" | "home_county", FacetValue[]> & { by?: FacetValue[] };
+export type CheckinFacets = Record<"sex" | "age_group" | "county" | "constituency" | "ward" | "region" | "home_county", FacetValue[]> & { by?: FacetValue[]; station?: FacetValue[] };
 
 export interface NameCount {
   name: string;
@@ -457,7 +459,7 @@ export const api = {
     vocabulary?: "standard" | "sdics_chiefs";
   }) => request<OrgSummary>("POST", "/api/platform/organizations", body),
   platformRegions: () => request<RegisterCounty[]>("GET", "/api/platform/regions"),
-  platformStations: (p: { county?: string; constituency?: string; ward?: string; q?: string; page?: number }) => {
+  platformStations: (p: { county?: string; constituency?: string; ward?: string; q?: string; page?: number; sort?: string; dir?: string }) => {
     const u = new URLSearchParams();
     for (const [k, v] of Object.entries({ ...p, page_size: 25 })) if (v !== undefined && v !== "") u.set(k, String(v));
     return request<{ items: RegisterStation[]; total: number; page: number; page_size: number; registered_voters: number }>("GET", `/api/platform/stations?${u}`);

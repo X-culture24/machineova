@@ -467,6 +467,8 @@ type personRecord struct {
 	ByID                string    `json:"by_id"`
 	GroupID             string    `json:"group_id"`
 	GroupName           string    `json:"group_name"`
+	StationCode         string    `json:"station_code"`
+	Station             string    `json:"station"`
 }
 
 // checkinAgeGroupSQL: the same bands as the event and drive summaries.
@@ -485,9 +487,13 @@ const checkinRowsSQL = `
 	       ` + checkinAgeGroupSQL + ` AS age_group,
 	       c.phone, c.county, c.constituency, c.ward, c.in_region, c.home_county, c.home_location,
 	       c.checked_in_at, u.name AS by_name, u.id::text AS by_id, e.id::text AS group_id, e.name AS group_name,
-	       pp.national_id IS NOT NULL AS selected
+	       pp.national_id IS NOT NULL AS selected,
+	       COALESCE(e.polling_station_code, '') AS station_code,
+	       COALESCE(sr.name, ps.name, e.polling_station_code, '') AS station
 	FROM checkins c JOIN users u ON u.id = c.checked_in_by JOIN events e ON e.id = c.event_id
 	LEFT JOIN event_participants pp ON pp.event_id = c.event_id AND pp.national_id = c.national_id
+	LEFT JOIN sdics_station_roll sr ON sr.code = e.polling_station_code
+	LEFT JOIN polling_stations ps ON ps.code = e.polling_station_code
 	WHERE c.org_id = $1 AND ($2 OR c.checked_in_by = $3)
 	  AND ($4::uuid IS NULL OR c.event_id = $4::uuid)
 	  AND ($5::boolean IS NULL OR (pp.national_id IS NOT NULL) = $5)`
@@ -497,6 +503,7 @@ var checkinSorts = map[string]string{
 	"": "checked_in_at", "at": "checked_in_at", "name": "lower(name)", "age": "age", "age_group": "age",
 	"sex": "sex", "county": "lower(county)", "constituency": "lower(constituency)", "ward": "lower(ward)",
 	"region": "in_region", "home_county": "lower(home_county)", "event": "lower(group_name)", "by": "lower(by_name)",
+	"station": "lower(station)",
 }
 
 // checkinScope reads the event and participant filters shared by the list
@@ -519,7 +526,8 @@ func checkinScope(w http.ResponseWriter, q url.Values) (event *string, selected 
 
 // listCheckins powers People › Check-ins. Members see only their own records.
 // Filters: q (name, ID or phone), event_id, participants, sex, age_group,
-// county, constituency, ward, region (in|out), home_county, by (user id).
+// county, constituency, ward, region (in|out), home_county, by (user id),
+// station (the event's polling station code).
 // Sort: sort (see checkinSorts) and dir (asc|desc; default newest first).
 func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Principal) {
 	if !requireOrg(w, p) {
@@ -564,10 +572,11 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		likePattern(search), phoneSearch(search), limit,
 		nilIfEmpty(q.Get("sex")), nilIfEmpty(q.Get("age_group")), nilIfEmpty(q.Get("county")),
 		nilIfEmpty(q.Get("constituency")), nilIfEmpty(q.Get("ward")), region,
-		nilIfEmpty(q.Get("home_county")), nilIfEmpty(q.Get("by"))}
+		nilIfEmpty(q.Get("home_county")), nilIfEmpty(q.Get("by")), nilIfEmpty(q.Get("station"))}
 	rows, err := s.db.Query(r.Context(), `WITH rows AS (`+checkinRowsSQL+`)
 		SELECT id, national_id, name, sex, age, age_group, phone, county, constituency, ward, in_region,
-		       home_county, home_location, checked_in_at, by_name, by_id, group_id, group_name, selected
+		       home_county, home_location, checked_in_at, by_name, by_id, group_id, group_name, selected,
+		       station_code, station
 		FROM rows
 		WHERE ($6::text IS NULL OR name ILIKE $6 OR national_id LIKE $6
 		       OR ($7::text IS NOT NULL AND regexp_replace(COALESCE(phone,''), '[^0-9]', '', 'g') LIKE $7))
@@ -575,6 +584,7 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		  AND ($11::text IS NULL OR county = $11) AND ($12::text IS NULL OR constituency = $12)
 		  AND ($13::text IS NULL OR ward = $13) AND ($14::boolean IS NULL OR in_region = $14)
 		  AND ($15::text IS NULL OR home_county = $15) AND ($16::text IS NULL OR by_id = $16)
+		  AND ($17::text IS NULL OR station_code = $17)
 		ORDER BY `+order+` `+dir+` NULLS LAST, checked_in_at DESC, id DESC LIMIT $8`, args...)
 	if err != nil {
 		if isInvalidUUID(err) {
@@ -589,7 +599,7 @@ func (s *Server) listCheckins(w http.ResponseWriter, r *http.Request, p *Princip
 		var inRegion bool
 		err := row.Scan(&pr.ID, &pr.NationalID, &pr.Name, &pr.Sex, &pr.Age, &pr.AgeGroup, &pr.Phone, &pr.County,
 			&pr.Constituency, &pr.Ward, &inRegion, &pr.HomeCounty, &pr.HomeLocation, &pr.At, &pr.By, &pr.ByID,
-			&pr.GroupID, &pr.GroupName, &pr.SelectedParticipant)
+			&pr.GroupID, &pr.GroupName, &pr.SelectedParticipant, &pr.StationCode, &pr.Station)
 		pr.InRegion = &inRegion
 		return pr, err
 	})
@@ -625,6 +635,7 @@ func (s *Server) checkinFacets(w http.ResponseWriter, r *http.Request, p *Princi
 		UNION ALL SELECT 'region', CASE WHEN in_region THEN 'in' ELSE 'out' END, '', count(*) FROM rows GROUP BY 2
 		UNION ALL SELECT 'home_county', home_county, '', count(*) FROM rows WHERE COALESCE(home_county,'') <> '' GROUP BY 2
 		UNION ALL SELECT 'by', by_id, min(by_name), count(*) FROM rows GROUP BY 2
+		UNION ALL SELECT 'station', station_code, min(station), count(*) FROM rows WHERE station_code <> '' GROUP BY 2
 		ORDER BY 1, 2`, p.OrgID, p.SeesAll(), p.UserID, event, selected)
 	if err != nil {
 		if isInvalidUUID(err) {
@@ -635,7 +646,7 @@ func (s *Server) checkinFacets(w http.ResponseWriter, r *http.Request, p *Princi
 		return
 	}
 	out := map[string][]checkinFacet{"sex": {}, "age_group": {}, "county": {}, "constituency": {}, "ward": {},
-		"region": {}, "home_county": {}, "by": {}}
+		"region": {}, "home_county": {}, "by": {}, "station": {}}
 	if _, err := collect(rows, func(row pgx.Row) (struct{}, error) {
 		var key string
 		var f checkinFacet

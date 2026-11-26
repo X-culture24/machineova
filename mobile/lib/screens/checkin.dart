@@ -241,6 +241,8 @@ class _CheckinFlowState extends State<CheckinFlow> {
             key: const Key('phone-input'),
             controller: _f.phone,
             keyboardType: TextInputType.phone,
+            inputFormatters: phoneInputFormatters,
+            buildCounter: phoneCounter(_f.phone),
             decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07XX XXX XXX'),
             validator: terms.chiefs ? _phoneRequired : _phoneOptional,
           ),
@@ -273,6 +275,8 @@ class _CheckinFlowState extends State<CheckinFlow> {
             TextFormField(
               controller: _f.phone,
               keyboardType: TextInputType.phone,
+              inputFormatters: phoneInputFormatters,
+              buildCounter: phoneCounter(_f.phone),
               decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07XX XXX XXX'),
               validator: terms.chiefs ? _phoneRequired : _phoneOptional,
             ),

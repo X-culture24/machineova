@@ -7,6 +7,8 @@ import { useAuth } from "../auth";
 import { Badge, Card, Empty, ErrorNote, Field, Loading, PageHeader } from "../components/ui";
 import { openIssuesReport } from "../components/issuesReportPdf";
 import { useAsync, useDebounced } from "../useAsync";
+import { compareCells } from "../components/TableTools";
+import PhoneField from "../components/PhoneField";
 
 // Field issues: the team types each problem reported at an event as it happens (device internet,
 // device malfunction, a member's location, sign-in, the app, …), with the member concerned; the
@@ -108,7 +110,8 @@ function IssueWorkspace({ eventId }: { eventId: string | null }) {
     }
   }
 
-  const items = list.data?.items ?? [];
+  const [order, setOrder] = useState<IssueOrder>("newest");
+  const items = sortIssues(list.data?.items ?? [], order);
   const open = items.filter((i) => i.status === "open").length;
 
   return (
@@ -153,8 +156,7 @@ function IssueWorkspace({ eventId }: { eventId: string | null }) {
                   </div>
                 </Field>
                 <Field label="Member’s name (optional)"><input value={f.chief_name} onChange={set("chief_name")} /></Field>
-                <Field label="Phone number (optional)"><input value={f.phone} onChange={set("phone")} inputMode="tel" type="tel" placeholder="07XX XXX XXX" aria-invalid={!!phoneProblem(f.phone)} />
-                  {phoneProblem(f.phone) && <small style={{ color: "var(--red)" }}>{phoneProblem(f.phone)}</small>}</Field>
+                <Field label="Phone number (optional)"><PhoneField value={f.phone} onChange={(v) => setF({ ...f, phone: v })} label="Phone number" /></Field>
                 <Field label="Location (optional)"><input value={f.location} onChange={set("location")} placeholder="e.g. Kapropita, Kabarnet" /></Field>
               </div>
               <Field label="What happened">
@@ -192,6 +194,9 @@ function IssueWorkspace({ eventId }: { eventId: string | null }) {
               <option value="open">Open</option>
               <option value="resolved">Resolved</option>
             </select>
+            <select className="input" aria-label="Sort problems" style={{ width: "auto", minWidth: 150 }} value={order} onChange={(e) => setOrder(e.target.value as IssueOrder)}>
+              {Object.entries(issueOrders).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+            </select>
           </div>
           <ErrorNote error={list.error} />
           {list.loading && !list.data ? <Loading /> : items.length === 0 ? <Empty>No problems recorded{filter.event_id || filter.category || filter.status || search ? " for this filter" : " yet"}.</Empty> : (
@@ -219,4 +224,20 @@ function IssueWorkspace({ eventId }: { eventId: string | null }) {
       </div>
     </>
   );
+}
+
+type IssueOrder = keyof typeof issueOrders;
+const issueOrders = {
+  newest: "Newest first", oldest: "Oldest first", open: "Open first", category: "Problem type", event: "Event", reporter: "Reported by",
+};
+function sortIssues(items: Issue[], order: IssueOrder): Issue[] {
+  const by: Record<IssueOrder, (a: Issue, b: Issue) => number> = {
+    newest: (a, b) => b.reported_at.localeCompare(a.reported_at),
+    oldest: (a, b) => a.reported_at.localeCompare(b.reported_at),
+    open: (a, b) => Number(b.status === "open") - Number(a.status === "open"),
+    category: (a, b) => issueCategoryLabel[a.category].localeCompare(issueCategoryLabel[b.category]),
+    event: (a, b) => compareCells(a.event_name, b.event_name),
+    reporter: (a, b) => a.reported_by.localeCompare(b.reported_by),
+  };
+  return [...items].sort((a, b) => by[order](a, b) || b.reported_at.localeCompare(a.reported_at));
 }

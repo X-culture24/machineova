@@ -48,6 +48,9 @@ func (s *Server) listStations(w http.ResponseWriter, r *http.Request, p *Princip
 		}
 		filtered = append(filtered, st)
 	}
+	if !sortStations(w, q, filtered) {
+		return
+	}
 	pg := pageParams(q.Get("page"), q.Get("page_size"))
 	start := min(pg.offset(), len(filtered))
 	end := min(start+pg.size, len(filtered))

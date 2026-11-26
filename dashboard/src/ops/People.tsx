@@ -7,6 +7,7 @@ import { useAsync } from "../useAsync";
 import { ops, roleLabel, type OpsRole } from "./api";
 import { ContactLinks, OpsHeader, Pager } from "./components";
 import { maskId } from "../mask";
+import { SortTh, useSort } from "../components/TableTools";
 
 const rank: Record<string, number> = { agent: 1, manager: 2, chief_agent: 3, admin: 4, executive: 5, owner: 6 };
 const tabs: { role: string; label: string }[] = [
@@ -32,7 +33,9 @@ export default function PeoplePage() {
     const t = setTimeout(() => setDq(q), 300);
     return () => clearTimeout(t);
   }, [q]);
-  const list = useAsync(() => ops.people({ role, q: dq, page }), [role, dq, page]);
+  const order = useSort(null, () => setPage(1));
+  const list = useAsync(() => ops.people({ role, q: dq, page, ...order.params }), [role, dq, page, order.sort?.key, order.sort?.dir]);
+  const th = (label: string, key: string) => <SortTh label={label} sortKey={key} sort={order.sort} onSort={order.toggle} />;
   const myRank = rank[me?.role ?? ""] ?? 0;
   const canAdd = myRank > 1 && me?.role !== "executive";
 
@@ -54,7 +57,7 @@ export default function PeoplePage() {
           <>
             <div className="table-wrap">
               <table className="cards">
-                <thead><tr><th>Name</th><th>Role</th><th>Area</th><th>Contact</th><th>National ID</th></tr></thead>
+                <thead><tr>{th("Name", "name")}{th("Role", "role")}{th("Area", "area")}<th>Contact</th>{th("National ID", "national_id")}</tr></thead>
                 <tbody>
                   {list.data.items.map((p) => (
                     <tr key={p.id} style={{ opacity: p.active ? 1 : 0.55 }}>

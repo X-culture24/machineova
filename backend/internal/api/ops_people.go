@@ -58,6 +58,13 @@ func (s *Server) listPeople(w http.ResponseWriter, r *http.Request, p *Principal
 	sc := p.userScope()
 	q := r.URL.Query()
 	pg := pageParams(q.Get("page"), q.Get("page_size"))
+	order, ok := orderParam(w, q, map[string]string{
+		"name": "lower(u.name)", "role": "array_position($2, u.role::text)",
+		"area": "lower(concat_ws(' ', u.scope_county, u.scope_constituency, u.scope_ward))", "national_id": "u.national_id",
+	}, "array_position($2, u.role::text), u.name")
+	if !ok {
+		return
+	}
 	roles := opsRoleList
 	if role := q.Get("role"); role != "" {
 		roles = []string{role}
@@ -68,7 +75,7 @@ func (s *Server) listPeople(w http.ResponseWriter, r *http.Request, p *Principal
 		  AND ($3::text IS NULL OR u.scope_county = $3) AND ($4::text IS NULL OR u.scope_constituency = $4)
 		  AND ($5::text IS NULL OR u.scope_ward = $5)
 		  AND ($6::text IS NULL OR u.name ILIKE $6 OR u.phone ILIKE $6 OR u.national_id ILIKE $6)
-		ORDER BY array_position($2, u.role::text), u.name LIMIT $7 OFFSET $8`,
+		ORDER BY `+order+` LIMIT $7 OFFSET $8`,
 		p.OrgID, roles, sc.County, sc.Constituency, sc.Ward, likePattern(q.Get("q")), pg.size, pg.offset())
 	if err != nil {
 		s.internal(w, r, err)

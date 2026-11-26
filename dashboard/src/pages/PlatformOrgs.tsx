@@ -4,6 +4,7 @@ import { api } from "../api";
 import { Badge, Card, Empty, ErrorNote, focusSection, Field, Kpi, Loading, PageHeader, Toggle } from "../components/ui";
 import { area, initials, num } from "../format";
 import { useAsync } from "../useAsync";
+import { useTable } from "../components/TableTools";
 
 const orgStatus = (o: { active: boolean; trial: boolean }) =>
   !o.active ? <Badge tone="red">Inactive</Badge> : o.trial ? <Badge tone="amber">Trial</Badge> : <Badge tone="green">Active</Badge>;
@@ -11,6 +12,15 @@ const orgStatus = (o: { active: boolean; trial: boolean }) =>
 export default function PlatformOrgs() {
   const ov = useAsync(api.platformOverview, []);
   const { data, error } = useAsync(api.orgs, []);
+  const table = useTable(data, [
+    { key: "name", label: "Organization", sort: (o) => o.name },
+    { key: "boundary", label: "Boundary", sort: (o) => area(o.boundary_county, o.boundary_constituency), filter: (o) => o.boundary_county ?? "National" },
+    { key: "members", label: "Members", num: true, sort: (o) => o.members },
+    { key: "events", label: "Events", num: true, sort: (o) => o.events },
+    { key: "mobilized", label: "Mobilized", num: true, sort: (o) => o.mobilized },
+    { key: "status", label: "Status", sort: (o) => (!o.active ? "Inactive" : o.trial ? "Trial" : "Active"), filter: (o) => (!o.active ? "Inactive" : o.trial ? "Trial" : "Active") },
+    { key: "open", label: "" },
+  ]);
   return (
     <>
       <PageHeader title="Platform overview" subtitle="MachineNova operator console — every tenant"
@@ -26,11 +36,11 @@ export default function PlatformOrgs() {
       )}
       <Card id="platform-organizations" title="Organizations">
         {!data ? <Loading /> : data.length === 0 ? <Empty>No organizations yet.</Empty> : (
-          <div className="table-wrap">
+          <>{table.filterBar}<div className="table-wrap">
             <table className="cards">
-              <thead><tr><th>Organization</th><th>Boundary</th><th className="num">Members</th><th className="num">Events</th><th className="num">Mobilized</th><th>Status</th><th /></tr></thead>
+              <thead>{table.head}</thead>
               <tbody>
-                {data.map((o) => (
+                {table.rows.map((o) => (
                   <tr key={o.id}>
                     <td data-label="Organization">
                       <div className="person">
@@ -48,7 +58,7 @@ export default function PlatformOrgs() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </div></>
         )}
       </Card>
     </>

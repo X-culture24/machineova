@@ -251,6 +251,8 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
           TextFormField(
             controller: _f.phone,
             keyboardType: TextInputType.phone,
+            inputFormatters: phoneInputFormatters,
+            buildCounter: phoneCounter(_f.phone),
             decoration: InputDecoration(
                 labelText: terms.chiefs ? 'Member’s phone number' : 'Phone', hintText: '07XX XXX XXX'),
             validator: phoneValidator(required: terms.chiefs),

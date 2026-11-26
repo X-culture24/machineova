@@ -4,6 +4,7 @@ import { Card, Empty, ErrorNote, Field, focusSection, Kpi, Loading, Modal, PageH
 import { num } from "../format";
 import { Pager } from "../ops/components";
 import { useAsync } from "../useAsync";
+import { SortTh, useSort } from "../components/TableTools";
 
 /** Platform › Polling stations: the shared register, listed per area, with add / edit / delete. */
 export default function PlatformStations() {
@@ -20,7 +21,10 @@ export default function PlatformStations() {
     const t = setTimeout(() => setDq(q), 250);
     return () => clearTimeout(t);
   }, [q]);
-  const list = useAsync(() => api.platformStations({ county, constituency, ward, q: dq, page }), [county, constituency, ward, dq, page]);
+  const order = useSort(null, () => setPage(1));
+  const list = useAsync(() => api.platformStations({ county, constituency, ward, q: dq, page, ...order.params }),
+    [county, constituency, ward, dq, page, order.sort?.key, order.sort?.dir]);
+  const th = (label: string, key: string, num = false) => <SortTh label={label} sortKey={key} sort={order.sort} onSort={order.toggle} num={num} />;
 
   const counties = regions.data ?? [];
   const inCounty = counties.find((c) => c.name === county);
@@ -69,7 +73,7 @@ export default function PlatformStations() {
           <>
             <div className="table-wrap">
               <table className="cards">
-                <thead><tr><th>Station</th><th>Ward</th><th>Constituency</th>{!county && <th>County</th>}<th className="num">Reg. voters</th><th className="num">Elections</th><th /></tr></thead>
+                <thead><tr>{th("Station", "name")}{th("Ward", "ward")}{th("Constituency", "constituency")}{!county && th("County", "county")}{th("Reg. voters", "registered", true)}{th("Elections", "elections", true)}<th /></tr></thead>
                 <tbody>
                   {list.data.items.map((s) => (
                     <tr key={s.code}>

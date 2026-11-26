@@ -6,6 +6,7 @@ import { date, num, pct, time } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, pp, regionLabel, slotLabel, type Drill, type Leader } from "./api";
 import { DrillCrumbs, drillInto, ElectionPicker, NoElection, OpsHeader, PartyDot, PastElectionNote, TrendChart, usePickedElection } from "./components";
+import { useTable } from "../components/TableTools";
 
 const signalTone: Record<string, "amber" | "red" | "green" | "grey"> = {
   "Push GOTV": "amber", "Behind + low turnout": "red", "Opponent ahead": "red", Strong: "green", "Below average": "amber", "On pace": "grey",
@@ -30,6 +31,14 @@ export function TurnoutPage() {
   const [electionId, setElectionId] = usePickedElection();
   const pickElection = (id: string | undefined) => { setDrill({}); setElectionId(id); };
   const t = useAsync(() => ops.turnout(drill, electionId), [electionId, drill.county, drill.constituency, drill.ward]);
+  const areas = useTable(t.data?.areas, [
+    { key: "name", label: t.data?.child_level ?? "Area", sort: (a) => a.name },
+    { key: "turnout", label: "Turnout", num: true, sort: (a) => a.turnout },
+    { key: "vs_avg", label: "vs avg", num: true, sort: (a) => a.vs_avg },
+    { key: "leading", label: `Leading — ${t.data?.focus_position?.name ?? "race"}`, sort: (a) => a.leading?.candidate.name, filter: (a) => a.leading?.candidate.name, filterLabel: "Leading" },
+    { key: "signal", label: "Signal", sort: (a) => a.signal, filter: (a) => a.signal },
+    { key: "drill", label: "" },
+  ]);
   if (t.error?.includes("No active election")) return (<><OpsHeader title="Voter turnout" /><NoElection canSetup={me?.role === "owner" || me?.role === "admin"} /></>);
   const d = t.data;
   const root = me?.scope_label ?? d?.election.scope_label ?? "Scope";
@@ -62,11 +71,12 @@ export function TurnoutPage() {
               </p>
             )}
             <DrillCrumbs root={root} drill={drill} onChange={setDrill} />
+            {areas.filterBar}
             <div className="table-wrap">
               <table className="cards">
-                <thead><tr><th>{d.child_level}</th><th className="num">Turnout</th><th className="num">vs avg</th><th>Leading — {d.focus_position?.name ?? "race"}</th><th>Signal</th><th /></tr></thead>
+                <thead>{areas.head}</thead>
                 <tbody>
-                  {d.areas.map((a) => {
+                  {areas.rows.map((a) => {
                     const next = drillInto(drill, d.child_level, a.name);
                     return (
                       <tr key={a.name} className={next ? "clickable" : ""} onClick={() => next && setDrill(next)}>
@@ -90,7 +100,7 @@ export function TurnoutPage() {
                   <tr><th>{d.child_level}</th>{d.slots.map((h) => <th key={h} className="num">{slotLabel(h)}</th>)}<th>Turnout</th></tr>
                 </thead>
                 <tbody>
-                  {d.areas.map((a) => (
+                  {areas.rows.map((a) => (
                     <tr key={a.name}>
                       <td data-label={d.child_level} style={{ fontWeight: 600 }}>{a.name}</td>
                       {a.hourly.map((v, i) => <td key={i} data-label={slotLabel(d.slots[i]!)} className="num muted">{pct(v)}</td>)}
@@ -114,6 +124,14 @@ export function ResultsPage() {
   const [electionId, setElectionId] = usePickedElection();
   const pickElection = (id: string | undefined) => { setDrill({}); setPositionId(undefined); setElectionId(id); };
   const r = useAsync(() => ops.results(positionId, drill, electionId), [electionId, positionId, drill.county, drill.constituency, drill.ward]);
+  const areas = useTable(r.data?.areas, [
+    { key: "name", label: r.data?.child_level ?? "Area", sort: (a) => a.name },
+    { key: "leading", label: "Leading", sort: (a) => a.leading?.candidate.name, filter: (a) => a.leading?.candidate.name },
+    { key: "share", label: "Share", num: true, sort: (a) => a.leading?.share },
+    { key: "margin", label: "Margin", num: true, sort: (a) => a.margin },
+    { key: "reporting", label: "Reporting", num: true, sort: (a) => a.reporting },
+    { key: "drill", label: "" },
+  ]);
   if (r.error?.includes("No active election")) return (<><OpsHeader title="Results" /><NoElection canSetup={me?.role === "owner" || me?.role === "admin"} /></>);
   const d = r.data;
   const lead = d?.totals?.[0];
@@ -172,11 +190,12 @@ export function ResultsPage() {
             <Card><Empty>No results submitted for this race yet.</Empty></Card>
           )}
           <Card className="mt">
+            {areas.filterBar}
             <div className="table-wrap">
               <table className="cards">
-                <thead><tr><th>{d.child_level}</th><th>Leading</th><th className="num">Share</th><th className="num">Margin</th><th className="num">Reporting</th><th /></tr></thead>
+                <thead>{areas.head}</thead>
                 <tbody>
-                  {d.areas.map((a) => {
+                  {areas.rows.map((a) => {
                     const next = drillInto(drill, d.child_level, a.name);
                     return (
                       <tr key={a.name} className={next ? "clickable" : ""} onClick={() => next && setDrill(next)}>
@@ -206,6 +225,12 @@ export function ReplayPage() {
   const [hour, setHour] = useState(15);
   const [playing, setPlaying] = useState(false);
   const r = useAsync(() => ops.replay(id, hour), [id, hour]);
+  const replayAreas = useTable(r.data?.areas, [
+    { key: "name", label: r.data?.child_level ?? "Area", sort: (a) => a.name },
+    { key: "turnout", label: "Turnout", num: true, sort: (a) => a.turnout },
+    { key: "leading", label: "Leading", sort: (a) => a.leading?.candidate.name },
+    { key: "margin", label: "Margin", num: true, sort: (a) => a.margin },
+  ]);
   const timer = useRef<number>();
 
   useEffect(() => {
@@ -253,9 +278,9 @@ export function ReplayPage() {
             <Card id="replay-areas" title={`By ${d.child_level} — at ${slotLabel(hour)}`}>
               <div className="table-wrap">
                 <table className="cards">
-                  <thead><tr><th>{d.child_level}</th><th className="num">Turnout</th><th>Leading</th><th className="num">Margin</th></tr></thead>
+                  <thead>{replayAreas.head}</thead>
                   <tbody>
-                    {d.areas.map((a) => (
+                    {replayAreas.rows.map((a) => (
                       <tr key={a.name}>
                         <td data-label={d.child_level} style={{ fontWeight: 600 }}>{a.name}</td>
                         <td data-label="Turnout" className="num">{pct(a.turnout)}</td>

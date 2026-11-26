@@ -48,6 +48,9 @@ func TestCheckinListFiltersDB(t *testing.T) {
 		exec(`INSERT INTO checkins (org_id, event_id, national_id, name, sex, dob, phone, county, constituency, ward, in_region, checked_in_by)
 			VALUES ($1, $2, $3, $4, $5, $6, '0712345678', $7, $8, $9, $10, $11)`, org, event, c.nid, c.name, c.sex, c.dob, c.county, c.cons, c.ward, c.in, c.by)
 	}
+	exec(`INSERT INTO sdics_station_roll (code, name, county, constituency, ward, registered_voters)
+		VALUES ('LT-PS-1', 'Kapsabet Primary', 'Nandi', 'Emgwen', 'Kapsabet', 500) ON CONFLICT (code) DO NOTHING`)
+	exec(`UPDATE events SET polling_station_code = 'LT-PS-1' WHERE id = $1`, event)
 	s := &Server{db: pool}
 	list := func(p *Principal, query string, want int) []personRecord {
 		t.Helper()
@@ -75,11 +78,14 @@ func TestCheckinListFiltersDB(t *testing.T) {
 	}
 	for q, want := range map[string]int{
 		"sex=F": 2, "age_group=18–24": 1, "county=Nandi": 2, "constituency=Emgwen": 1, "ward=Parklands": 1,
-		"region=out": 1, "by=" + member: 1, "county=Nandi&sex=F": 1, "q=kiprop": 1, "q=0712345678": 3,
+		"region=out": 1, "by=" + member: 1, "county=Nandi&sex=F": 1, "q=kiprop": 1, "q=0712345678": 3, "station=LT-PS-1": 3, "station=NONE": 0,
 	} {
 		if got := list(boss, q, 200); len(got) != want {
 			t.Errorf("%s: %d rows, want %d", q, len(got), want)
 		}
+	}
+	if got := list(boss, "sort=station", 200); got[0].Station != "Kapsabet Primary" || got[0].StationCode != "LT-PS-1" {
+		t.Fatalf("station: %+v", got[0])
 	}
 	list(boss, "sort=phone", 400)
 	list(boss, "region=north", 400)
@@ -94,8 +100,10 @@ func TestCheckinListFiltersDB(t *testing.T) {
 	if err := json.Unmarshal(w.Body.Bytes(), &facets); err != nil || w.Code != 200 {
 		t.Fatalf("facets: %d %s", w.Code, w.Body)
 	}
-	if len(facets["county"]) != 2 || len(facets["sex"]) != 2 || len(facets["by"]) != 2 || len(facets["region"]) != 2 {
+	if len(facets["county"]) != 2 || len(facets["sex"]) != 2 || len(facets["by"]) != 2 || len(facets["region"]) != 2 ||
+		len(facets["station"]) != 1 || facets["station"][0].Label != "Kapsabet Primary" {
 		t.Fatalf("facets: %+v", facets)
 	}
 	exec(`DELETE FROM organizations WHERE id = $1`, org)
+	exec(`DELETE FROM sdics_station_roll WHERE code = 'LT-PS-1'`)
 }

@@ -5,6 +5,7 @@ import { useAuth } from "../auth";
 import { Badge, Card, ErrorNote, Field, Loading, Modal, PageHeader, Toggle } from "../components/ui";
 import { initials } from "../format";
 import { useAsync } from "../useAsync";
+import { useTable } from "../components/TableTools";
 
 const roleTone: Partial<Record<Role, "teal" | "blue" | "grey" | "amber">> = { owner: "teal", admin: "blue", member: "grey", viewer: "amber" };
 // Field roles (managers, agents…) are managed in Election Ops › Directory.
@@ -17,6 +18,14 @@ export default function TeamPage() {
   const [adding, setAdding] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const members = (data ?? []).filter((m) => checkinRoles.has(m.role) && matchesSearch(query, m.name, m.email, m.phone, m.role));
+  const table = useTable(members, [
+    { key: "name", label: "Name", sort: (m) => m.name },
+    { key: "role", label: "Role", sort: (m) => m.role, filter: (m) => m.role },
+    { key: "events", label: "Events", sort: (m) => m.module_events, filter: (m) => (m.module_events ? "On" : "Off"), filterLabel: "Events access" },
+    { key: "mobilization", label: "Mobilization", sort: (m) => m.module_mobilization, filter: (m) => (m.module_mobilization ? "On" : "Off"), filterLabel: "Mobilization access" },
+    { key: "status", label: "Status", sort: (m) => m.active, filter: (m) => (m.active ? "Active" : "Inactive") },
+  ]);
   const canEdit = (m: Member) => m.role !== "owner" && m.id !== me?.id && (m.role !== "admin" || me?.role === "owner");
   const update = (m: Member, body: Partial<Member>) => {
     setErr(null);
@@ -29,12 +38,13 @@ export default function TeamPage() {
       <ErrorNote error={error ?? err} />
       <Card>
         <div className="toolbar"><SearchInput label="Search team members" value={query} onChange={setQuery} /></div>
+        {table.filterBar}
         {!data ? <Loading /> : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Role</th><th>Events</th><th>Mobilization</th><th>Status</th></tr></thead>
+              <thead>{table.head}</thead>
               <tbody>
-                {data.filter((m) => checkinRoles.has(m.role) && matchesSearch(query, m.name, m.email, m.phone, m.role)).map((m) => (
+                {table.rows.map((m) => (
                   <tr key={m.id}>
                     <td>
                       <div className="person">
@@ -57,8 +67,8 @@ export default function TeamPage() {
                         </select>
                       ) : <Badge tone={roleTone[m.role]}>{m.role}</Badge>}
                     </td>
-                    <td><Toggle label="" checked={m.module_events} onChange={(v) => canEdit(m) && update(m, { module_events: v })} /></td>
-                    <td><Toggle label="" checked={m.module_mobilization} onChange={(v) => canEdit(m) && update(m, { module_mobilization: v })} /></td>
+                    <td><Toggle label="" checked={m.module_events} disabled={!canEdit(m)} onChange={(v) => update(m, { module_events: v })} /></td>
+                    <td><Toggle label="" checked={m.module_mobilization} disabled={!canEdit(m)} onChange={(v) => update(m, { module_mobilization: v })} /></td>
                     <td>
                       {canEdit(m) ? (
                         <button className={`btn small ${m.active ? "secondary" : ""}`} onClick={() => update(m, { active: !m.active })}>

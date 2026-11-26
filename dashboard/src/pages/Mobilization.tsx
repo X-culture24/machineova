@@ -6,6 +6,7 @@ import { Badge, Card, Empty, ErrorNote, focusSection, Field, Kpi, Loading, Modal
 import { area, num, pct } from "../format";
 import { useTerms } from "../terms";
 import { useAsync } from "../useAsync";
+import { useTable } from "../components/TableTools";
 
 export default function MobilizationPage() {
   const { me } = useAuth();
@@ -14,6 +15,15 @@ export default function MobilizationPage() {
   const { data, error, loading, reload } = useAsync(() => api.drives(), []);
   const [creating, setCreating] = useState(false);
   const s = data?.summary;
+  const table = useTable(data?.items, [
+    { key: "name", label: t.driveColumn, sort: (d) => d.name },
+    { key: "area", label: "Area", sort: (d) => area(d.county, d.constituency, d.ward), filter: (d) => d.county, filterLabel: "County" },
+    { key: "target", label: "Target", num: true, sort: (d) => d.target },
+    { key: "mobilized", label: t.mobilized, num: true, sort: (d) => d.mobilized },
+    { key: "remaining", label: "Remaining", num: true, sort: (d) => d.remaining },
+    { key: "progress", label: "Progress", sort: (d) => d.progress, className: "progress-col" },
+    { key: "status", label: "Status", sort: (d) => d.active, filter: (d) => (d.active ? "Active" : "Closed") },
+  ]);
 
   return (
     <>
@@ -37,13 +47,11 @@ export default function MobilizationPage() {
             {data.items.length === 0 ? (
               <Empty>{t.noDrives}</Empty>
             ) : (
-              <div className="table-wrap">
+              <>{table.filterBar}<div className="table-wrap">
                 <table>
-                  <thead>
-                    <tr><th>{t.driveColumn}</th><th>Area</th><th className="num">Target</th><th className="num">{t.mobilized}</th><th className="num">Remaining</th><th style={{ width: 200 }}>Progress</th><th>Status</th></tr>
-                  </thead>
+                  <thead>{table.head}</thead>
                   <tbody>
-                    {data.items.map((d) => (
+                    {table.rows.map((d) => (
                       <tr key={d.id} className="clickable" onClick={() => nav(`/mobilization/${d.id}`)}>
                         <td style={{ fontWeight: 600 }}>{d.name}</td>
                         <td>{area(d.county, d.constituency, d.ward)}</td>
@@ -56,7 +64,7 @@ export default function MobilizationPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </div></>
             )}
           </Card>
         </>

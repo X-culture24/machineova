@@ -35,6 +35,13 @@ func (s *Server) platformStations(w http.ResponseWriter, r *http.Request, p *Pri
 	}
 	q := r.URL.Query()
 	pg := pageParams(q.Get("page"), q.Get("page_size"))
+	order, ok := orderParam(w, q, map[string]string{
+		"name": "lower(s.name)", "ward": "lower(s.ward)", "constituency": "lower(s.constituency)", "county": "lower(s.county)",
+		"registered": "s.registered_voters", "elections": "(SELECT count(*) FROM election_stations es WHERE es.station_code = s.code)",
+	}, "s.county, s.constituency, s.ward, s.name")
+	if !ok {
+		return
+	}
 	area := []any{emptyNil(ptr(q.Get("county"))), emptyNil(ptr(q.Get("constituency"))), emptyNil(ptr(q.Get("ward"))), likePattern(q.Get("q"))}
 	const where = `($1::text IS NULL OR s.county = $1) AND ($2::text IS NULL OR s.constituency = $2) AND ($3::text IS NULL OR s.ward = $3)
 		AND ($4::text IS NULL OR s.name ILIKE $4 OR s.code ILIKE $4)`
@@ -49,7 +56,7 @@ func (s *Server) platformStations(w http.ResponseWriter, r *http.Request, p *Pri
 		       (SELECT count(*) FROM election_stations es WHERE es.station_code = s.code),
 		       `+stationInUseSQL+`
 		FROM polling_stations s WHERE `+where+`
-		ORDER BY s.county, s.constituency, s.ward, s.name LIMIT $5 OFFSET $6`, append(area, pg.size, pg.offset())...)
+		ORDER BY `+order+` LIMIT $5 OFFSET $6`, append(area, pg.size, pg.offset())...)
 	if err != nil {
 		s.internal(w, r, err)
 		return

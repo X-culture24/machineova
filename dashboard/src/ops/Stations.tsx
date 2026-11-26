@@ -7,6 +7,7 @@ import { useAsync } from "../useAsync";
 import { ops, statusLabel, type StationStatus } from "./api";
 import { NoElection, OpsHeader, Pager, StatusBadge } from "./components";
 import { StationDrawer } from "./StationDrawer";
+import { SortTh, useSort } from "../components/TableTools";
 
 const chips: { key: string; label: string; dot: string }[] = [
   { key: "not_open", label: "Not open", dot: "grey" },
@@ -34,7 +35,10 @@ export default function StationsPage() {
     const t = setTimeout(() => setDq(q), 250);
     return () => clearTimeout(t);
   }, [q]);
-  const list = useAsync(() => ops.stations({ status, q: dq, county, constituency, ward, page }), [status, dq, county, constituency, ward, page]);
+  const order = useSort(null, () => setPage(1));
+  const list = useAsync(() => ops.stations({ status, q: dq, county, constituency, ward, page, ...order.params }),
+    [status, dq, county, constituency, ward, page, order.sort?.key, order.sort?.dir]);
+  const th = (label: string, key: string, num = false) => <SortTh label={label} sortKey={key} sort={order.sort} onSort={order.toggle} num={num} />;
   const regions = useAsync(ops.areas, []);
 
   const setParam = (k: string, v: string | null) => {
@@ -107,7 +111,7 @@ export default function StationsPage() {
                         }} />
                       </th>
                     )}
-                    <th>Station</th><th>Ward</th><th className="num">Voters</th><th className="num">Turnout</th><th>Agents</th><th>Status</th><th />
+                    {th("Station", "name")}{th("Ward", "ward")}{th("Voters", "registered", true)}{th("Turnout", "turnout", true)}{th("Agents", "agents", true)}{th("Status", "status")}<th />
                   </tr>
                 </thead>
                 <tbody>
@@ -129,7 +133,7 @@ export default function StationsPage() {
                       <td data-label="Turnout" className="num accent-text">{s.turnout == null ? "—" : pct(s.turnout)}</td>
                       <td data-label="Agents">{s.agents === 0 ? <span className="badge red">Uncovered</span> : <span className="badge green">{s.agents} agent{s.agents > 1 ? "s" : ""}</span>}</td>
                       <td data-label="Status"><StatusBadge status={s.status} /></td>
-                      <td><button className="btn small secondary">Manage</button></td>
+                      <td><button type="button" className="btn small secondary" onClick={(e) => { e.stopPropagation(); setParam("station", s.code); }}>Manage</button></td>
                     </tr>
                   ))}
                 </tbody>

@@ -10,9 +10,10 @@ import { area, dateTime, initials } from "../format";
 import { useAsync, useDebounced } from "../useAsync";
 import { useTerms } from "../terms";
 import { maskId } from "../mask";
+import { compareCells } from "../components/TableTools";
 
 type Tab = "checkins" | "mobilized";
-type Filters = Pick<CheckinQuery, "sex" | "age_group" | "county" | "constituency" | "ward" | "region" | "home_county" | "by">;
+type Filters = Pick<CheckinQuery, "sex" | "age_group" | "county" | "constituency" | "ward" | "region" | "home_county" | "by" | "station">;
 type Sort = { sort: string; dir: "asc" | "desc" };
 const noFilters: Filters = {};
 const newest: Sort = { sort: "at", dir: "desc" };
@@ -72,11 +73,18 @@ export default function PeoplePage() {
       : api.mobilizations({ drive_id: group || undefined, q: dq })),
     [tab, group, dq, participants, JSON.stringify(filters), sort.sort, sort.dir],
   );
+  // Mobilized lists arrive whole and sort here; check-ins sort in the API.
+  const rows = tab === "checkins" || !list.data ? list.data : [...list.data].sort((a, b) => {
+    const pick = (p: PersonRecord) => (sort.sort === "name" ? p.name : sort.sort === "ward" ? area(p.constituency, p.ward)
+      : sort.sort === "event" ? p.group_name : sort.sort === "by" ? p.by : p.at);
+    const c = compareCells(pick(a), pick(b));
+    return sort.dir === "asc" ? c : -c;
+  });
   const filter = (key: keyof Filters, value: string) => setFilters((f) => ({ ...f, [key]: value || undefined }));
   const filtered = Object.values(filters).some(Boolean) || sort.sort !== newest.sort || sort.dir !== newest.dir;
   // Click a heading to sort by it; click again to reverse.
   const sortBy = (key: string) => setSort((s) => (s.sort === key ? { sort: key, dir: s.dir === "asc" ? "desc" : "asc" } : { sort: key, dir: key === "at" ? "desc" : "asc" }));
-  const th = (label: string, key: string) => tab !== "checkins" ? <th>{label}</th> : (
+  const th = (label: string, key: string) => (
     <th aria-sort={sort.sort === key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}>
       <button type="button" className="th-sort" onClick={() => sortBy(key)}>
         {label}{sort.sort === key ? (sort.dir === "asc" ? " ▲" : " ▼") : ""}
@@ -116,6 +124,7 @@ export default function PeoplePage() {
           <FacetSelect label="Ward" value={filters.ward} values={f?.ward} onChange={(v) => filter("ward", v)} />
           <FacetSelect label="Region" value={filters.region} values={f?.region} format={regionLabel} onChange={(v) => filter("region", v)} />
           <FacetSelect label="Home county" value={filters.home_county} values={f?.home_county} onChange={(v) => filter("home_county", v)} />
+          <FacetSelect label="Polling station" value={filters.station} values={f?.station} onChange={(v) => filter("station", v)} />
           <FacetSelect label="Checked in by" value={filters.by} values={f?.by} onChange={(v) => filter("by", v)} />
           {filtered && <button type="button" className="btn ghost" onClick={() => { setFilters(noFilters); setSort(newest); }}>Clear filters</button>}
           {list.data && <small className="muted" style={{ alignSelf: "center" }}>{list.data.length.toLocaleString()} shown{list.data.length >= 200 ? " (first 200; narrow the filters or export)" : ""}</small>}
@@ -123,14 +132,14 @@ export default function PeoplePage() {
       )}
       <ErrorNote error={list.error} />
       <Card>
-        {!list.data ? <Loading /> : list.data.length === 0 ? <Empty>No one matches.</Empty> : (
+        {!rows ? <Loading /> : rows.length === 0 ? <Empty>No one matches.</Empty> : (
           <div className="table-wrap">
             <table>
               <thead>
-                <tr>{th("Name", "name")}{t.chiefs && <th>Phone</th>}{tab === "checkins" && <>{th("Sex", "sex")}{th("Age", "age")}</>}{tab === "checkins" && <th>Participant type</th>}{tab === "checkins" && th("County", "county")}{th("Location", "ward")}{th(tab === "checkins" ? t.event : t.drive, "event")}{th("By", "by")}{th("Time", "at")}{tab === "checkins" && th("Region", "region")}</tr>
+                <tr>{th("Name", "name")}{t.chiefs && <th>Phone</th>}{tab === "checkins" && <>{th("Sex", "sex")}{th("Age", "age")}</>}{tab === "checkins" && <th>Participant type</th>}{tab === "checkins" && th("County", "county")}{th("Location", "ward")}{tab === "checkins" && th("Polling station", "station")}{th(tab === "checkins" ? t.event : t.drive, "event")}{th("By", "by")}{th("Time", "at")}{tab === "checkins" && th("Region", "region")}</tr>
               </thead>
               <tbody>
-                {list.data.map((p) => (
+                {rows.map((p) => (
                   <tr key={p.id}>
                     <td>
                       <div className="person">
@@ -143,6 +152,7 @@ export default function PeoplePage() {
                     {tab === "checkins" && <td>{p.selected_participant ? "Selected" : "General"}</td>}
                     {tab === "checkins" && <td>{p.county || "—"}</td>}
                     <td>{area(p.constituency, p.ward)}</td>
+                    {tab === "checkins" && <td>{p.station || "—"}</td>}
                     <td>{p.group_name}</td>
                     <td>{p.by}</td>
                     <td>{dateTime(p.at)}</td>

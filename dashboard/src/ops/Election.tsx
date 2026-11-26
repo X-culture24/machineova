@@ -6,6 +6,7 @@ import { date, num, pct } from "../format";
 import { useAsync } from "../useAsync";
 import { ops, type Drill, type ElectionSummary, type Level } from "./api";
 import { DrillCrumbs, drillInto, OpsHeader } from "./components";
+import { useTable } from "../components/TableTools";
 
 export default function ElectionPage() {
   const { me } = useAuth();
@@ -75,6 +76,13 @@ function ActiveElection({ e, canSetup, onComplete }: { e: ElectionSummary; canSe
   const [drill, setDrill] = useState<Drill>({});
   const detail = useAsync(() => ops.election(e.id, drill), [e.id, drill.county, drill.constituency, drill.ward]);
   const d = detail.data;
+  const regions = useTable(d?.drill.rows, [
+    { key: "name", label: d?.drill.child_level ?? "Area", sort: (r) => r.name },
+    { key: "races", label: "Races held here", sort: (r) => r.races, filter: (r) => r.races || undefined, filterLabel: "Races" },
+    { key: "stations", label: "Stations", num: true, sort: (r) => r.stations },
+    { key: "registered", label: "Reg. voters", num: true, sort: (r) => r.registered },
+    { key: "drill", label: "" },
+  ]);
   return (
     <>
       <Card>
@@ -110,11 +118,12 @@ function ActiveElection({ e, canSetup, onComplete }: { e: ElectionSummary; canSe
           </Card>
           <Card title="Region drill-down" extra={<small className="muted">{e.name}</small>}>
             <DrillCrumbs root={e.scope_label} drill={drill} onChange={setDrill} />
+            {regions.filterBar}
             <div className="table-wrap">
               <table className="cards">
-                <thead><tr><th>{d.drill.child_level}</th><th>Races held here</th><th className="num">Stations</th><th className="num">Reg. voters</th><th className="num" /></tr></thead>
+                <thead>{regions.head}</thead>
                 <tbody>
-                  {d.drill.rows.map((r) => {
+                  {regions.rows.map((r) => {
                     const next = drillInto(drill, d.drill.child_level, r.name);
                     return (
                       <tr key={r.name} className={next ? "clickable" : ""} onClick={() => next && setDrill(next)}>

@@ -240,6 +240,9 @@ class PersonRecord {
 
   /// On the event's participant list (check-ins only).
   final bool? selectedParticipant;
+
+  /// The event's polling station (check-ins only; empty when none).
+  final String station;
   final DateTime at;
 
   PersonRecord.fromJson(Map<String, dynamic> j)
@@ -257,6 +260,7 @@ class PersonRecord {
         sex = (j['sex'] as String?) ?? '',
         age = (j['age'] as num?)?.toInt(),
         ageGroup = j['age_group'] as String?,
+        station = (j['station'] as String?) ?? '',
         at = DateTime.parse(j['at']).toLocal();
 }
 
@@ -272,7 +276,7 @@ class FacetValue {
 
 /// Filters and sort for the check-in list; empty fields are not sent.
 class CheckinQuery {
-  final Map<String, String> filters; // sex, age_group, county, constituency, ward, region, home_county, by
+  final Map<String, String> filters; // sex, age_group, county, constituency, ward, region, home_county, station, by
   final String sort; // at, name, age, county, ward, …
   final bool descending;
   const CheckinQuery({this.filters = const {}, this.sort = 'at', this.descending = true});
