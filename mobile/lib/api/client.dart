@@ -267,9 +267,20 @@ class ApiClient {
   Future<SendResult> checkin(String eventId, Map<String, String?> person, {required String label}) =>
       send('POST', '/api/checkins', {'event_id': eventId, ..._clean(person)}, label: label, scope: 'checkin:$eventId');
 
-  Future<List<PersonRecord>> checkins({String? eventId, String? q, String? participants}) async {
-    final r = await get('/api/checkins', query: {'event_id': eventId, 'q': q, 'participants': participants});
+  Future<List<PersonRecord>> checkins(
+      {String? eventId, String? q, String? participants, CheckinQuery query = const CheckinQuery()}) async {
+    final r = await get('/api/checkins',
+        query: {'event_id': eventId, 'q': q, 'participants': participants, ...query.params});
     return [for (final p in r as List) PersonRecord.fromJson(p)];
+  }
+
+  /// The values each check-in filter can take (with counts) for an event and participant selection.
+  Future<Map<String, List<FacetValue>>> checkinFacets({String? eventId, String? participants}) async {
+    final r = await get('/api/checkins/facets', query: {'event_id': eventId, 'participants': participants});
+    return {
+      for (final e in (r as Map<String, dynamic>).entries)
+        e.key: [for (final f in e.value as List) FacetValue.fromJson(f as Map<String, dynamic>)],
+    };
   }
 
   // ---- drives & mobilization ----

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../phone.dart';
 import '../api/client.dart';
 import '../api/models.dart';
 import '../offline/sync.dart';
@@ -216,6 +217,11 @@ class _IssueFormState extends State<IssueForm> {
       setState(() => _error = _category == null ? 'Pick the kind of problem.' : 'Describe what happened.');
       return;
     }
+    final phoneIssue = phoneValidator(required: false)(_phone.text);
+    if (phoneIssue != null) {
+      setState(() => _error = phoneIssue);
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -227,7 +233,7 @@ class _IssueFormState extends State<IssueForm> {
         'category': _category,
         'chief_name': _name.text,
         'national_id': _id.text,
-        'phone': _phone.text,
+        'phone': kenyanMobile(_phone.text) ?? _phone.text.trim(),
         'location': _location.text,
         'description': _what.text,
         'action_taken': _action.text,
@@ -305,7 +311,7 @@ class _IssueFormState extends State<IssueForm> {
           const SizedBox(height: 12),
           TextField(key: const Key('issue-name'), controller: _name, decoration: _dec('Member’s name (optional)'), textCapitalization: TextCapitalization.words),
           const SizedBox(height: 12),
-          TextField(key: const Key('issue-phone'), controller: _phone, keyboardType: TextInputType.phone, decoration: _dec('Phone number (optional)')),
+          TextField(key: const Key('issue-phone'), controller: _phone, keyboardType: TextInputType.phone, decoration: _dec('Phone number (optional)').copyWith(hintText: '07XX XXX XXX')),
           const SizedBox(height: 12),
           TextField(key: const Key('issue-location'), controller: _location, decoration: _dec('Location (optional)', hint: 'e.g. Kapropita, Kabarnet')),
           const SizedBox(height: 12),

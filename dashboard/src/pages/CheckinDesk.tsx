@@ -1,3 +1,4 @@
+import { kenyanMobile, phoneProblem } from "../phone";
 import SearchInput, { matchesSearch } from "../components/SearchInput";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -61,11 +62,16 @@ export default function CheckinDesk() {
   async function doCheckin(e: FormEvent) {
     e.preventDefault();
     if (busy || !eventId || !lookup) return;
+    const bad = phoneProblem(phone);
+    if (bad) {
+      setFlash({ tone: "red", text: bad });
+      return;
+    }
     setBusy(true);
     try {
       const res = await api.checkin(eventId, {
         national_id: nid,
-        phone,
+        phone: kenyanMobile(phone) ?? phone,
         // Whatever was typed (all optional): fills gaps in the register, never overrides it.
         ...Object.fromEntries(Object.entries(manual).filter(([, x]) => x.trim() !== "")),
         ...(!lookup.in_register ? loc : {}),
@@ -193,7 +199,9 @@ export default function CheckinDesk() {
                   </>
                 )}
                 <Field label={t.chiefs ? "Member’s phone number" : "Phone"}>
-                  <input type="tel" placeholder="07…, 01… or +254…" required={t.chiefs} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <input type="tel" inputMode="tel" placeholder="07XX XXX XXX" required={t.chiefs} value={phone}
+                    aria-invalid={!!phoneProblem(phone)} onChange={(e) => setPhone(e.target.value)} />
+                  {phone.trim() !== "" && phoneProblem(phone) && <small style={{ color: "var(--red)" }}>{phoneProblem(phone)}</small>}
                 </Field>
                 {v && lookup.in_region === false && (
                   <div className="origin-panel">

@@ -304,6 +304,10 @@ func (s *Server) createMobilization(w http.ResponseWriter, r *http.Request, p *P
 		writeErrCode(w, http.StatusBadRequest, "phone_required", "Enter the chief's phone number")
 		return
 	}
+	if !normalizePhoneInput(in.Phone) {
+		writeErrCode(w, http.StatusBadRequest, "phone_invalid", phoneInvalidMessage)
+		return
+	}
 	if msg, err := s.resolvePerson(r.Context(), &in.personInput, true); err != nil {
 		s.internal(w, r, err)
 		return

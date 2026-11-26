@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../phone.dart';
 import '../api/client.dart';
 import '../offline/store.dart';
 import '../offline/sync.dart';
@@ -134,8 +135,8 @@ class _CheckinFlowState extends State<CheckinFlow> {
     }
   }
 
-  static String? _phoneRequired(String? s) =>
-      (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? 'Enter the member’s phone number' : null;
+  static final _phoneRequired = phoneValidator(required: true);
+  static final _phoneOptional = phoneValidator(required: false);
 
   @override
   Widget build(BuildContext context) {
@@ -240,8 +241,8 @@ class _CheckinFlowState extends State<CheckinFlow> {
             key: const Key('phone-input'),
             controller: _f.phone,
             keyboardType: TextInputType.phone,
-            decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07…, 01… or +254…'),
-            validator: terms.chiefs ? _phoneRequired : null,
+            decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07XX XXX XXX'),
+            validator: terms.chiefs ? _phoneRequired : _phoneOptional,
           ),
           // Known person outside the event area: show where they're from, from the records.
           if (v != null && !l.inRegion) ...[const SizedBox(height: 12), OriginPanel(v)],
@@ -272,8 +273,8 @@ class _CheckinFlowState extends State<CheckinFlow> {
             TextFormField(
               controller: _f.phone,
               keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07…, 01… or +254…'),
-              validator: terms.chiefs ? _phoneRequired : null,
+              decoration: InputDecoration(labelText: terms.phoneLabel, hintText: '07XX XXX XXX'),
+              validator: terms.chiefs ? _phoneRequired : _phoneOptional,
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,

@@ -53,6 +53,8 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
   Timer? _debounce;
   List<PersonRecord>? _rows;
   String? _error;
+  CheckinQuery _query = const CheckinQuery();
+  Map<String, List<FacetValue>> _facets = const {};
 
   @override
   bool get wantKeepAlive => true;
@@ -62,6 +64,123 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
     super.initState();
     _loadGroups();
     _load();
+    _loadFacets();
+  }
+
+  Future<void> _loadFacets() async {
+    if (!widget.checkins) return;
+    try {
+      final f = await api.checkinFacets(eventId: _groupId, participants: _participants);
+      if (mounted) setState(() => _facets = f);
+    } catch (_) {
+      // Filters fall back to none; the list reports errors itself.
+    }
+  }
+
+  static const _sorts = [
+    ('at', true, 'Newest first'),
+    ('at', false, 'Oldest first'),
+    ('name', false, 'Name A–Z'),
+    ('name', true, 'Name Z–A'),
+    ('age', false, 'Youngest first'),
+    ('age', true, 'Oldest (age) first'),
+    ('sex', false, 'Sex'),
+    ('county', false, 'County'),
+    ('constituency', false, 'Constituency'),
+    ('ward', false, 'Ward'),
+    ('region', true, 'In region first'),
+    ('event', false, 'Event'),
+    ('by', false, 'Checked in by'),
+  ];
+
+  static const _filterLabels = [
+    ('sex', 'Sex'),
+    ('age_group', 'Age group'),
+    ('county', 'County'),
+    ('constituency', 'Constituency'),
+    ('ward', 'Ward'),
+    ('region', 'Region'),
+    ('home_county', 'Home county'),
+    ('by', 'Checked in by'),
+  ];
+
+  String _facetLabel(String key, FacetValue f) => switch ((key, f.value)) {
+        ('sex', 'F') => 'Female',
+        ('sex', 'M') => 'Male',
+        ('region', 'in') => 'In region',
+        ('region', 'out') => 'Out of region',
+        _ => f.label,
+      };
+
+  /// Sort and demographic filters in a sheet; applied when closed with Show.
+  Future<void> _openFilters() async {
+    var filters = Map<String, String>.from(_query.filters);
+    var sort = (_query.sort, _query.descending);
+    final applied = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+            child: SingleChildScrollView(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                const Text('Sort & filter', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<int>(
+                  key: const Key('people-sort'),
+                  initialValue: _sorts.indexWhere((x) => x.$1 == sort.$1 && x.$2 == sort.$2).clamp(0, _sorts.length - 1),
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Sort by', isDense: true),
+                  items: [for (var i = 0; i < _sorts.length; i++) DropdownMenuItem(value: i, child: Text(_sorts[i].$3))],
+                  onChanged: (i) => setSheet(() => sort = (_sorts[i!].$1, _sorts[i].$2)),
+                ),
+                for (final (key, label) in _filterLabels)
+                  if ((_facets[key] ?? const []).isNotEmpty || filters[key] != null) ...[
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String?>(
+                      key: Key('people-filter-$key'),
+                      initialValue: filters[key],
+                      isExpanded: true,
+                      decoration: InputDecoration(labelText: label, isDense: true),
+                      items: [
+                        DropdownMenuItem(value: null, child: Text('All · ${label.toLowerCase()}')),
+                        for (final f in _facets[key] ?? const <FacetValue>[])
+                          DropdownMenuItem(
+                              value: f.value,
+                              child: Text('${_facetLabel(key, f)} (${fmtNum(f.count)})', overflow: TextOverflow.ellipsis)),
+                        if (filters[key] != null && !(_facets[key] ?? const []).any((f) => f.value == filters[key]))
+                          DropdownMenuItem(value: filters[key], child: Text(filters[key]!)),
+                      ],
+                      onChanged: (v) => setSheet(() => v == null ? filters.remove(key) : filters[key] = v),
+                    ),
+                  ],
+                const SizedBox(height: 16),
+                Row(children: [
+                  TextButton(
+                    onPressed: () => setSheet(() {
+                      filters = {};
+                      sort = ('at', true);
+                    }),
+                    child: const Text('Clear'),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                      key: const Key('people-filter-apply'),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Show')),
+                ]),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (applied == true && mounted) {
+      setState(() => _query = CheckinQuery(filters: filters, sort: sort.$1, descending: sort.$2));
+      _load();
+    }
   }
 
   @override
@@ -89,7 +208,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
     try {
       final q = _search.text.trim();
       final rows = widget.checkins
-          ? await api.checkins(eventId: _groupId, q: q, participants: _participants)
+          ? await api.checkins(eventId: _groupId, q: q, participants: _participants, query: _query)
           : await api.mobilizations(driveId: _groupId, q: q);
       if (mounted && request == _request) {
         setState(() {
@@ -123,6 +242,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
               onChanged: (v) {
                 setState(() => _groupId = v);
                 _load();
+                _loadFacets();
               },
             ),
           ),
@@ -130,17 +250,34 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: TextField(
-          controller: _search,
-          decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              hintText: widget.checkins ? 'Search name, ID or phone' : 'Search name or ID number',
-              isDense: true),
-          onChanged: (_) {
-            _debounce?.cancel();
-            _debounce = Timer(const Duration(milliseconds: 350), _load);
-          },
-        ),
+        child: Row(children: [
+          Expanded(
+            child: TextField(
+              controller: _search,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: widget.checkins ? 'Search name, ID or phone' : 'Search name or ID number',
+                  isDense: true),
+              onChanged: (_) {
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 350), _load);
+              },
+            ),
+          ),
+          if (widget.checkins) ...[
+            const SizedBox(width: 8),
+            Badge(
+              isLabelVisible: !_query.isDefault,
+              label: Text('${_query.filters.length + (_query.sort == 'at' && _query.descending ? 0 : 1)}'),
+              child: IconButton.filledTonal(
+                key: const Key('people-filters'),
+                tooltip: 'Sort & filter',
+                icon: const Icon(Icons.tune),
+                onPressed: _openFilters,
+              ),
+            ),
+          ],
+        ]),
       ),
       if (widget.checkins)
         SingleChildScrollView(
@@ -160,6 +297,7 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
                 onSelected: (_) {
                   setState(() => _participants = value);
                   _load();
+                  _loadFacets();
                 },
               ),
               const SizedBox(width: 8),
@@ -197,7 +335,11 @@ class _PeopleListState extends State<_PeopleList> with AutomaticKeepAliveClientM
                               title: Text(p.name.isEmpty ? 'Name not on record' : p.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                               subtitle: Text(
                                   widget.checkins
-                                      ? '${p.phone ?? 'No phone'} · ${p.ward}\nID ${maskId(p.nationalId)}'
+                                      ? '${p.phone ?? 'No phone'} · ${p.ward}\n${[
+                                          'ID ${maskId(p.nationalId)}',
+                                          if (p.sex == 'F') 'Female' else if (p.sex == 'M') 'Male',
+                                          if (p.age != null) '${p.age} yrs',
+                                        ].join(' · ')}'
                                           '${p.selectedParticipant == null ? '' : p.selectedParticipant! ? ' · Selected' : ' · General'}'
                                       : 'ID ${maskId(p.nationalId)} · ${p.ward}\n${p.groupName}',
                                   maxLines: 2),

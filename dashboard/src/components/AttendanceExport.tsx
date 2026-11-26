@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { api, type ParticipantFilter, type PersonRecord } from "../api";
+import { api, type CheckinQuery, type ParticipantFilter, type PersonRecord } from "../api";
 import { dateTime } from "../format";
 import { createPaymentPdf, paymentHeaders, paymentRecipients, paymentRows } from "./paymentExport";
 import ParticipantTypeFilter from "./ParticipantFilter";
@@ -70,7 +70,7 @@ async function exportMpesa(rows: PersonRecord[], amount: number, purpose: string
   download(new Blob([new Uint8Array(bytes)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), filename);
 }
 
-export default function AttendanceExport({ eventId, eventName, query, participants = "" }: { eventId?: string; eventName?: string; query: string; participants?: ParticipantFilter }) {
+export default function AttendanceExport({ eventId, eventName, query, participants = "", filters = {} }: { eventId?: string; eventName?: string; query: string; participants?: ParticipantFilter; filters?: CheckinQuery }) {
   const [dialog, setDialog] = useState<"normal" | "mpesa" | null>(null);
   const [format, setFormat] = useState<"csv" | "pdf">("csv");
   const [paymentFormat, setPaymentFormat] = useState<"xlsx" | "pdf">("xlsx");
@@ -102,7 +102,7 @@ export default function AttendanceExport({ eventId, eventName, query, participan
     setBusy(true);
     setError(null);
     try {
-      const rows = await api.checkins({ event_id: eventId, q: query, participants: scope, export: "true" });
+      const rows = await api.checkins({ ...filters, event_id: eventId, q: query, participants: scope, export: "true" });
       if (!rows.length) throw new Error("No check-ins match this export.");
       const prefix = dialog === "mpesa" ? "mpesa-payments" : "attendance";
       const filename = `${prefix}-${new Date().toISOString().slice(0, 10)}.${fileType}`;

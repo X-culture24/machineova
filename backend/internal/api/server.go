@@ -102,6 +102,7 @@ func (s *Server) Handler() http.Handler {
 	a("GET /api/checkins/lookup", s.checkinLookup)
 	a("POST /api/checkins", s.createCheckin)
 	a("GET /api/checkins", s.listCheckins)
+	a("GET /api/checkins/facets", s.checkinFacets)
 	a("GET /api/events/geography", s.eventGeography)
 	a("GET /api/events/{id}/station-coverage", s.eventStationCoverage)
 

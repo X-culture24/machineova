@@ -88,6 +88,8 @@ func (in *issueInput) clean() string {
 		return "A chief detail is too long"
 	case in.Status != "open" && in.Status != "resolved":
 		return "Status must be open or resolved"
+	case !normalizePhoneInput(&in.Phone):
+		return phoneInvalidMessage
 	}
 	return ""
 }

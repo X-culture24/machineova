@@ -233,6 +233,11 @@ class PersonRecord {
   final String? phone;
   final bool? inRegion;
 
+  /// Check-ins only: sex (F/M or empty), age in years and its band (18–24 …, Unknown).
+  final String sex;
+  final int? age;
+  final String? ageGroup;
+
   /// On the event's participant list (check-ins only).
   final bool? selectedParticipant;
   final DateTime at;
@@ -249,7 +254,30 @@ class PersonRecord {
         groupName = j['group_name'],
         inRegion = j['in_region'] as bool?,
         selectedParticipant = j['selected_participant'] as bool?,
+        sex = (j['sex'] as String?) ?? '',
+        age = (j['age'] as num?)?.toInt(),
+        ageGroup = j['age_group'] as String?,
         at = DateTime.parse(j['at']).toLocal();
+}
+
+/// One value a check-in filter can take, with how many check-ins have it.
+class FacetValue {
+  final String value, label;
+  final int count;
+  FacetValue.fromJson(Map<String, dynamic> j)
+      : value = j['value'] as String,
+        label = ((j['label'] as String?) ?? '').isEmpty ? j['value'] as String : j['label'] as String,
+        count = (j['count'] as num).toInt();
+}
+
+/// Filters and sort for the check-in list; empty fields are not sent.
+class CheckinQuery {
+  final Map<String, String> filters; // sex, age_group, county, constituency, ward, region, home_county, by
+  final String sort; // at, name, age, county, ward, …
+  final bool descending;
+  const CheckinQuery({this.filters = const {}, this.sort = 'at', this.descending = true});
+  bool get isDefault => filters.isEmpty && sort == 'at' && descending;
+  Map<String, String?> get params => {...filters, 'sort': sort, 'dir': descending ? 'desc' : 'asc'};
 }
 
 class FeedItem {

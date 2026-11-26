@@ -178,16 +178,30 @@ export interface PersonRecord {
   national_id: string;
   name: string;
   sex: "F" | "M";
+  age?: number | null;
+  age_group?: string;
   phone: string | null;
   county: string;
   constituency: string;
   ward: string;
   in_region?: boolean;
+  home_county?: string | null;
   at: string;
   by: string;
+  by_id?: string;
   group_id: string;
   group_name: string;
 }
+
+/** Filters and sort for the check-in list (all optional). */
+export interface CheckinQuery {
+  event_id?: string; q?: string; participants?: ParticipantFilter; export?: string;
+  sex?: string; age_group?: string; county?: string; constituency?: string; ward?: string;
+  region?: "" | "in" | "out"; home_county?: string; by?: string; sort?: string; dir?: "asc" | "desc";
+}
+
+export interface FacetValue { value: string; label?: string; count: number }
+export type CheckinFacets = Record<"sex" | "age_group" | "county" | "constituency" | "ward" | "region" | "home_county", FacetValue[]> & { by?: FacetValue[] };
 
 export interface NameCount {
   name: string;
@@ -368,8 +382,10 @@ export const api = {
     request<Lookup>("GET", `/api/checkins/lookup${qs({ event_id, national_id })}`),
   checkin: (event_id: string, p: PersonInput) =>
     request<{ id: string; in_region: boolean; name: string }>("POST", "/api/checkins", { event_id, ...p }),
-  checkins: (params: { event_id?: string; q?: string; participants?: ParticipantFilter; export?: string } = {}) =>
-    request<PersonRecord[]>("GET", `/api/checkins${qs(params)}`),
+  checkins: (params: CheckinQuery = {}) =>
+    request<PersonRecord[]>("GET", `/api/checkins${qs(params as Record<string, string | undefined>)}`),
+  checkinFacets: (params: { event_id?: string; participants?: ParticipantFilter } = {}) =>
+    request<CheckinFacets>("GET", `/api/checkins/facets${qs(params)}`),
 
   drives: (activeOnly = false) =>
     request<{

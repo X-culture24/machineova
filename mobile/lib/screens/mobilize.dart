@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../phone.dart';
 import '../api/client.dart';
 import '../offline/store.dart';
 import '../offline/sync.dart';
@@ -251,10 +252,8 @@ class _MobilizeFlowState extends State<MobilizeFlow> {
             controller: _f.phone,
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-                labelText: terms.chiefs ? 'Member’s phone number' : 'Phone', hintText: '07…, 01… or +254…'),
-            validator: terms.chiefs
-                ? (s) => (s ?? '').replaceAll(RegExp(r'[^0-9]'), '').length < 9 ? 'Enter the member’s phone number' : null
-                : null,
+                labelText: terms.chiefs ? 'Member’s phone number' : 'Phone', hintText: '07XX XXX XXX'),
+            validator: phoneValidator(required: terms.chiefs),
           ),
           const SizedBox(height: 10),
           if (offline || l.voter == null) LocationInputs(_f, required: !offline),

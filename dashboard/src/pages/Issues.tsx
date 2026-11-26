@@ -1,3 +1,4 @@
+import { kenyanMobile, phoneProblem } from "../phone";
 import { useSearchParams } from "react-router-dom";
 import SearchInput from "../components/SearchInput";
 import { useState, type FormEvent } from "react";
@@ -58,15 +59,21 @@ function IssueWorkspace({ eventId }: { eventId: string | null }) {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    const bad = phoneProblem(f.phone);
+    if (bad) {
+      setErr(bad);
+      return;
+    }
+    const body = { ...f, phone: kenyanMobile(f.phone) ?? f.phone.trim() };
     setBusy(true);
     setErr(null);
     setNote(null);
     try {
       if (editing) {
-        await api.updateIssue(editing.id, f);
+        await api.updateIssue(editing.id, body);
         setNote("Issue updated.");
       } else {
-        await api.createIssue(f);
+        await api.createIssue(body);
         setNote("Issue recorded.");
       }
       setEditing(null);
@@ -146,7 +153,8 @@ function IssueWorkspace({ eventId }: { eventId: string | null }) {
                   </div>
                 </Field>
                 <Field label="Member’s name (optional)"><input value={f.chief_name} onChange={set("chief_name")} /></Field>
-                <Field label="Phone number (optional)"><input value={f.phone} onChange={set("phone")} inputMode="tel" /></Field>
+                <Field label="Phone number (optional)"><input value={f.phone} onChange={set("phone")} inputMode="tel" type="tel" placeholder="07XX XXX XXX" aria-invalid={!!phoneProblem(f.phone)} />
+                  {phoneProblem(f.phone) && <small style={{ color: "var(--red)" }}>{phoneProblem(f.phone)}</small>}</Field>
                 <Field label="Location (optional)"><input value={f.location} onChange={set("location")} placeholder="e.g. Kapropita, Kabarnet" /></Field>
               </div>
               <Field label="What happened">
